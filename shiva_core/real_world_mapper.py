@@ -258,14 +258,28 @@ class RealWorldMapper:
         return best_u, best_ev
 
     # -- prediction -----------------------------------------------------------------
+    def environment_sample(self, ctx: Any) -> Any:
+        """Realistic environmental scatter (1 sigma): gravity 0.2 % (latitude/altitude),
+        air density 5 % (weather/altitude), ambient pressure 2 %, liquid viscosity 5 %
+        (temperature).  Material scatter is applied separately."""
+        f = lambda sd: float(np.exp(self.rng.normal(0.0, sd)))
+        return replace(ctx, g=ctx.g * f(0.002), air_density=ctx.air_density * f(0.05),
+                       ambient_pressure=ctx.ambient_pressure * f(0.02),
+                       liquid_viscosity=ctx.liquid_viscosity * f(0.05))
+
     def monte_carlo(self, domain: Any, params: Dict[str, float], ctx: Any, material: Material
                     ) -> Tuple[Dict[str, Dict[str, float]], float]:
+        """As-built prediction: material property scatter (5 %), 1 % dimensional
+        tolerance on fabricated geometry, environmental scatter.  Integer and
+        catalogue parameters (certified stock items) are taken at nominal value."""
         rows: Dict[str, List[float]] = {}
         feas = 0
+        fixed = set(domain.catalog_params)
         for _ in range(self.n_mc):
             mat = material.perturbed(self.rng)
-            p = {k: (v if domain.is_integer(k) else v * float(self.rng.normal(1.0, 0.01))) for k, v in params.items()}
-            e = domain.evaluate(p, ctx.perturbed(self.rng, 0.02), mat)
+            p = {k: (v if (domain.is_integer(k) or k in fixed) else v * float(self.rng.normal(1.0, 0.01)))
+                 for k, v in params.items()}
+            e = domain.evaluate(p, self.environment_sample(ctx), mat)
             feas += int(e.feasible)
             for k, v in e.metrics.items():
                 if isinstance(v, (int, float)) and np.isfinite(v):

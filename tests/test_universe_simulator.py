@@ -121,3 +121,10 @@ def test_periodic_and_reflective_boundaries_stay_in_box():
     for b in ("periodic", "reflective"):
         res = UniverseSimulator(g, small(boundary=b, initial_condition="uniform", box_size=3.0)).run()
         assert np.all(np.abs(res.positions) <= 1.5 + 1e-9)
+
+
+def test_anti_de_sitter_universe_is_fully_bound():
+    g = PhysicsMutator.baseline()
+    g.cosmology.Lambda = -0.5
+    res = UniverseSimulator(g, small(steps=200)).run()
+    assert np.all(res.bound_fraction == 1.0)

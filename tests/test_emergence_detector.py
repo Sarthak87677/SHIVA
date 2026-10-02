@@ -62,3 +62,15 @@ def test_analyze_full_run_scores_in_unit_interval():
     assert 0.0 <= rep.richness <= 1.0
     assert rep.metrics["chaos"]["lyapunov"] > 0
     assert rep.to_dict()["richness"] == rep.richness
+
+
+def test_oscillation_estimator_ignores_near_nyquist_aliasing():
+    from shiva_core.emergence_detector import _peak_ratio
+
+    t = np.arange(200) * 0.04
+    rng = np.random.default_rng(6)
+    resolved = np.sin(2 * np.pi * t / 1.0) + 0.1 * rng.normal(size=t.size)  # 25 samples per cycle
+    aliased = np.sin(2 * np.pi * t / 0.12) + 0.1 * rng.normal(size=t.size)  # 3 samples per cycle
+    r, period = _peak_ratio(resolved, t)
+    assert r > 30 and abs(period - 1.0) < 0.1
+    assert _peak_ratio(aliased, t)[0] < 10

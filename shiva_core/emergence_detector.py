@@ -325,7 +325,10 @@ def cusum_change_point(x: np.ndarray) -> Dict[str, float]:
 
 
 def _peak_ratio(x: np.ndarray, t: np.ndarray) -> Tuple[float, float]:
-    """Max periodogram peak / running-median background (>= 2 cycles)."""
+    """Max periodogram peak / running-median background, restricted to
+    *resolved* oscillations: at least 2 cycles in the record and at least 4
+    samples per cycle (f <= f_s / 4), so near-Nyquist aliasing of fast
+    microscopic motion (e.g. tight binaries) is not mistaken for a collective mode."""
     x = np.asarray(x, dtype=float)
     if len(x) < 16 or not np.all(np.isfinite(x)) or np.std(x) < 1e-12:
         return 1.0, float("nan")
@@ -340,7 +343,8 @@ def _peak_ratio(x: np.ndarray, t: np.ndarray) -> Tuple[float, float]:
     bg = ndimage.median_filter(np.log(P + 1e-300), size=9, mode="nearest")
     ratio = P / np.exp(bg)
     T = tt[-1]
-    ok = f * T >= 2.0
+    fs = 1.0 / float(np.mean(np.diff(t)))
+    ok = (f * T >= 2.0) & (f <= fs / 4.0)
     if not ok.any():
         return 1.0, float("nan")
     i = int(np.argmax(np.where(ok, ratio, 0)))

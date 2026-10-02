@@ -301,7 +301,9 @@ class ForceModel:
         self.eps2 = float(cfg.softening) ** 2
         self.dt = float(cfg.dt)
         self.N = N
-        self.confining = genome.gravity.k_eff <= 1.0 and g.law != "yukawa"
+        # Confining universes: every particle is bound (log/positive-power gravity, or an
+        # anti-de Sitter Lambda < 0 harmonic well in an open box).
+        self.confining = (genome.gravity.k_eff <= 1.0 and g.law != "yukawa") or self.Lambda < 0
 
     # -- geometry ---------------------------------------------------------------
     def displacements(self, X: np.ndarray, Y: Optional[np.ndarray] = None) -> np.ndarray:

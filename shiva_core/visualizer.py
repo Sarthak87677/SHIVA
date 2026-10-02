@@ -525,14 +525,16 @@ def plot_dashboard(run: Any, report: Any, search: Optional[Dict[str, Any]] = Non
         ax.set_title(f"Universe at t = {res.times[-1]:.1f}")
         ax = fig.add_subplot(gs[1, 1])
         E = res.energy
-        ax.plot(res.times, np.maximum(np.abs(E - E[0]) / res.energy_scale, 1e-17), color=CATEGORICAL[0], label="energy")
+        nt = res.noether
+        ax.plot(res.times, np.maximum(np.abs(E - E[0]) / res.energy_scale, 1e-17), color=CATEGORICAL[0],
+                label=f"energy ({'conserved' if nt.energy else 'broken'} by symmetry)")
         ax.plot(res.times, np.maximum(np.linalg.norm(res.momentum - res.momentum[0], axis=1) / res.momentum_scale, 1e-17),
-                color=CATEGORICAL[1], label="momentum")
+                color=CATEGORICAL[1], label=f"momentum ({'conserved' if nt.momentum else 'broken'} by symmetry)")
         ax.set_yscale("log")
         ax.set_ylim(1e-18, 1e4)
         ax.set_title("Conservation drift")
         ax.set_xlabel("time")
-        ax.legend(loc="upper right")
+        ax.legend(loc="upper right", fontsize=6.5)
         ax = fig.add_subplot(gs[1, 3])
         items = list(report.scores.items())
         y = np.arange(len(items))[::-1]
