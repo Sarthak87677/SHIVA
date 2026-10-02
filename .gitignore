@@ -7,3 +7,4 @@ shiva_dashboard/output/
 *.egg-info/
 build/
 dist/
+SHIVA-1-update.zip
