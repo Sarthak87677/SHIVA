@@ -357,6 +357,15 @@ def run_pipeline(out_dir: str = "shiva_output/run", seed: int = 42, profile: str
     summary["wall_time_s"] = time.time() - t_start
     (out / "summary.json").write_text(json.dumps(_jsonable(summary), indent=1, default=str))
     (out / "results.md").write_text(results_markdown(summary))
+    try:  # interactive dashboard data (trajectories of the seed-0 test runs)
+        from .dashboard_server import trajectory_payload, write_dashboard_data
+
+        traj = {"best": trajectory_payload(runs["best"][0].particles, "best", best_genome.describe()),
+                "baseline": trajectory_payload(runs["baseline"][0].particles, "baseline", show[0].describe())}
+        write_dashboard_data(out, summary=json.loads((out / "summary.json").read_text()), trajectories=traj,
+                             verbose=False)
+    except Exception as exc:  # never fail a scientific run because of the dashboard
+        log(f"    (dashboard data not written: {exc})")
     log(f"[H] done in {summary['wall_time_s']:.0f}s -> {out}")
     summary["_objects"] = {"runs": runs, "tech": tech, "protos": protos, "bracket": br, "best_genome": best_genome,
                            "search": search}

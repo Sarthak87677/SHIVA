@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SHIVA-1 Console</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%233987e5' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%233987e5'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <div>
+      <div class="brand-name">SHIVA-1</div>
+      <div class="brand-sub" id="run-meta">meta-science console</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn" id="btn-help" title="Keyboard and gesture help (H)">Controls</button>
+    <button class="btn btn-accent" id="btn-gesture" title="Control with your hand via the webcam (G)">
+      <span class="dot" aria-hidden="true"></span> Hand control
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ===================================================== hero ===== -->
+  <section class="hero">
+    <div class="panel viewport-panel focusable" id="universe-panel" data-focus="universe">
+      <div class="panel-head overlay-top">
+        <div>
+          <h2>Universe</h2>
+          <div class="sub" id="universe-sub">evolved laws vs Newtonian gravity</div>
+        </div>
+        <div class="seg" role="group" aria-label="Universe">
+          <button data-mode="best" class="on">Evolved</button>
+          <button data-mode="baseline">Newtonian</button>
+          <button data-mode="both">Side by side</button>
+        </div>
+      </div>
+      <canvas id="universe-canvas" aria-label="3-D particle universe"></canvas>
+      <div class="vp-label" id="lbl-best">Evolved</div>
+      <div class="vp-label" id="lbl-baseline">Newtonian</div>
+      <div class="focus-chip">hand focus</div>
+      <div class="overlay-bottom">
+        <button class="icon-btn" id="btn-play" title="Play / pause (Space)" aria-label="Play or pause">❚❚</button>
+        <select id="speed" aria-label="Playback speed">
+          <option value="0.5">0.5×</option><option value="1" selected>1×</option>
+          <option value="2">2×</option><option value="4">4×</option>
+        </select>
+        <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Time">
+        <div class="readouts">
+          <div><span class="k">t</span> <span id="ro-time">0.00</span> <span class="u">t<sub>dyn</sub></span></div>
+          <div><span class="k">energy drift</span> <span id="ro-energy">–</span></div>
+          <div><span class="k">radius</span> <span id="ro-radius">–</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="tiles" id="tiles"></div>
+      <div class="panel console-panel">
+        <div class="panel-head">
+          <h2>Console</h2>
+          <div class="sub">type <kbd>help</kbd></div>
+        </div>
+        <div class="console-log" id="console-log" aria-live="polite"></div>
+        <form class="console-input" id="console-form" autocomplete="off">
+          <span aria-hidden="true">›</span>
+          <input id="console-input" placeholder="e.g. show gear · compare · explain chaos" aria-label="Command">
+        </form>
+      </div>
+    </aside>
+  </section>
+
+  <!-- =================================================== charts ===== -->
+  <section class="grid3">
+    <div class="panel chart-panel">
+      <div class="panel-head">
+        <div><h2>Emergent phenomena</h2><div class="sub">score 0–1 per phenomenon (seed 0 runs)</div></div>
+        <button class="btn btn-small" data-table="emergence">Table</button>
+      </div>
+      <div class="legend" id="legend-emergence"></div>
+      <div class="chart" id="chart-emergence"></div>
+    </div>
+    <div class="panel chart-panel">
+      <div class="panel-head">
+        <div><h2>Universe search</h2><div class="sub">fitness per generation</div></div>
+        <button class="btn btn-small" data-table="search">Table</button>
+      </div>
+      <div class="legend" id="legend-search"></div>
+      <div class="chart" id="chart-search"></div>
+      <div class="note" id="search-note"></div>
+    </div>
+    <div class="panel chart-panel">
+      <div class="panel-head">
+        <div><h2>Force laws</h2><div class="sub">|F(r)| for unit masses — click a law to hide it</div></div>
+        <button class="btn btn-small" data-table="forces">Table</button>
+      </div>
+      <div class="legend" id="legend-forces"></div>
+      <div class="chart" id="chart-forces"></div>
+    </div>
+  </section>
+
+  <!-- ================================================== noether ===== -->
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Symmetry → conservation (Noether check)</h2>
+        <div class="sub">where a symmetry predicts a conserved quantity, ✓ = the measured relative drift confirms it; “no symmetry” = nothing is guaranteed</div></div>
+      <div class="sub" id="noether-summary"></div>
+    </div>
+    <div class="noether" id="noether"></div>
+  </section>
+
+  <!-- ====================================================== lab ===== -->
+  <section class="lab">
+    <div class="panel lab-list">
+      <div class="panel-head"><div><h2>Technology lab</h2><div class="sub" id="lab-context"></div></div></div>
+      <div id="proto-list" class="proto-list" role="listbox" aria-label="Prototypes"></div>
+    </div>
+    <div class="panel viewport-panel focusable" id="cad-panel" data-focus="cad">
+      <div class="panel-head overlay-top">
+        <div><h2 id="cad-title">Prototype</h2><div class="sub" id="cad-sub"></div></div>
+        <div class="seg">
+          <button id="cad-prev" title="Previous (←)">‹</button>
+          <button id="cad-next" title="Next (→)">›</button>
+        </div>
+      </div>
+      <canvas id="cad-canvas" aria-label="3-D prototype model"></canvas>
+      <div class="focus-chip">hand focus</div>
+      <div class="cad-empty" id="cad-empty" hidden>No CAD model for this design.</div>
+    </div>
+    <div class="panel specs" id="specs"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><div><h2>Figures</h2><div class="sub">static figures from this run — click to enlarge</div></div></div>
+    <div class="figures" id="figures"></div>
+  </section>
+
+  <footer class="footer">
+    SHIVA-1 explores toy universes; alternate-physics results are not claims about nature. Prototypes are
+    concept-stage designs — rotating, pressurised, load-bearing or propulsive hardware needs qualified review.
+  </footer>
+</main>
+
+<!-- ================================================ hand control ===== -->
+<div class="gesture-dock" id="gesture-dock" hidden>
+  <div class="gesture-video">
+    <video id="gesture-video" playsinline muted></video>
+    <canvas id="gesture-overlay"></canvas>
+  </div>
+  <div class="gesture-state">
+    <div class="gesture-name" id="gesture-name">starting…</div>
+    <div class="gesture-status" id="gesture-status"></div>
+  </div>
+</div>
+
+<div class="modal" id="help-modal" hidden>
+  <div class="modal-card">
+    <div class="panel-head"><h2>Controls</h2><button class="btn btn-small" data-close>Close</button></div>
+    <div class="help-grid">
+      <div>
+        <h3>Hand gestures</h3>
+        <table class="kv">
+          <tr><td>✋ Open palm</td><td>move hand left/right/up/down to rotate the focused 3-D view</td></tr>
+          <tr><td>🤏 Pinch</td><td>raise / lower the pinched hand to zoom in / out</td></tr>
+          <tr><td>✊ Fist (hold)</td><td>play / pause the universe</td></tr>
+          <tr><td>✌️ Two fingers (hold)</td><td>switch Evolved / Newtonian / side by side</td></tr>
+          <tr><td>3️⃣ Three fingers (hold)</td><td>move focus between universe and prototype viewer</td></tr>
+          <tr><td>☝️ Point + swipe</td><td>next / previous prototype · scrub time in the universe</td></tr>
+        </table>
+        <p class="note">Hand tracking runs locally in your browser (MediaPipe); no video leaves your computer.
+          The first start downloads the model (~18 MB) and needs internet.</p>
+      </div>
+      <div>
+        <h3>Keyboard & mouse</h3>
+        <table class="kv">
+          <tr><td><kbd>Space</kbd></td><td>play / pause</td></tr>
+          <tr><td><kbd>B</kbd></td><td>cycle universe view</td></tr>
+          <tr><td><kbd>F</kbd></td><td>switch focus</td></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>previous / next prototype</td></tr>
+          <tr><td><kbd>R</kbd></td><td>reset cameras</td></tr>
+          <tr><td><kbd>G</kbd></td><td>hand control on / off</td></tr>
+          <tr><td>drag · wheel</td><td>rotate · zoom any 3-D view</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="lightbox" hidden><img id="lightbox-img" alt=""></div>
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+<div class="fatal" id="fatal" hidden></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

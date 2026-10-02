@@ -8,3 +8,4 @@ shiva_dashboard/output/
 build/
 dist/
 SHIVA-1-update.zip
+shiva_docs/results/dashboard_data.json

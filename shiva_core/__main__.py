@@ -8,7 +8,7 @@ mutate     print mutated genomes with their symbolic laws and Noether structure
 simulate   simulate one genome (baseline / random / JSON file) and report emergence
 search     universe search only
 evolve     evolve technology domains under a genome's physics
-cad        regenerate CAD for a champion JSON or a domain's reference design
+dashboard  interactive 3-D browser dashboard with optional hand-gesture control
 """
 
 from __future__ import annotations
@@ -79,7 +79,19 @@ def main(argv=None) -> int:
     p.add_argument("--map", action="store_true", help="also map champions to the real world and write CAD")
     p.add_argument("--out", default="shiva_output/evolve")
 
+    p = sub.add_parser("dashboard", help="interactive 3-D web dashboard (with optional hand-gesture control)")
+    p.add_argument("--run", default=None, help="run directory (default: most recent in shiva_output/)")
+    p.add_argument("--port", type=int, default=8765)
+    p.add_argument("--no-browser", action="store_true")
+    p.add_argument("--rebuild", action="store_true", help="re-export dashboard_data.json")
+
     a = ap.parse_args(argv)
+
+    if a.cmd == "dashboard":
+        from .dashboard_server import serve
+
+        serve(a.run, port=a.port, open_browser=not a.no_browser, rebuild=a.rebuild)
+        return 0
 
     if a.cmd in ("run", "demo"):
         from .pipeline import run_pipeline
