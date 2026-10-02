@@ -29,7 +29,7 @@
 Evaluations: 59; best fitness 0.5764 (after CMA-ES: 0.5885).
 
 ```
-PhysicsGenome shiva-best-02d1d5e62596 (gen 4, dim 3)
+PhysicsGenome shiva-best-518a60c477c7 (gen 4, dim 3)
   gravity : tensor, G=1, k=2.5, Q-eig=[0.319, 1.489, 2.106]
   em      : off (alpha/alpha0=1)
   inertia : newtonian, masses=equal
@@ -41,25 +41,25 @@ PhysicsGenome shiva-best-02d1d5e62596 (gen 4, dim 3)
 
 | genome | gravity law | fitness | richness | novelty | feasibility |
 |---|---|---|---|---|---|
-| 02d1d5e62596 | tensor | 0.5764 | 0.603 | 0.0 | 0.828 |
-| fafd2198ebbb | inverse_k | 0.5687 | 0.6046 | 0.2433 | 0.761 |
-| e6f3c9c13912 | inverse_k | 0.5687 | 0.6046 | 0.0 | 0.761 |
-| 01ff22092e7e | inverse_k | 0.5635 | 0.5963 | 0.0 | 0.78 |
-| 777685b15bf3 | inverse_k | 0.5613 | 0.5963 | 0.1925 | 0.766 |
-| a16e7aeca948 | tensor | 0.5575 | 0.579 | 0.2248 | 0.857 |
-| 348a0d1f7bfd | tensor | 0.5326 | 0.5454 | 0.2522 | 0.9 |
-| 39d470500810 | inverse_k | 0.5323 | 0.553 | 0.16 | 0.85 |
-| 9def1ddd84b3 | inverse_k | 0.5298 | 0.5539 | 0.1702 | 0.826 |
-| 12c149ba130c | inverse_k | 0.5227 | 0.542 | 0.132 | 0.857 |
+| 518a60c477c7 | tensor | 0.5764 | 0.603 | 0.0 | 0.828 |
+| 11e760b54b9a | inverse_k | 0.5687 | 0.6046 | 0.2433 | 0.761 |
+| 15f81c563fe3 | inverse_k | 0.5687 | 0.6046 | 0.0 | 0.761 |
+| bff6de480328 | inverse_k | 0.5635 | 0.5963 | 0.0 | 0.78 |
+| 2ef70fc5ed06 | inverse_k | 0.5613 | 0.5963 | 0.1925 | 0.766 |
+| ea3b2e57a6b4 | tensor | 0.5575 | 0.579 | 0.2248 | 0.857 |
+| b5893e8a8d76 | tensor | 0.5326 | 0.5454 | 0.2522 | 0.9 |
+| d5424d059d46 | inverse_k | 0.5323 | 0.553 | 0.16 | 0.85 |
+| 5de07d59c7a1 | inverse_k | 0.5298 | 0.5539 | 0.1702 | 0.826 |
+| 39c99bfdf960 | inverse_k | 0.5227 | 0.542 | 0.132 | 0.857 |
 
 Held-out validation at final resolution (fresh seeds):
 
 | candidate | gravity law | search fitness | validated richness |
 |---|---|---|---|
-| e27822b81220 | tensor | 0.589 | 0.501 +/- 0.073 |
-| 02d1d5e62596 | tensor | 0.576 | 0.654 +/- 0.019 |
-| fafd2198ebbb | inverse_k | 0.569 | 0.621 +/- 0.087 |
-| e6f3c9c13912 | inverse_k | 0.569 | 0.621 +/- 0.087 |
+| 0c9ea847fffe | tensor | 0.589 | 0.501 +/- 0.073 |
+| 518a60c477c7 | tensor | 0.576 | 0.654 +/- 0.019 |
+| 11e760b54b9a | inverse_k | 0.569 | 0.621 +/- 0.087 |
+| 15f81c563fe3 | inverse_k | 0.569 | 0.621 +/- 0.087 |
 
 ## Emergence: best universe vs Newtonian baseline
 | phenomenon | best | baseline |
@@ -116,4 +116,4 @@ Generative bracket: fitness 0.157 under alien physics, 0.157 for the same shape 
 | cosmic_habitat | CFRP unidirectional (fibre direction) | True | 0.999 | 0.65 -> 0.64 | 63% | 9.49e+06 | $474,465,952 |
 | cosmic_lightsail | Polyimide film (Kapton HN) | True | 0.973 | 1.00 -> 1.00 | 100% | 332 | $761,711 |
 
-Total wall time: 662 s.
+Total wall time: 717 s.

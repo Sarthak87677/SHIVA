@@ -551,8 +551,8 @@
     "thickness_m": 0.006
   },
   "cad": {
-    "scad": "shiva_output/standard_seed42/cad/generative_bracket.scad",
-    "stl": "shiva_output/standard_seed42/cad/generative_bracket.stl",
+    "scad": "shiva_output/repro_seed42/cad/generative_bracket.scad",
+    "stl": "shiva_output/repro_seed42/cad/generative_bracket.stl",
     "components": 1,
     "triangles": 1140,
     "components_watertight": true,
@@ -562,8 +562,8 @@
       6.0
     ],
     "volume_mm3_sum_of_shells": 34500.0,
-    "freecad_macro": "shiva_output/standard_seed42/cad/generative_bracket.FCMacro",
-    "openscad_stl": "shiva_output/standard_seed42/cad/generative_bracket_openscad.stl"
+    "freecad_macro": "shiva_output/repro_seed42/cad/generative_bracket.FCMacro",
+    "openscad_stl": "shiva_output/repro_seed42/cad/generative_bracket_openscad.stl"
   },
   "material": null
 }

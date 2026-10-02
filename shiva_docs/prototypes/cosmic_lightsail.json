@@ -8,8 +8,8 @@
     "distance_au": 0.4438089534922589
   },
   "cad": {
-    "scad": "shiva_output/standard_seed42/cad/cosmic_lightsail.scad",
-    "stl": "shiva_output/standard_seed42/cad/cosmic_lightsail.stl",
+    "scad": "shiva_output/repro_seed42/cad/cosmic_lightsail.scad",
+    "stl": "shiva_output/repro_seed42/cad/cosmic_lightsail.stl",
     "components": 4,
     "triangles": 120,
     "components_watertight": true,
@@ -19,8 +19,8 @@
       195.11
     ],
     "volume_mm3_sum_of_shells": 32258695.98478003,
-    "freecad_macro": "shiva_output/standard_seed42/cad/cosmic_lightsail.FCMacro",
-    "openscad_stl": "shiva_output/standard_seed42/cad/cosmic_lightsail_openscad.stl"
+    "freecad_macro": "shiva_output/repro_seed42/cad/cosmic_lightsail.FCMacro",
+    "openscad_stl": "shiva_output/repro_seed42/cad/cosmic_lightsail_openscad.stl"
   },
   "material": "kapton"
 }

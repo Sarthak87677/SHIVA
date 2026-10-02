@@ -8,8 +8,8 @@
     "housing_pressure_ratio": 9.999999999999997e-06
   },
   "cad": {
-    "scad": "shiva_output/standard_seed42/cad/energy_flywheel.scad",
-    "stl": "shiva_output/standard_seed42/cad/energy_flywheel.stl",
+    "scad": "shiva_output/repro_seed42/cad/energy_flywheel.scad",
+    "stl": "shiva_output/repro_seed42/cad/energy_flywheel.stl",
     "components": 3,
     "triangles": 2304,
     "components_watertight": true,
@@ -19,8 +19,8 @@
       480.0
     ],
     "volume_mm3_sum_of_shells": 512667922.8841866,
-    "freecad_macro": "shiva_output/standard_seed42/cad/energy_flywheel.FCMacro",
-    "openscad_stl": "shiva_output/standard_seed42/cad/energy_flywheel_openscad.stl"
+    "freecad_macro": "shiva_output/repro_seed42/cad/energy_flywheel.FCMacro",
+    "openscad_stl": "shiva_output/repro_seed42/cad/energy_flywheel_openscad.stl"
   },
   "material": "al7075_t6"
 }

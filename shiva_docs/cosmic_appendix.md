@@ -2,8 +2,9 @@
 
 *Theory, derivations and scaling laws behind the universe-scale results of the SHIVA-1 whitepaper.*
 
-Every closed-form statement below is either verified symbolically by `shiva_core.physics_mutator`
-(SymPy) or checked numerically by the test suite; the corresponding test is cited in brackets.
+Closed-form statements below are verified symbolically by `shiva_core.physics_mutator` (SymPy) or checked
+numerically by the test suite (the test is cited in brackets); the few derivations not yet tested against
+simulation are marked as such.
 
 ---
 
@@ -12,8 +13,9 @@ Every closed-form statement below is either verified symbolically by `shiva_core
 Particle universes use $G = M_{\rm tot} = R_0 = 1$ (total mass and initial radius), so the dynamical time is
 $t_{\rm dyn} = \sqrt{R_0^3/GM} = 1$. A reference run of 4000 steps at $\Delta t = 2\times10^{-3}$ covers
 $8\,t_{\rm dyn}$ — enough for violent relaxation of a cold collapse (Lynden-Bell 1967) and several crossing
-times, not enough for two-body relaxation ($t_{\rm relax} \approx N t_{\rm dyn}/8\ln N \approx 4\,t_{\rm dyn}$ at
-$N = 160$, so collisional effects are present and are part of the dynamics, as in small star clusters).
+times. Because $t_{\rm relax} \approx N t_{\rm dyn}/8\ln N \approx 4\,t_{\rm dyn}$ at $N = 160$, a run also spans about
+two two-body relaxation times: collisional effects are present and are part of the dynamics, as in small star
+clusters.
 Gravitational softening $\epsilon = 0.05$ enters through $s \to s + \epsilon^2$ in every pair potential;
 because the force is the exact gradient of the *softened* potential, energy conservation is unaffected.
 
@@ -43,10 +45,11 @@ $|F| = G/(\sqrt{\lambda}\,r^2)$.
 **Fractal gravity and discrete scale invariance.** The modulation is a Weierstrass-type sum in $\ln r$, so the
 law is (quasi-)invariant under the discrete dilations $r \to r\,e^{2\pi/\omega}$ — the discrete scale
 invariance of Sornette (1998). It is equivalent to a scale-dependent coupling with "beta function"
-$\beta(G_{\rm eff}) = \mathrm{d}G_{\rm eff}/\mathrm{d}\ln r$ (reported symbolically by the mutator). Note that the
-*force* modulation is $\epsilon\sum_n\gamma^n\omega\beta^n$ times larger than the potential modulation: with
-$\epsilon = 0.4$, $\omega = 6$, $\beta = 2$, $\gamma = 0.5$ and three octaves the force reverses sign in thin
-shells (repulsive shells; see `figures/force_laws.png`) even though the potential envelope stays attractive.
+$\beta(G_{\rm eff}) = \mathrm{d}G_{\rm eff}/\mathrm{d}\ln r$ (reported symbolically by the mutator). Differentiating
+the modulation multiplies each octave by $\omega\beta^n$, so the relative *force* modulation is of order
+$\epsilon\sum_n\gamma^n\omega\beta^n$ while the potential's is only $\epsilon\sum_n\gamma^n$: with $\epsilon = 0.4$,
+$\omega = 6$, $\beta = 2$, $\gamma = 0.5$ and three octaves these are $\approx 7.2$ and $\approx 0.7$, so the force
+reverses sign in thin shells (repulsive shells; see `figures/force_laws.png`) even though the potential envelope stays attractive.
 
 ## A3. Orbits
 
@@ -123,7 +126,8 @@ estimators can test:
    $q\to 0$ — the universe collapses coherently on its largest scales.
 2. $k = 2$: growth is scale-free on large scales (our universe).
 3. $2 < k < 4$: growth peaks at $q_*^{4-k} = (k-2)G A_k\rho_0/2c_s^2$, a **preferred clustering wavelength**
-   that shrinks rapidly as $k \to 3.5$: such universes fragment into many small clumps.
+   that shrinks rapidly with increasing $k$ (0.07 at $k = 3.5$): such universes fragment into many small clumps.
+   Not yet tested against simulation (requires uniform-gas initial conditions).
 
 **Anisotropic (tensor) gravity.** With $\phi(x) = f(x^TQx)$ and $\det Q = 1$, the substitution $y = Q^{1/2}x$ gives
 $\hat\phi(q) = \hat\phi_{\rm iso}\big(\sqrt{q^TQ^{-1}q}\big)$, hence
@@ -146,8 +150,10 @@ if $\lambda k_J < 1$ no mode grows at all. [`test_jeans_analysis_limits`]
 The cosmology gene adds the Newtonian cosmological-constant force $F = \tfrac{\Lambda}{3}m\,x$, i.e. the
 non-relativistic limit of de Sitter ($\Lambda > 0$, accelerated expansion) or anti-de Sitter ($\Lambda < 0$,
 a harmonic confining box) space-times. It is isotropic about the origin but not translation-invariant, so it
-conserves energy and angular momentum while breaking momentum — exactly what the Noether battery measures
-(in the reference run's Noether battery, $N = 64$ over $2\,t_{\rm dyn}$: energy drift $2.2\times10^{-6}$, angular-momentum drift $2.2\times10^{-16}$, momentum no longer protected).
+conserves energy and angular momentum while leaving momentum unprotected — exactly what the Noether battery measures
+(reference-run battery, $N = 64$ over $2\,t_{\rm dyn}$: energy drift $2.2\times10^{-6}$, angular-momentum drift
+$2.2\times10^{-16}$; momentum stays at $3\times10^{-16}$ only because the centre of mass sits at the centre of the
+$\Lambda$ potential, so the net force $\tfrac{\Lambda}{3}Mx_{\rm cm}$ vanishes).
 A Hubble drag $\dot p = -Hp$ models peculiar-velocity decay in comoving coordinates; the proper energy
 bookkeeping in that case is the Layzer–Irvine equation, left for future work.
 

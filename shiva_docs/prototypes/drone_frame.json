@@ -9,8 +9,8 @@
     "battery_wh": 325.6
   },
   "cad": {
-    "scad": "shiva_output/standard_seed42/cad/drone_frame.scad",
-    "stl": "shiva_output/standard_seed42/cad/drone_frame.stl",
+    "scad": "shiva_output/repro_seed42/cad/drone_frame.scad",
+    "stl": "shiva_output/repro_seed42/cad/drone_frame.stl",
     "components": 7,
     "triangles": 684,
     "components_watertight": true,
@@ -20,8 +20,8 @@
       46.0
     ],
     "volume_mm3_sum_of_shells": 638210.8271211553,
-    "freecad_macro": "shiva_output/standard_seed42/cad/drone_frame.FCMacro",
-    "openscad_stl": "shiva_output/standard_seed42/cad/drone_frame_openscad.stl"
+    "freecad_macro": "shiva_output/repro_seed42/cad/drone_frame.FCMacro",
+    "openscad_stl": "shiva_output/repro_seed42/cad/drone_frame_openscad.stl"
   },
   "material": "al6061_t6"
 }

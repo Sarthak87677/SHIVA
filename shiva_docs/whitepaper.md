@@ -1,6 +1,6 @@
 # SHIVA-1: Evolving Alternate Physics, Emergent Universes and Transferable Technologies
 
-**SHIVA-1 project · whitepaper v0.1 (first draft) · October 2026**
+**SHIVA-1 project · whitepaper v0.2 (revised draft) · October 2026**
 
 *Reproducibility:* every number in Sections 4–8 is produced by
 `python -m shiva_core run --profile standard --seed 42` (machine-readable output in
@@ -456,7 +456,7 @@ moved most because snapping to standards changed the module (1.81 → 2.00 mm, I
    self-gravitating structure cannot virialise.
 2. **Preferred scales.** For $2<k<4$ gravitational instability has a fastest-growing wavelength (A5) — a universe
    with $k = 2.5$ fragments instead of collapsing coherently; the evolved universe's second halo is consistent with
-   this, pending a quantitative test with uniform-gas initial conditions.
+   this, but the prediction is untested quantitatively (it needs uniform-gas initial conditions).
 3. **Screening kills structure.** Yukawa gravity with $\lambda k_J < 1$ has no unstable mode at all (A5).
 4. **Quantised shells from classical gravity.** Log-periodic gravity splits orbital space into stability bands
    whenever $\epsilon(1+\omega^2) > 1$ (A3) — 17 bands for the showcase genome.
@@ -471,6 +471,15 @@ moved most because snapping to standards changed the module (1.81 → 2.00 mm, I
 8. **Light sails scale as $1/c$** (A10): a lower speed of light makes radiation pressure proportionally stronger.
 
 See the [cosmic appendix](cosmic_appendix.md) for derivations.
+
+### 8.1 Reproducibility check
+
+The reference run was repeated from scratch (`python -m shiva_core run --profile standard --seed 42`, 717 s on
+one CPU core). All 2,598 numeric fields of `summary.json` — every conservation drift, emergence score, Pareto
+objective, Monte-Carlo prediction and cost — matched the original run exactly; the only differences were the
+random genome identifiers (UUID labels, not physics) and wall-clock times. All randomness in SHIVA-1 flows from
+the run seed through `numpy.random.default_rng`, so results are bit-reproducible on the same software stack
+(Python 3.11, NumPy 2.4, SciPy 1.17, SymPy 1.14); other library versions may change the last digits.
 
 ## 9. Discussion and limitations
 

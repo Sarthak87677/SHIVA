@@ -10,8 +10,8 @@
     "wall_thickness": 0.0021
   },
   "cad": {
-    "scad": "shiva_output/standard_seed42/cad/propulsion_nozzle.scad",
-    "stl": "shiva_output/standard_seed42/cad/propulsion_nozzle.stl",
+    "scad": "shiva_output/repro_seed42/cad/propulsion_nozzle.scad",
+    "stl": "shiva_output/repro_seed42/cad/propulsion_nozzle.stl",
     "components": 1,
     "triangles": 7920,
     "components_watertight": true,
@@ -21,8 +21,8 @@
       313.105
     ],
     "volume_mm3_sum_of_shells": 53769.53365806999,
-    "freecad_macro": "shiva_output/standard_seed42/cad/propulsion_nozzle.FCMacro",
-    "openscad_stl": "shiva_output/standard_seed42/cad/propulsion_nozzle_openscad.stl"
+    "freecad_macro": "shiva_output/repro_seed42/cad/propulsion_nozzle.FCMacro",
+    "openscad_stl": "shiva_output/repro_seed42/cad/propulsion_nozzle_openscad.stl"
   },
   "material": "ss304"
 }

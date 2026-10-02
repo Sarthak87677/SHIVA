@@ -107,13 +107,13 @@
      },
      "dim": 3,
      "name": "newtonian (inverse-square)",
-     "genome_id": "957cc7ed569d",
+     "genome_id": "a1610c414120",
      "parents": [],
      "generation": 0,
      "lineage": []
     },
     "report": {
-     "genome_id": "957cc7ed569d",
+     "genome_id": "a1610c414120",
      "latex": {
       "U_gravity": "- \\frac{1.0}{r}",
       "F_gravity": "- \\frac{1.0}{r^{2}}",
@@ -307,13 +307,13 @@
      },
      "dim": 3,
      "name": "inverse-k (k = 2.5, d_eff = 3.5)",
-     "genome_id": "12c149ba130c",
+     "genome_id": "39c99bfdf960",
      "parents": [],
      "generation": 0,
      "lineage": []
     },
     "report": {
-     "genome_id": "12c149ba130c",
+     "genome_id": "39c99bfdf960",
      "latex": {
       "U_gravity": "- \\frac{0.6666666667}{r^{\\frac{3}{2}}}",
       "F_gravity": "- \\frac{1.0}{r^{\\frac{5}{2}}}",
@@ -507,13 +507,13 @@
      },
      "dim": 3,
      "name": "tensor (anisotropic metric Q)",
-     "genome_id": "6a663b9d2bfe",
+     "genome_id": "231ac3392640",
      "parents": [],
      "generation": 0,
      "lineage": []
     },
     "report": {
-     "genome_id": "6a663b9d2bfe",
+     "genome_id": "231ac3392640",
      "latex": {
       "U_gravity": "- \\frac{1.0}{r}",
       "F_gravity": "- \\frac{1.0}{r^{2}}",
@@ -688,13 +688,13 @@
      },
      "dim": 3,
      "name": "fractal (log-periodic, eps = 0.4)",
-     "genome_id": "b0e4a7da7bc1",
+     "genome_id": "fe529fbde4d0",
      "parents": [],
      "generation": 0,
      "lineage": []
     },
     "report": {
-     "genome_id": "b0e4a7da7bc1",
+     "genome_id": "fe529fbde4d0",
      "latex": {
       "U_gravity": "- \\frac{1.0 \\left(0.4 \\cos{\\left(6.0 \\log{\\left(1.0 r \\right)} \\right)} + 0.2 \\cos{\\left(12.0 \\log{\\left(1.0 r \\right)} \\right)} + 0.1 \\cos{\\left(24.0 \\log{\\left(1.0 r \\right)} \\right)} + 1\\right)}{r}",
       "F_gravity": "- \\frac{2.399999999 \\sin{\\left(6.0 \\log{\\left(r \\right)} \\right)} + 2.399999999 \\sin{\\left(12.0 \\log{\\left(r \\right)} \\right)} + 2.399999999 \\sin{\\left(24.0 \\log{\\left(r \\right)} \\right)} + 0.4 \\cos{\\left(6.0 \\log{\\left(r \\right)} \\right)} + 0.2 \\cos{\\left(12.0 \\log{\\left(r \\right)} \\right)} + 0.1 \\cos{\\left(24.0 \\log{\\left(r \\right)} \\right)} + 1.0}{r^{2}}",
@@ -947,13 +947,13 @@
      },
      "dim": 3,
      "name": "yukawa (lambda = 1)",
-     "genome_id": "35199f10692b",
+     "genome_id": "dd05ab057493",
      "parents": [],
      "generation": 0,
      "lineage": []
     },
     "report": {
-     "genome_id": "35199f10692b",
+     "genome_id": "dd05ab057493",
      "latex": {
       "U_gravity": "- \\frac{1.0 e^{- 1.0 r}}{r}",
       "F_gravity": "\\frac{1.0 \\left(- r - 1\\right) e^{- 1.0 r}}{r^{2}}",
@@ -1272,7 +1272,7 @@
   ],
   "search": {
    "best": {
-    "genome_id": "02d1d5e62596",
+    "genome_id": "518a60c477c7",
     "law": "tensor",
     "fitness": 0.5764,
     "richness": 0.603,
@@ -1380,10 +1380,10 @@
      "hubble": 0.0
     },
     "dim": 3,
-    "name": "shiva-best-02d1d5e62596",
-    "genome_id": "02d1d5e62596",
+    "name": "shiva-best-518a60c477c7",
+    "genome_id": "518a60c477c7",
     "parents": [
-     "a16e7aeca948"
+     "ea3b2e57a6b4"
     ],
     "generation": 4,
     "lineage": [
@@ -1393,7 +1393,7 @@
      "g4: interaction: prop=instantaneous, species=1, nonrecip=0.00, core=0.347"
     ]
    },
-   "best_description": "PhysicsGenome shiva-best-02d1d5e62596 (gen 4, dim 3)\n  gravity : tensor, G=1, k=2.5, Q-eig=[0.319, 1.489, 2.106]\n  em      : off (alpha/alpha0=1)\n  inertia : newtonian, masses=equal\n  thermo  : gamma=0, T=0, noise=gaussian(q=1), active=0@v0=0.5, adiabatic=1.4\n  fluid   : nu=0.001, h=1, lambda=1, N-eig=[1.0, 1.0], drag=0|v|^2\n  interact: instantaneous, species=1, nonreciprocity=0.000, sigma=0.3, core=0.347@0.0503\n  cosmos  : Lambda=0.178, H=0",
+   "best_description": "PhysicsGenome shiva-best-518a60c477c7 (gen 4, dim 3)\n  gravity : tensor, G=1, k=2.5, Q-eig=[0.319, 1.489, 2.106]\n  em      : off (alpha/alpha0=1)\n  inertia : newtonian, masses=equal\n  thermo  : gamma=0, T=0, noise=gaussian(q=1), active=0@v0=0.5, adiabatic=1.4\n  fluid   : nu=0.001, h=1, lambda=1, N-eig=[1.0, 1.0], drag=0|v|^2\n  interact: instantaneous, species=1, nonreciprocity=0.000, sigma=0.3, core=0.347@0.0503\n  cosmos  : Lambda=0.178, H=0",
    "history": [
     {
      "generation": 1,
@@ -1537,7 +1537,7 @@
    "evaluations": 59,
    "top10": [
     {
-     "genome_id": "02d1d5e62596",
+     "genome_id": "518a60c477c7",
      "law": "tensor",
      "fitness": 0.5764,
      "richness": 0.603,
@@ -1547,7 +1547,7 @@
      "feasibility": 0.828
     },
     {
-     "genome_id": "fafd2198ebbb",
+     "genome_id": "11e760b54b9a",
      "law": "inverse_k",
      "fitness": 0.5687,
      "richness": 0.6046,
@@ -1557,7 +1557,7 @@
      "feasibility": 0.761
     },
     {
-     "genome_id": "e6f3c9c13912",
+     "genome_id": "15f81c563fe3",
      "law": "inverse_k",
      "fitness": 0.5687,
      "richness": 0.6046,
@@ -1567,7 +1567,7 @@
      "feasibility": 0.761
     },
     {
-     "genome_id": "01ff22092e7e",
+     "genome_id": "bff6de480328",
      "law": "inverse_k",
      "fitness": 0.5635,
      "richness": 0.5963,
@@ -1577,7 +1577,7 @@
      "feasibility": 0.78
     },
     {
-     "genome_id": "777685b15bf3",
+     "genome_id": "2ef70fc5ed06",
      "law": "inverse_k",
      "fitness": 0.5613,
      "richness": 0.5963,
@@ -1587,7 +1587,7 @@
      "feasibility": 0.766
     },
     {
-     "genome_id": "a16e7aeca948",
+     "genome_id": "ea3b2e57a6b4",
      "law": "tensor",
      "fitness": 0.5575,
      "richness": 0.579,
@@ -1597,7 +1597,7 @@
      "feasibility": 0.857
     },
     {
-     "genome_id": "348a0d1f7bfd",
+     "genome_id": "b5893e8a8d76",
      "law": "tensor",
      "fitness": 0.5326,
      "richness": 0.5454,
@@ -1607,7 +1607,7 @@
      "feasibility": 0.9
     },
     {
-     "genome_id": "39d470500810",
+     "genome_id": "d5424d059d46",
      "law": "inverse_k",
      "fitness": 0.5323,
      "richness": 0.553,
@@ -1617,7 +1617,7 @@
      "feasibility": 0.85
     },
     {
-     "genome_id": "9def1ddd84b3",
+     "genome_id": "5de07d59c7a1",
      "law": "inverse_k",
      "fitness": 0.5298,
      "richness": 0.5539,
@@ -1627,7 +1627,7 @@
      "feasibility": 0.826
     },
     {
-     "genome_id": "12c149ba130c",
+     "genome_id": "39c99bfdf960",
      "law": "inverse_k",
      "fitness": 0.5227,
      "richness": 0.542,
@@ -1673,10 +1673,10 @@
      ]
     }
    },
-   "wall_time_s": 82.69112062454224,
+   "wall_time_s": 87.11495471000671,
    "validation": [
     {
-     "genome_id": "e27822b81220",
+     "genome_id": "0c9ea847fffe",
      "law": "tensor",
      "search_fitness": 0.5885253099006748,
      "richness_per_seed": [
@@ -1688,7 +1688,7 @@
      "richness_std": 0.07313138377770541
     },
     {
-     "genome_id": "02d1d5e62596",
+     "genome_id": "518a60c477c7",
      "law": "tensor",
      "search_fitness": 0.5764105203045062,
      "richness_per_seed": [
@@ -1700,7 +1700,7 @@
      "richness_std": 0.019256123723245387
     },
     {
-     "genome_id": "fafd2198ebbb",
+     "genome_id": "11e760b54b9a",
      "law": "inverse_k",
      "search_fitness": 0.5686579497353261,
      "richness_per_seed": [
@@ -1712,7 +1712,7 @@
      "richness_std": 0.0871128718177386
     },
     {
-     "genome_id": "e6f3c9c13912",
+     "genome_id": "15f81c563fe3",
      "law": "inverse_k",
      "search_fitness": 0.5686579497353261,
      "richness_per_seed": [
@@ -1725,7 +1725,7 @@
     }
    ],
    "validated_best": {
-    "genome_id": "02d1d5e62596",
+    "genome_id": "518a60c477c7",
     "law": "tensor",
     "search_fitness": 0.5764105203045062,
     "richness_per_seed": [
@@ -1949,7 +1949,7 @@
      ]
     },
     "particles": {
-     "genome_id": "02d1d5e62596",
+     "genome_id": "518a60c477c7",
      "dim": 3,
      "n_particles": 160,
      "t_end": 7.999999999999341,
@@ -1959,7 +1959,7 @@
      "lyapunov": 4.934818377195537,
      "final_virial_ratio": 0.006766349293156911,
      "final_bound_fraction": 0.8125,
-     "wall_time_s": 22.670538663864136
+     "wall_time_s": 23.90686583518982
     },
     "rigid": {
      "flips": [
@@ -2008,7 +2008,7 @@
        "steps": 1962,
        "t_end": 25.000000000001
       },
-      "wall_time": 2.180363655090332
+      "wall_time": 2.6104331016540527
      },
      "reaction_diffusion": {
       "blew_up": false,
@@ -2030,7 +2030,7 @@
        "dt": 1.0,
        "steps": 4000
       },
-      "wall_time": 1.3312106132507324
+      "wall_time": 1.42681884765625
      }
     }
    },
@@ -2244,7 +2244,7 @@
      ]
     },
     "particles": {
-     "genome_id": "957cc7ed569d",
+     "genome_id": "a1610c414120",
      "dim": 3,
      "n_particles": 160,
      "t_end": 7.999999999999341,
@@ -2254,7 +2254,7 @@
      "lyapunov": 2.007774819836785,
      "final_virial_ratio": 0.870589987699541,
      "final_bound_fraction": 0.93125,
-     "wall_time_s": 9.238105058670044
+     "wall_time_s": 9.153770923614502
     },
     "rigid": {
      "flips": [
@@ -2303,7 +2303,7 @@
        "steps": 1962,
        "t_end": 25.000000000001
       },
-      "wall_time": 2.1244115829467773
+      "wall_time": 2.217329502105713
      },
      "reaction_diffusion": {
       "blew_up": false,
@@ -2325,7 +2325,7 @@
        "dt": 1.0,
        "steps": 4000
       },
-      "wall_time": 1.316776990890503
+      "wall_time": 1.3239011764526367
      }
     }
    },
@@ -2336,7 +2336,7 @@
   },
   "technology": {
    "context": {
-    "name": "alien-02d1d5e62596",
+    "name": "alien-518a60c477c7",
     "g": 9.80665,
     "gravity_exponent": 2.5,
     "air_density": 1.225,
@@ -2356,11 +2356,11 @@
     "speed_of_light": 299792458.0,
     "alpha_ratio": 1.0,
     "habitable_chemistry": true,
-    "description": "genome 02d1d5e62596: g=1 g0, alpha/alpha0=1, drag n=2, gamma=1.4"
+    "description": "genome 518a60c477c7: g=1 g0, alpha/alpha0=1, drag n=2, gamma=1.4"
    },
    "propulsion_nozzle": {
     "domain": "propulsion_nozzle",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 49,
     "evaluations": 1197,
     "champion": {
@@ -2439,7 +2439,7 @@
    },
    "structure_truss": {
     "domain": "structure_truss",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 46,
     "evaluations": 1194,
     "champion": {
@@ -2517,7 +2517,7 @@
    },
    "energy_flywheel": {
     "domain": "energy_flywheel",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 55,
     "evaluations": 1203,
     "champion": {
@@ -2594,7 +2594,7 @@
    },
    "drone_frame": {
     "domain": "drone_frame",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 51,
     "evaluations": 1199,
     "champion": {
@@ -2625,7 +2625,7 @@
    },
    "pump_impeller": {
     "domain": "pump_impeller",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 43,
     "evaluations": 1191,
     "champion": {
@@ -2657,7 +2657,7 @@
    },
    "gear_pair": {
     "domain": "gear_pair",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 47,
     "evaluations": 1195,
     "champion": {
@@ -2687,7 +2687,7 @@
    },
    "cosmic_habitat": {
     "domain": "cosmic_habitat",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 44,
     "evaluations": 1192,
     "champion": {
@@ -2717,7 +2717,7 @@
    },
    "cosmic_lightsail": {
     "domain": "cosmic_lightsail",
-    "context": "alien-02d1d5e62596",
+    "context": "alien-518a60c477c7",
     "pareto_size": 40,
     "evaluations": 1188,
     "champion": {
@@ -3316,8 +3316,8 @@
     ]
    ],
    "cad": {
-    "scad": "shiva_output/standard_seed42/cad/generative_bracket.scad",
-    "stl": "shiva_output/standard_seed42/cad/generative_bracket.stl",
+    "scad": "shiva_output/repro_seed42/cad/generative_bracket.scad",
+    "stl": "shiva_output/repro_seed42/cad/generative_bracket.stl",
     "components": 1,
     "triangles": 1140,
     "components_watertight": true,
@@ -3327,14 +3327,14 @@
      6.0
     ],
     "volume_mm3_sum_of_shells": 34500.0,
-    "freecad_macro": "shiva_output/standard_seed42/cad/generative_bracket.FCMacro",
-    "openscad_stl": "shiva_output/standard_seed42/cad/generative_bracket_openscad.stl"
+    "freecad_macro": "shiva_output/repro_seed42/cad/generative_bracket.FCMacro",
+    "openscad_stl": "shiva_output/repro_seed42/cad/generative_bracket_openscad.stl"
    }
   },
   "mapping": {
    "propulsion_nozzle": {
     "domain": "propulsion_nozzle",
-    "design_id": "fb7c2883",
+    "design_id": "6d693aaa",
     "material": "ss304",
     "material_name": "Stainless steel 304",
     "alien_params": {
@@ -3491,8 +3491,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/propulsion_nozzle.scad",
-     "stl": "shiva_output/standard_seed42/cad/propulsion_nozzle.stl",
+     "scad": "shiva_output/repro_seed42/cad/propulsion_nozzle.scad",
+     "stl": "shiva_output/repro_seed42/cad/propulsion_nozzle.stl",
      "components": 1,
      "triangles": 7920,
      "components_watertight": true,
@@ -3502,14 +3502,14 @@
       313.105
      ],
      "volume_mm3_sum_of_shells": 53769.53365806999,
-     "freecad_macro": "shiva_output/standard_seed42/cad/propulsion_nozzle.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/propulsion_nozzle_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/propulsion_nozzle.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/propulsion_nozzle_openscad.stl"
     },
     "notes": []
    },
    "structure_truss": {
     "domain": "structure_truss",
-    "design_id": "9f67ba99",
+    "design_id": "bfed323b",
     "material": "cfrp_qi",
     "material_name": "CFRP quasi-isotropic laminate",
     "alien_params": {
@@ -3647,8 +3647,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/structure_truss.scad",
-     "stl": "shiva_output/standard_seed42/cad/structure_truss.stl",
+     "scad": "shiva_output/repro_seed42/cad/structure_truss.scad",
+     "stl": "shiva_output/repro_seed42/cad/structure_truss.stl",
      "components": 17,
      "triangles": 2172,
      "components_watertight": true,
@@ -3658,14 +3658,14 @@
       1021.8
      ],
      "volume_mm3_sum_of_shells": 1988938.85637602,
-     "freecad_macro": "shiva_output/standard_seed42/cad/structure_truss.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/structure_truss_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/structure_truss.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/structure_truss_openscad.stl"
     },
     "notes": []
    },
    "energy_flywheel": {
     "domain": "energy_flywheel",
-    "design_id": "39f7f7ed",
+    "design_id": "21ecc286",
     "material": "al7075_t6",
     "material_name": "Aluminium 7075-T6",
     "alien_params": {
@@ -3828,8 +3828,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/energy_flywheel.scad",
-     "stl": "shiva_output/standard_seed42/cad/energy_flywheel.stl",
+     "scad": "shiva_output/repro_seed42/cad/energy_flywheel.scad",
+     "stl": "shiva_output/repro_seed42/cad/energy_flywheel.stl",
      "components": 3,
      "triangles": 2304,
      "components_watertight": true,
@@ -3839,14 +3839,14 @@
       480.0
      ],
      "volume_mm3_sum_of_shells": 512667922.8841866,
-     "freecad_macro": "shiva_output/standard_seed42/cad/energy_flywheel.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/energy_flywheel_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/energy_flywheel.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/energy_flywheel_openscad.stl"
     },
     "notes": []
    },
    "drone_frame": {
     "domain": "drone_frame",
-    "design_id": "31449a0b",
+    "design_id": "d64989ec",
     "material": "al6061_t6",
     "material_name": "Aluminium 6061-T6",
     "alien_params": {
@@ -4027,8 +4027,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/drone_frame.scad",
-     "stl": "shiva_output/standard_seed42/cad/drone_frame.stl",
+     "scad": "shiva_output/repro_seed42/cad/drone_frame.scad",
+     "stl": "shiva_output/repro_seed42/cad/drone_frame.stl",
      "components": 7,
      "triangles": 684,
      "components_watertight": true,
@@ -4038,14 +4038,14 @@
       46.0
      ],
      "volume_mm3_sum_of_shells": 638210.8271211553,
-     "freecad_macro": "shiva_output/standard_seed42/cad/drone_frame.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/drone_frame_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/drone_frame.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/drone_frame_openscad.stl"
     },
     "notes": []
    },
    "pump_impeller": {
     "domain": "pump_impeller",
-    "design_id": "96421a39",
+    "design_id": "a686bf29",
     "material": "al6061_t6",
     "material_name": "Aluminium 6061-T6",
     "alien_params": {
@@ -4221,8 +4221,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/pump_impeller.scad",
-     "stl": "shiva_output/standard_seed42/cad/pump_impeller.stl",
+     "scad": "shiva_output/repro_seed42/cad/pump_impeller.scad",
+     "stl": "shiva_output/repro_seed42/cad/pump_impeller.stl",
      "components": 9,
      "triangles": 2852,
      "components_watertight": true,
@@ -4232,14 +4232,14 @@
       13.6
      ],
      "volume_mm3_sum_of_shells": 263708.7738993436,
-     "freecad_macro": "shiva_output/standard_seed42/cad/pump_impeller.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/pump_impeller_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/pump_impeller.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/pump_impeller_openscad.stl"
     },
     "notes": []
    },
    "gear_pair": {
     "domain": "gear_pair",
-    "design_id": "05bd3438",
+    "design_id": "dc3e309a",
     "material": "steel4140_qt",
     "material_name": "Alloy steel 4140 (Q&T)",
     "alien_params": {
@@ -4396,8 +4396,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/gear_pair.scad",
-     "stl": "shiva_output/standard_seed42/cad/gear_pair.stl",
+     "scad": "shiva_output/repro_seed42/cad/gear_pair.scad",
+     "stl": "shiva_output/repro_seed42/cad/gear_pair.stl",
      "components": 2,
      "triangles": 12800,
      "components_watertight": true,
@@ -4407,14 +4407,14 @@
       28.0
      ],
      "volume_mm3_sum_of_shells": 1393238.0205253,
-     "freecad_macro": "shiva_output/standard_seed42/cad/gear_pair.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/gear_pair_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/gear_pair.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/gear_pair_openscad.stl"
     },
     "notes": []
    },
    "cosmic_habitat": {
     "domain": "cosmic_habitat",
-    "design_id": "5ea3cef3",
+    "design_id": "411a722d",
     "material": "cfrp_ud",
     "material_name": "CFRP unidirectional (fibre direction)",
     "alien_params": {
@@ -4573,8 +4573,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/cosmic_habitat.scad",
-     "stl": "shiva_output/standard_seed42/cad/cosmic_habitat.stl",
+     "scad": "shiva_output/repro_seed42/cad/cosmic_habitat.scad",
+     "stl": "shiva_output/repro_seed42/cad/cosmic_habitat.stl",
      "components": 8,
      "triangles": 1952,
      "components_watertight": true,
@@ -4584,14 +4584,14 @@
       190.0
      ],
      "volume_mm3_sum_of_shells": 3923163.499692598,
-     "freecad_macro": "shiva_output/standard_seed42/cad/cosmic_habitat.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/cosmic_habitat_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/cosmic_habitat.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/cosmic_habitat_openscad.stl"
     },
     "notes": []
    },
    "cosmic_lightsail": {
     "domain": "cosmic_lightsail",
-    "design_id": "1b28d3cc",
+    "design_id": "23b002ab",
     "material": "kapton",
     "material_name": "Polyimide film (Kapton HN)",
     "alien_params": {
@@ -4706,8 +4706,8 @@
      }
     ],
     "cad": {
-     "scad": "shiva_output/standard_seed42/cad/cosmic_lightsail.scad",
-     "stl": "shiva_output/standard_seed42/cad/cosmic_lightsail.stl",
+     "scad": "shiva_output/repro_seed42/cad/cosmic_lightsail.scad",
+     "stl": "shiva_output/repro_seed42/cad/cosmic_lightsail.stl",
      "components": 4,
      "triangles": 120,
      "components_watertight": true,
@@ -4717,8 +4717,8 @@
       195.11
      ],
      "volume_mm3_sum_of_shells": 32258695.98478003,
-     "freecad_macro": "shiva_output/standard_seed42/cad/cosmic_lightsail.FCMacro",
-     "openscad_stl": "shiva_output/standard_seed42/cad/cosmic_lightsail_openscad.stl"
+     "freecad_macro": "shiva_output/repro_seed42/cad/cosmic_lightsail.FCMacro",
+     "openscad_stl": "shiva_output/repro_seed42/cad/cosmic_lightsail_openscad.stl"
     },
     "notes": [
      "Free dimensions were re-optimised after snapping to standard stock sizes."
@@ -4726,5 +4726,5 @@
    }
   }
  },
- "wall_time_s": 662.1264092922211
+ "wall_time_s": 717.4001278877258
 }
