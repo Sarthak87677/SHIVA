@@ -1,0 +1,10 @@
+numpy>=1.24
+scipy>=1.10
+sympy>=1.12
+matplotlib>=3.7
+pytest>=7
+nbformat>=5
+# optional: notebook execution / rigid-body sandbox
+# nbclient>=0.7
+# ipykernel>=6
+# pybullet>=3.2
