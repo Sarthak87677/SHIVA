@@ -145,3 +145,14 @@ def test_openscad_renders_gear(tmp_path):
     assert info.get("openscad_stl")
     m = read_stl(info["openscad_stl"])
     assert m.signed_volume() > 0
+
+
+def test_lightsail_mapping_respects_practical_reflectivity():
+    from shiva_core.tech_evolver import EvolvedDesign, LightSailDomain
+
+    d = LightSailDomain()
+    p = {"film_thickness": 2e-6, "side_length": 100.0, "reflectivity": 0.95, "boom_linear_density": 0.03,
+         "distance_au": 1.0}
+    design = EvolvedDesign("cosmic_lightsail", "t", d.encode(p).tolist(), p, {"efficiency": 1.0}, {}, True, "earth")
+    pr = RealWorldMapper(n_monte_carlo=20).map(design)
+    assert pr.real_params["reflectivity"] <= 0.91 + 1e-12 and pr.feasible

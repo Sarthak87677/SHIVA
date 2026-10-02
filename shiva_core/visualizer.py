@@ -474,8 +474,7 @@ def plot_bracket(br: Dict[str, Any], path: Optional[str] = None) -> Optional[str
         axes[1].imshow(br["shape"], cmap=LinearSegmentedColormap.from_list("bin", [SURFACE, CATEGORICAL[0]]),
                        origin="upper")
         axes[1].set_title(f"Projected shape (volume {br['metrics'].get('volume_fraction', 0):.2f})")
-        axes[1].annotate("clamped", xy=(0, br["shape"].shape[0] / 2), xytext=(-6, br["shape"].shape[0] / 2),
-                         fontsize=7, color=INK2, ha="right", va="center")
+        axes[1].set_xlabel("clamped at left edge, tip load at right", fontsize=7, color=INK2)
         for ax in axes[:2]:
             ax.grid(False)
             ax.set_xticks([])

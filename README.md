@@ -14,7 +14,7 @@ best designs back into buildable, CAD-ready prototypes in our universe.
         FreeCAD macro     projection · BOM       under alien physics
 ```
 
-Everything is first-principles NumPy/SciPy/SymPy code — no black boxes — and is covered by 84 tests,
+Everything is first-principles NumPy/SciPy/SymPy code — no black boxes — and is covered by 89 tests,
 including end-to-end checks that simulated orbits precess by exactly the SymPy-predicted apsidal angle
 and that every predicted conservation law holds to machine precision.
 
@@ -41,9 +41,9 @@ and that every predicted conservation law holds to machine precision.
 
 ```bash
 pip install -r requirements.txt          # numpy scipy sympy matplotlib (+ pytest, nbformat...)
-python -m pytest -q                      # 84 tests, ~1 minute
+python -m pytest -q                      # 89 tests, ~1.5 minutes
 python -m shiva_core demo                # full loop, quick profile, ~2 minutes -> shiva_output/demo/
-python -m shiva_core run --profile standard --seed 42   # reference run used in the whitepaper (~10 min)
+python -m shiva_core run --profile standard --seed 42   # reference run used in the whitepaper (~12 min)
 ```
 
 Other commands:

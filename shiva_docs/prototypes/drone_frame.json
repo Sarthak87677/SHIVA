@@ -1,0 +1,27 @@
+{
+  "domain": "drone_frame",
+  "params": {
+    "arm_length": 0.31,
+    "arm_od": 0.028,
+    "wall_ratio": 0.05357142857142857,
+    "prop_diameter": 0.381,
+    "n_arms": 3.0,
+    "battery_wh": 325.6
+  },
+  "cad": {
+    "scad": "shiva_output/standard_seed42/cad/drone_frame.scad",
+    "stl": "shiva_output/standard_seed42/cad/drone_frame.stl",
+    "components": 7,
+    "triangles": 684,
+    "components_watertight": true,
+    "bbox_mm": [
+      530.34,
+      602.276,
+      46.0
+    ],
+    "volume_mm3_sum_of_shells": 638210.8271211553,
+    "freecad_macro": "shiva_output/standard_seed42/cad/drone_frame.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/drone_frame_openscad.stl"
+  },
+  "material": "al6061_t6"
+}

@@ -1,0 +1,26 @@
+{
+  "domain": "cosmic_habitat",
+  "params": {
+    "radius": 171,
+    "rpm": 2.18,
+    "thickness": 0.024,
+    "width": 190,
+    "pressure": 52562.11702168915
+  },
+  "cad": {
+    "scad": "shiva_output/standard_seed42/cad/cosmic_habitat.scad",
+    "stl": "shiva_output/standard_seed42/cad/cosmic_habitat.stl",
+    "components": 8,
+    "triangles": 1952,
+    "components_watertight": true,
+    "bbox_mm": [
+      342.0,
+      342.0,
+      190.0
+    ],
+    "volume_mm3_sum_of_shells": 3923163.499692598,
+    "freecad_macro": "shiva_output/standard_seed42/cad/cosmic_habitat.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/cosmic_habitat_openscad.stl"
+  },
+  "material": "cfrp_ud"
+}

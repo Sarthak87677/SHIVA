@@ -1056,7 +1056,7 @@ class LightSailDomain(DesignDomain):
               ParamSpec("reflectivity", 0.6, 0.95, "lin"), ParamSpec("boom_linear_density", 0.002, 0.1, "log", "kg/m"),
               ParamSpec("distance_au", 0.25, 1.5, "lin", "AU")]
     reference_material = "kapton"
-    catalog_params = ("film_thickness",)
+    catalog_params = ("film_thickness", "reflectivity")  # stock gauge; practical Al-coating reflectivity
     PAYLOAD = 5.0
     proof_factor = 1.0
 

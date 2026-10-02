@@ -1,0 +1,28 @@
+{
+  "domain": "propulsion_nozzle",
+  "params": {
+    "chamber_pressure": 15055757.739819478,
+    "expansion_ratio": 12.567301768733738,
+    "throat_radius": 0.0059,
+    "chamber_temperature": 2344.357942535357,
+    "molar_mass": 0.027887184959573465,
+    "half_angle": 15.0,
+    "wall_thickness": 0.0021
+  },
+  "cad": {
+    "scad": "shiva_output/standard_seed42/cad/propulsion_nozzle.scad",
+    "stl": "shiva_output/standard_seed42/cad/propulsion_nozzle.stl",
+    "components": 1,
+    "triangles": 7920,
+    "components_watertight": true,
+    "bbox_mm": [
+      45.888,
+      45.888,
+      313.105
+    ],
+    "volume_mm3_sum_of_shells": 53769.53365806999,
+    "freecad_macro": "shiva_output/standard_seed42/cad/propulsion_nozzle.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/propulsion_nozzle_openscad.stl"
+  },
+  "material": "ss304"
+}

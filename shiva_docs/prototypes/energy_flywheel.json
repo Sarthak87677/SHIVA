@@ -1,0 +1,26 @@
+{
+  "domain": "energy_flywheel",
+  "params": {
+    "outer_radius": 0.641,
+    "inner_ratio": 0.1308297860989842,
+    "thickness": 0.4,
+    "rpm": 4800,
+    "housing_pressure_ratio": 9.999999999999997e-06
+  },
+  "cad": {
+    "scad": "shiva_output/standard_seed42/cad/energy_flywheel.scad",
+    "stl": "shiva_output/standard_seed42/cad/energy_flywheel.stl",
+    "components": 3,
+    "triangles": 2304,
+    "components_watertight": true,
+    "bbox_mm": [
+      1282.0,
+      1282.0,
+      480.0
+    ],
+    "volume_mm3_sum_of_shells": 512667922.8841866,
+    "freecad_macro": "shiva_output/standard_seed42/cad/energy_flywheel.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/energy_flywheel_openscad.stl"
+  },
+  "material": "al7075_t6"
+}

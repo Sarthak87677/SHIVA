@@ -1,0 +1,26 @@
+{
+  "domain": "gear_pair",
+  "params": {
+    "module": 0.002,
+    "z1": 40.0,
+    "face_factor": 14.0,
+    "pressure_angle": 20.0,
+    "shift": 0.35000000000000003
+  },
+  "cad": {
+    "scad": "shiva_output/standard_seed42/cad/gear_pair.scad",
+    "stl": "shiva_output/standard_seed42/cad/gear_pair.stl",
+    "components": 2,
+    "triangles": 12800,
+    "components_watertight": true,
+    "bbox_mm": [
+      323.972,
+      242.555,
+      28.0
+    ],
+    "volume_mm3_sum_of_shells": 1393238.0205253,
+    "freecad_macro": "shiva_output/standard_seed42/cad/gear_pair.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/gear_pair_openscad.stl"
+  },
+  "material": "steel4140_qt"
+}

@@ -1,0 +1,27 @@
+{
+  "domain": "structure_truss",
+  "params": {
+    "h0": 0.985,
+    "h1": 0.755,
+    "h2": 0.4,
+    "area_top": 0.00015393804002589986,
+    "area_bottom": 0.00041547562843725016,
+    "area_web": 0.00020106192982974677
+  },
+  "cad": {
+    "scad": "shiva_output/standard_seed42/cad/structure_truss.scad",
+    "stl": "shiva_output/standard_seed42/cad/structure_truss.stl",
+    "components": 17,
+    "triangles": 2172,
+    "components_watertight": true,
+    "bbox_mm": [
+      2036.8,
+      35.877,
+      1021.8
+    ],
+    "volume_mm3_sum_of_shells": 1988938.85637602,
+    "freecad_macro": "shiva_output/standard_seed42/cad/structure_truss.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/structure_truss_openscad.stl"
+  },
+  "material": "cfrp_qi"
+}

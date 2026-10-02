@@ -1,0 +1,4730 @@
+{
+ "version": "0.1.0",
+ "seed": 42,
+ "profile": "standard",
+ "python": "3.11.15",
+ "stages": {
+  "physics": [
+   {
+    "name": "newtonian (inverse-square)",
+    "genome": {
+     "gravity": {
+      "law": "inverse_square",
+      "G": 1.0,
+      "k": 2.0,
+      "screening_length": 5.0,
+      "tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "fractal_eps": 0.0,
+      "fractal_gamma": 0.5,
+      "fractal_omega": 6.0,
+      "fractal_beta": 2.0,
+      "fractal_octaves": 3,
+      "fractal_r0": 1.0,
+      "modulation_amp": 0.0,
+      "modulation_freq": 1.0
+     },
+     "em": {
+      "law": "off",
+      "alpha_ratio": 1.0,
+      "base_coupling": 0.5,
+      "k": 2.0,
+      "proca_mass": 1.0,
+      "specific_charge": 1.0,
+      "B": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "inertia": {
+      "model": "newtonian",
+      "c": 10.0,
+      "mass_tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "kinetic_exponent": 2.0,
+      "rest_energy_factor": 1.0,
+      "mass_spectrum": "equal",
+      "mass_spread": 0.5,
+      "imf_slope": 2.35
+     },
+     "thermo": {
+      "friction": 0.0,
+      "temperature": 0.0,
+      "noise": "gaussian",
+      "tsallis_q": 1.0,
+      "active_gamma": 0.0,
+      "active_v0": 0.5,
+      "adiabatic_index": 1.4
+     },
+     "fluid": {
+      "viscosity": 0.001,
+      "viscosity_tensor_chol": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "hyper_order": 1.0,
+      "advection": 1.0,
+      "ekman_drag": 0.02,
+      "forcing_amp": 0.5,
+      "forcing_k": 4,
+      "medium_drag": 0.0,
+      "drag_exponent": 2.0,
+      "rd_diffusion_u": 0.16,
+      "rd_diffusion_v": 0.08,
+      "rd_feed": 0.03,
+      "rd_kill": 0.062
+     },
+     "interaction": {
+      "propagation": "instantaneous",
+      "c_prop": 5.0,
+      "n_species": 1,
+      "species_matrix": [
+       [
+        0.0
+       ]
+      ],
+      "species_range": 0.3,
+      "core_repulsion": 0.0,
+      "core_range": 0.08
+     },
+     "cosmology": {
+      "Lambda": 0.0,
+      "hubble": 0.0
+     },
+     "dim": 3,
+     "name": "newtonian (inverse-square)",
+     "genome_id": "957cc7ed569d",
+     "parents": [],
+     "generation": 0,
+     "lineage": []
+    },
+    "report": {
+     "genome_id": "957cc7ed569d",
+     "latex": {
+      "U_gravity": "- \\frac{1.0}{r}",
+      "F_gravity": "- \\frac{1.0}{r^{2}}",
+      "T_kinetic": "\\frac{p_{x}^{2} + p_{y}^{2} + p_{z}^{2}}{2 m}"
+     },
+     "effective_dimension": 3.0,
+     "field_equations": {
+      "gravity_gauss_law": {
+       "equation": "Eq(nabla^2_{d_eff}*Phi(r), 4*pi*G*rho)",
+       "latex": "\\nabla^2_{(d)}\\Phi = S_{d} G \\rho,\\quad d_{\\rm eff} = k+1 = 3",
+       "green_function": "\\frac{1}{r}",
+       "verified": true,
+       "note": "radial Laplacian in d = k+1 (possibly non-integer, Stillinger 1977) annihilates phi_k for r>0"
+      },
+      "vorticity": {
+       "latex": "\\partial_t\\omega + 1\\,J(\\psi,\\omega) = -0.001\\,\\big(k^{T}N k\\big)^{1}\\hat\\omega - 0.02\\,\\omega + f,\\quad N=\\left[\\begin{matrix}1.0 & 0.0\\\\0.0 & 1.0\\end{matrix}\\right]",
+       "verified": true,
+       "note": "pseudo-spectral solver uses exactly this operator in Fourier space"
+      }
+     },
+     "orbital": {
+      "r0": 1.0,
+      "circular_orbit_exists": true,
+      "stable_circular": true,
+      "apsidal_angle": 3.141592653589793,
+      "precession_per_radial_period": 0.0,
+      "closed_orbits_expected": true,
+      "stable_bands": [
+       [
+        0.05,
+        20.0
+       ]
+      ],
+      "n_stable_bands": 1
+     },
+     "jeans": {
+      "law": "inverse_square",
+      "k": 2.0,
+      "A_k": 12.566370614359172,
+      "A_k_exact": "4 \\pi",
+      "q_J": 3.5449077018110318,
+      "jeans_length": 1.772453850905516,
+      "unstable": true,
+      "q_star": null,
+      "preferred_scale": null,
+      "note": "k <= 2: growth rate is maximal on the largest scales"
+     },
+     "entropy": {
+      "latex": "S_q = \\frac{1-\\sum_i p_i^{q}}{q-1},\\quad q = 1",
+      "shannon_limit_verified": true,
+      "q": 1.0
+     },
+     "noether": {
+      "energy": true,
+      "momentum": true,
+      "momentum_kind": "mechanical",
+      "angular_axes": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "angular_kind": "mechanical",
+      "time_reversal": true,
+      "liouville": true,
+      "virial_degree": -1.0,
+      "symmetries": [
+       "time translation",
+       "spatial translation",
+       "rotation about 3 axis/axes",
+       "time reversal"
+      ],
+      "broken": {
+       "energy": [],
+       "momentum": [],
+       "angular_momentum": []
+      }
+     }
+    }
+   },
+   {
+    "name": "inverse-k (k = 2.5, d_eff = 3.5)",
+    "genome": {
+     "gravity": {
+      "law": "inverse_k",
+      "G": 1.0,
+      "k": 2.5,
+      "screening_length": 5.0,
+      "tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "fractal_eps": 0.0,
+      "fractal_gamma": 0.5,
+      "fractal_omega": 6.0,
+      "fractal_beta": 2.0,
+      "fractal_octaves": 3,
+      "fractal_r0": 1.0,
+      "modulation_amp": 0.0,
+      "modulation_freq": 1.0
+     },
+     "em": {
+      "law": "off",
+      "alpha_ratio": 1.0,
+      "base_coupling": 0.5,
+      "k": 2.0,
+      "proca_mass": 1.0,
+      "specific_charge": 1.0,
+      "B": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "inertia": {
+      "model": "newtonian",
+      "c": 10.0,
+      "mass_tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "kinetic_exponent": 2.0,
+      "rest_energy_factor": 1.0,
+      "mass_spectrum": "equal",
+      "mass_spread": 0.5,
+      "imf_slope": 2.35
+     },
+     "thermo": {
+      "friction": 0.0,
+      "temperature": 0.0,
+      "noise": "gaussian",
+      "tsallis_q": 1.0,
+      "active_gamma": 0.0,
+      "active_v0": 0.5,
+      "adiabatic_index": 1.4
+     },
+     "fluid": {
+      "viscosity": 0.001,
+      "viscosity_tensor_chol": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "hyper_order": 1.0,
+      "advection": 1.0,
+      "ekman_drag": 0.02,
+      "forcing_amp": 0.5,
+      "forcing_k": 4,
+      "medium_drag": 0.0,
+      "drag_exponent": 2.0,
+      "rd_diffusion_u": 0.16,
+      "rd_diffusion_v": 0.08,
+      "rd_feed": 0.03,
+      "rd_kill": 0.062
+     },
+     "interaction": {
+      "propagation": "instantaneous",
+      "c_prop": 5.0,
+      "n_species": 1,
+      "species_matrix": [
+       [
+        0.0
+       ]
+      ],
+      "species_range": 0.3,
+      "core_repulsion": 0.0,
+      "core_range": 0.08
+     },
+     "cosmology": {
+      "Lambda": 0.0,
+      "hubble": 0.0
+     },
+     "dim": 3,
+     "name": "inverse-k (k = 2.5, d_eff = 3.5)",
+     "genome_id": "12c149ba130c",
+     "parents": [],
+     "generation": 0,
+     "lineage": []
+    },
+    "report": {
+     "genome_id": "12c149ba130c",
+     "latex": {
+      "U_gravity": "- \\frac{0.6666666667}{r^{\\frac{3}{2}}}",
+      "F_gravity": "- \\frac{1.0}{r^{\\frac{5}{2}}}",
+      "T_kinetic": "\\frac{p_{x}^{2} + p_{y}^{2} + p_{z}^{2}}{2 m}"
+     },
+     "effective_dimension": 3.5,
+     "field_equations": {
+      "gravity_gauss_law": {
+       "equation": "Eq(nabla^2_{d_eff}*Phi(r), 4*pi*G*rho)",
+       "latex": "\\nabla^2_{(d)}\\Phi = S_{d} G \\rho,\\quad d_{\\rm eff} = k+1 = \\frac{7}{2}",
+       "green_function": "\\frac{2}{3 r^{\\frac{3}{2}}}",
+       "verified": true,
+       "note": "radial Laplacian in d = k+1 (possibly non-integer, Stillinger 1977) annihilates phi_k for r>0"
+      },
+      "vorticity": {
+       "latex": "\\partial_t\\omega + 1\\,J(\\psi,\\omega) = -0.001\\,\\big(k^{T}N k\\big)^{1}\\hat\\omega - 0.02\\,\\omega + f,\\quad N=\\left[\\begin{matrix}1.0 & 0.0\\\\0.0 & 1.0\\end{matrix}\\right]",
+       "verified": true,
+       "note": "pseudo-spectral solver uses exactly this operator in Fourier space"
+      }
+     },
+     "orbital": {
+      "r0": 1.0,
+      "circular_orbit_exists": true,
+      "stable_circular": true,
+      "apsidal_angle": 4.442882938158366,
+      "precession_per_radial_period": 2.602580569137146,
+      "closed_orbits_expected": false,
+      "stable_bands": [
+       [
+        0.05,
+        20.0
+       ]
+      ],
+      "n_stable_bands": 1
+     },
+     "jeans": {
+      "law": "inverse_k",
+      "k": 2.5,
+      "A_k": 10.499739963814946,
+      "A_k_exact": "\\frac{4 \\sqrt{2} \\pi^{\\frac{3}{2}}}{3}",
+      "q_J": 4.794967806486869,
+      "jeans_length": 1.3103706971044484,
+      "unstable": true,
+      "q_star": 1.9028842350427264,
+      "preferred_scale": 3.3019272488946267,
+      "max_growth_rate": 3.29589217601584
+     },
+     "entropy": {
+      "latex": "S_q = \\frac{1-\\sum_i p_i^{q}}{q-1},\\quad q = 1",
+      "shannon_limit_verified": true,
+      "q": 1.0
+     },
+     "noether": {
+      "energy": true,
+      "momentum": true,
+      "momentum_kind": "mechanical",
+      "angular_axes": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "angular_kind": "mechanical",
+      "time_reversal": true,
+      "liouville": true,
+      "virial_degree": -1.5,
+      "symmetries": [
+       "time translation",
+       "spatial translation",
+       "rotation about 3 axis/axes",
+       "time reversal"
+      ],
+      "broken": {
+       "energy": [],
+       "momentum": [],
+       "angular_momentum": []
+      }
+     }
+    }
+   },
+   {
+    "name": "tensor (anisotropic metric Q)",
+    "genome": {
+     "gravity": {
+      "law": "tensor",
+      "G": 1.0,
+      "k": 2.0,
+      "screening_length": 5.0,
+      "tensor_chol": [
+       0.35,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       -0.35
+      ],
+      "fractal_eps": 0.0,
+      "fractal_gamma": 0.5,
+      "fractal_omega": 6.0,
+      "fractal_beta": 2.0,
+      "fractal_octaves": 3,
+      "fractal_r0": 1.0,
+      "modulation_amp": 0.0,
+      "modulation_freq": 1.0
+     },
+     "em": {
+      "law": "off",
+      "alpha_ratio": 1.0,
+      "base_coupling": 0.5,
+      "k": 2.0,
+      "proca_mass": 1.0,
+      "specific_charge": 1.0,
+      "B": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "inertia": {
+      "model": "newtonian",
+      "c": 10.0,
+      "mass_tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "kinetic_exponent": 2.0,
+      "rest_energy_factor": 1.0,
+      "mass_spectrum": "equal",
+      "mass_spread": 0.5,
+      "imf_slope": 2.35
+     },
+     "thermo": {
+      "friction": 0.0,
+      "temperature": 0.0,
+      "noise": "gaussian",
+      "tsallis_q": 1.0,
+      "active_gamma": 0.0,
+      "active_v0": 0.5,
+      "adiabatic_index": 1.4
+     },
+     "fluid": {
+      "viscosity": 0.001,
+      "viscosity_tensor_chol": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "hyper_order": 1.0,
+      "advection": 1.0,
+      "ekman_drag": 0.02,
+      "forcing_amp": 0.5,
+      "forcing_k": 4,
+      "medium_drag": 0.0,
+      "drag_exponent": 2.0,
+      "rd_diffusion_u": 0.16,
+      "rd_diffusion_v": 0.08,
+      "rd_feed": 0.03,
+      "rd_kill": 0.062
+     },
+     "interaction": {
+      "propagation": "instantaneous",
+      "c_prop": 5.0,
+      "n_species": 1,
+      "species_matrix": [
+       [
+        0.0
+       ]
+      ],
+      "species_range": 0.3,
+      "core_repulsion": 0.0,
+      "core_range": 0.08
+     },
+     "cosmology": {
+      "Lambda": 0.0,
+      "hubble": 0.0
+     },
+     "dim": 3,
+     "name": "tensor (anisotropic metric Q)",
+     "genome_id": "6a663b9d2bfe",
+     "parents": [],
+     "generation": 0,
+     "lineage": []
+    },
+    "report": {
+     "genome_id": "6a663b9d2bfe",
+     "latex": {
+      "U_gravity": "- \\frac{1.0}{r}",
+      "F_gravity": "- \\frac{1.0}{r^{2}}",
+      "T_kinetic": "\\frac{p_{x}^{2} + p_{y}^{2} + p_{z}^{2}}{2 m}"
+     },
+     "effective_dimension": 3.0,
+     "field_equations": {
+      "gravity_gauss_law": {
+       "equation": "Eq(nabla^2_{d_eff}*Phi(r), 4*pi*G*rho)",
+       "latex": "\\nabla^2_{(d)}\\Phi = S_{d} G \\rho,\\quad d_{\\rm eff} = k+1 = 3",
+       "green_function": "\\frac{1}{r}",
+       "verified": true,
+       "note": "radial Laplacian in d = k+1 (possibly non-integer, Stillinger 1977) annihilates phi_k for r>0"
+      },
+      "gravity_anisotropic_poisson": {
+       "latex": "\\nabla\\cdot(Q^{-1}\\nabla\\Phi) = 4\\pi G \\rho\\,(\\det Q)^{-1/2}",
+       "green_function": "(x^{T} Q x)^{-1/2}",
+       "verified": true,
+       "residual": 8.526512829121202e-14,
+       "note": "coordinate map y = Q^{1/2} x turns the anisotropic operator into the Laplacian (checked on the k=2, 3-D slice at random points)"
+      },
+      "vorticity": {
+       "latex": "\\partial_t\\omega + 1\\,J(\\psi,\\omega) = -0.001\\,\\big(k^{T}N k\\big)^{1}\\hat\\omega - 0.02\\,\\omega + f,\\quad N=\\left[\\begin{matrix}1.0 & 0.0\\\\0.0 & 1.0\\end{matrix}\\right]",
+       "verified": true,
+       "note": "pseudo-spectral solver uses exactly this operator in Fourier space"
+      }
+     },
+     "orbital": {
+      "r0": 1.0,
+      "circular_orbit_exists": true,
+      "stable_circular": true,
+      "apsidal_angle": 3.141592653589793,
+      "precession_per_radial_period": 0.0,
+      "closed_orbits_expected": true,
+      "stable_bands": [
+       [
+        0.05,
+        20.0
+       ]
+      ],
+      "n_stable_bands": 1
+     },
+     "jeans": null,
+     "entropy": {
+      "latex": "S_q = \\frac{1-\\sum_i p_i^{q}}{q-1},\\quad q = 1",
+      "shannon_limit_verified": true,
+      "q": 1.0
+     },
+     "noether": {
+      "energy": true,
+      "momentum": true,
+      "momentum_kind": "mechanical",
+      "angular_axes": [],
+      "angular_kind": "none",
+      "time_reversal": true,
+      "liouville": true,
+      "virial_degree": -1.0,
+      "symmetries": [
+       "time translation",
+       "spatial translation",
+       "time reversal"
+      ],
+      "broken": {
+       "energy": [],
+       "momentum": [],
+       "angular_momentum": [
+        "anisotropic tensor (gravity metric / mass tensor)"
+       ]
+      }
+     }
+    }
+   },
+   {
+    "name": "fractal (log-periodic, eps = 0.4)",
+    "genome": {
+     "gravity": {
+      "law": "fractal",
+      "G": 1.0,
+      "k": 2.0,
+      "screening_length": 5.0,
+      "tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "fractal_eps": 0.4,
+      "fractal_gamma": 0.5,
+      "fractal_omega": 6.0,
+      "fractal_beta": 2.0,
+      "fractal_octaves": 3,
+      "fractal_r0": 1.0,
+      "modulation_amp": 0.0,
+      "modulation_freq": 1.0
+     },
+     "em": {
+      "law": "off",
+      "alpha_ratio": 1.0,
+      "base_coupling": 0.5,
+      "k": 2.0,
+      "proca_mass": 1.0,
+      "specific_charge": 1.0,
+      "B": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "inertia": {
+      "model": "newtonian",
+      "c": 10.0,
+      "mass_tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "kinetic_exponent": 2.0,
+      "rest_energy_factor": 1.0,
+      "mass_spectrum": "equal",
+      "mass_spread": 0.5,
+      "imf_slope": 2.35
+     },
+     "thermo": {
+      "friction": 0.0,
+      "temperature": 0.0,
+      "noise": "gaussian",
+      "tsallis_q": 1.0,
+      "active_gamma": 0.0,
+      "active_v0": 0.5,
+      "adiabatic_index": 1.4
+     },
+     "fluid": {
+      "viscosity": 0.001,
+      "viscosity_tensor_chol": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "hyper_order": 1.0,
+      "advection": 1.0,
+      "ekman_drag": 0.02,
+      "forcing_amp": 0.5,
+      "forcing_k": 4,
+      "medium_drag": 0.0,
+      "drag_exponent": 2.0,
+      "rd_diffusion_u": 0.16,
+      "rd_diffusion_v": 0.08,
+      "rd_feed": 0.03,
+      "rd_kill": 0.062
+     },
+     "interaction": {
+      "propagation": "instantaneous",
+      "c_prop": 5.0,
+      "n_species": 1,
+      "species_matrix": [
+       [
+        0.0
+       ]
+      ],
+      "species_range": 0.3,
+      "core_repulsion": 0.0,
+      "core_range": 0.08
+     },
+     "cosmology": {
+      "Lambda": 0.0,
+      "hubble": 0.0
+     },
+     "dim": 3,
+     "name": "fractal (log-periodic, eps = 0.4)",
+     "genome_id": "b0e4a7da7bc1",
+     "parents": [],
+     "generation": 0,
+     "lineage": []
+    },
+    "report": {
+     "genome_id": "b0e4a7da7bc1",
+     "latex": {
+      "U_gravity": "- \\frac{1.0 \\left(0.4 \\cos{\\left(6.0 \\log{\\left(1.0 r \\right)} \\right)} + 0.2 \\cos{\\left(12.0 \\log{\\left(1.0 r \\right)} \\right)} + 0.1 \\cos{\\left(24.0 \\log{\\left(1.0 r \\right)} \\right)} + 1\\right)}{r}",
+      "F_gravity": "- \\frac{2.399999999 \\sin{\\left(6.0 \\log{\\left(r \\right)} \\right)} + 2.399999999 \\sin{\\left(12.0 \\log{\\left(r \\right)} \\right)} + 2.399999999 \\sin{\\left(24.0 \\log{\\left(r \\right)} \\right)} + 0.4 \\cos{\\left(6.0 \\log{\\left(r \\right)} \\right)} + 0.2 \\cos{\\left(12.0 \\log{\\left(r \\right)} \\right)} + 0.1 \\cos{\\left(24.0 \\log{\\left(r \\right)} \\right)} + 1.0}{r^{2}}",
+      "T_kinetic": "\\frac{p_{x}^{2} + p_{y}^{2} + p_{z}^{2}}{2 m}"
+     },
+     "effective_dimension": 3.0,
+     "field_equations": {
+      "gravity_gauss_law": {
+       "equation": "Eq(nabla^2_{d_eff}*Phi(r), 4*pi*G*rho)",
+       "latex": "\\nabla^2_{(d)}\\Phi = S_{d} G \\rho,\\quad d_{\\rm eff} = k+1 = 3",
+       "green_function": "\\frac{1}{r}",
+       "verified": true,
+       "note": "radial Laplacian in d = k+1 (possibly non-integer, Stillinger 1977) annihilates phi_k for r>0"
+      },
+      "gravity_running_coupling": {
+       "latex": "G_{\\rm eff}(r) = G\\Big[1+\\epsilon\\sum_n\\gamma^n\\cos(\\omega\\beta^n\\ln\\tfrac{r}{r_0})\\Big],\\quad\\beta(G_{\\rm eff}) = \\frac{dG_{\\rm eff}}{d\\ln r}",
+       "beta_function": "- 2.4 \\sin{\\left(6.0 \\log{\\left(r \\right)} \\right)} - 2.4 \\sin{\\left(12.0 \\log{\\left(r \\right)} \\right)} - 2.4 \\sin{\\left(24.0 \\log{\\left(r \\right)} \\right)}",
+       "verified": true,
+       "note": "discrete scale invariance: G_eff is (quasi-)invariant under r -> r exp(2 pi/omega)"
+      },
+      "vorticity": {
+       "latex": "\\partial_t\\omega + 1\\,J(\\psi,\\omega) = -0.001\\,\\big(k^{T}N k\\big)^{1}\\hat\\omega - 0.02\\,\\omega + f,\\quad N=\\left[\\begin{matrix}1.0 & 0.0\\\\0.0 & 1.0\\end{matrix}\\right]",
+       "verified": true,
+       "note": "pseudo-spectral solver uses exactly this operator in Fourier space"
+      }
+     },
+     "orbital": {
+      "r0": 1.0,
+      "circular_orbit_exists": true,
+      "stable_circular": true,
+      "apsidal_angle": 0.4045874441140436,
+      "precession_per_radial_period": -5.474010418951499,
+      "closed_orbits_expected": false,
+      "stable_bands": [
+       [
+        0.05389857365645959,
+        0.05898016647942289
+       ],
+       [
+        0.07277904368111568,
+        0.07845373292986609
+       ],
+       [
+        0.12126508275084927,
+        0.13470569060165838
+       ],
+       [
+        0.1518999292735231,
+        0.1687359989451679
+       ],
+       [
+        0.20821312266203065,
+        0.22444780656081828
+       ],
+       [
+        0.34692653643613813,
+        0.3853786895498086
+       ],
+       [
+        0.4345695822104955,
+        0.4827357913605925
+       ],
+       [
+        0.5867976916749333,
+        0.6421213623448229
+       ],
+       [
+        0.9925200144452313,
+        1.1025275450189436
+       ],
+       [
+        1.2432574701370993,
+        1.3604725986414692
+       ],
+       [
+        1.678765941056349,
+        1.837041093417172
+       ],
+       [
+        2.8394944624124987,
+        3.1542143364115396
+       ],
+       [
+        3.5568277217870334,
+        3.8921677687937084
+       ],
+       [
+        4.8027712529108415,
+        5.177250402602832
+       ],
+       [
+        8.002419707099738,
+        8.889380592301146
+       ],
+       [
+        10.024047812864632,
+        11.135079056765962
+       ],
+       [
+        13.74021901663809,
+        14.811564134483092
+       ]
+      ],
+      "n_stable_bands": 17
+     },
+     "jeans": null,
+     "entropy": {
+      "latex": "S_q = \\frac{1-\\sum_i p_i^{q}}{q-1},\\quad q = 1",
+      "shannon_limit_verified": true,
+      "q": 1.0
+     },
+     "noether": {
+      "energy": true,
+      "momentum": true,
+      "momentum_kind": "mechanical",
+      "angular_axes": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "angular_kind": "mechanical",
+      "time_reversal": true,
+      "liouville": true,
+      "virial_degree": null,
+      "symmetries": [
+       "time translation",
+       "spatial translation",
+       "rotation about 3 axis/axes",
+       "time reversal"
+      ],
+      "broken": {
+       "energy": [],
+       "momentum": [],
+       "angular_momentum": []
+      }
+     }
+    }
+   },
+   {
+    "name": "yukawa (lambda = 1)",
+    "genome": {
+     "gravity": {
+      "law": "yukawa",
+      "G": 1.0,
+      "k": 2.0,
+      "screening_length": 1.0,
+      "tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "fractal_eps": 0.0,
+      "fractal_gamma": 0.5,
+      "fractal_omega": 6.0,
+      "fractal_beta": 2.0,
+      "fractal_octaves": 3,
+      "fractal_r0": 1.0,
+      "modulation_amp": 0.0,
+      "modulation_freq": 1.0
+     },
+     "em": {
+      "law": "off",
+      "alpha_ratio": 1.0,
+      "base_coupling": 0.5,
+      "k": 2.0,
+      "proca_mass": 1.0,
+      "specific_charge": 1.0,
+      "B": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "inertia": {
+      "model": "newtonian",
+      "c": 10.0,
+      "mass_tensor_chol": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "kinetic_exponent": 2.0,
+      "rest_energy_factor": 1.0,
+      "mass_spectrum": "equal",
+      "mass_spread": 0.5,
+      "imf_slope": 2.35
+     },
+     "thermo": {
+      "friction": 0.0,
+      "temperature": 0.0,
+      "noise": "gaussian",
+      "tsallis_q": 1.0,
+      "active_gamma": 0.0,
+      "active_v0": 0.5,
+      "adiabatic_index": 1.4
+     },
+     "fluid": {
+      "viscosity": 0.001,
+      "viscosity_tensor_chol": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "hyper_order": 1.0,
+      "advection": 1.0,
+      "ekman_drag": 0.02,
+      "forcing_amp": 0.5,
+      "forcing_k": 4,
+      "medium_drag": 0.0,
+      "drag_exponent": 2.0,
+      "rd_diffusion_u": 0.16,
+      "rd_diffusion_v": 0.08,
+      "rd_feed": 0.03,
+      "rd_kill": 0.062
+     },
+     "interaction": {
+      "propagation": "instantaneous",
+      "c_prop": 5.0,
+      "n_species": 1,
+      "species_matrix": [
+       [
+        0.0
+       ]
+      ],
+      "species_range": 0.3,
+      "core_repulsion": 0.0,
+      "core_range": 0.08
+     },
+     "cosmology": {
+      "Lambda": 0.0,
+      "hubble": 0.0
+     },
+     "dim": 3,
+     "name": "yukawa (lambda = 1)",
+     "genome_id": "35199f10692b",
+     "parents": [],
+     "generation": 0,
+     "lineage": []
+    },
+    "report": {
+     "genome_id": "35199f10692b",
+     "latex": {
+      "U_gravity": "- \\frac{1.0 e^{- 1.0 r}}{r}",
+      "F_gravity": "\\frac{1.0 \\left(- r - 1\\right) e^{- 1.0 r}}{r^{2}}",
+      "T_kinetic": "\\frac{p_{x}^{2} + p_{y}^{2} + p_{z}^{2}}{2 m}"
+     },
+     "effective_dimension": 3.0,
+     "field_equations": {
+      "gravity_screened_poisson": {
+       "latex": "(\\nabla^2 - \\lambda^{-2})\\Phi = 4\\pi G\\rho",
+       "green_function": "\\frac{e^{- 1.0 r}}{r}",
+       "verified": true,
+       "note": "Yukawa potential is the Green's function of the screened Poisson equation (proved for all lambda)"
+      },
+      "vorticity": {
+       "latex": "\\partial_t\\omega + 1\\,J(\\psi,\\omega) = -0.001\\,\\big(k^{T}N k\\big)^{1}\\hat\\omega - 0.02\\,\\omega + f,\\quad N=\\left[\\begin{matrix}1.0 & 0.0\\\\0.0 & 1.0\\end{matrix}\\right]",
+       "verified": true,
+       "note": "pseudo-spectral solver uses exactly this operator in Fourier space"
+      }
+     },
+     "orbital": {
+      "r0": 1.0,
+      "circular_orbit_exists": true,
+      "stable_circular": true,
+      "apsidal_angle": 4.442882938158366,
+      "precession_per_radial_period": 2.602580569137146,
+      "closed_orbits_expected": false,
+      "stable_bands": [
+       [
+        0.05,
+        1.6290981196363148
+       ]
+      ],
+      "n_stable_bands": 1
+     },
+     "jeans": {
+      "law": "yukawa",
+      "k_J": 3.5449077018110318,
+      "unstable": true,
+      "q_max_unstable": 3.4009367260152272,
+      "lambda_times_kJ": 3.5449077018110318
+     },
+     "entropy": {
+      "latex": "S_q = \\frac{1-\\sum_i p_i^{q}}{q-1},\\quad q = 1",
+      "shannon_limit_verified": true,
+      "q": 1.0
+     },
+     "noether": {
+      "energy": true,
+      "momentum": true,
+      "momentum_kind": "mechanical",
+      "angular_axes": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "angular_kind": "mechanical",
+      "time_reversal": true,
+      "liouville": true,
+      "virial_degree": null,
+      "symmetries": [
+       "time translation",
+       "spatial translation",
+       "rotation about 3 axis/axes",
+       "time reversal"
+      ],
+      "broken": {
+       "energy": [],
+       "momentum": [],
+       "angular_momentum": []
+      }
+     }
+    }
+   }
+  ],
+  "noether": [
+   {
+    "name": "newtonian",
+    "energy": {
+     "predicted": true,
+     "drift": 2.221924219461635e-06,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 4.2763028413657824e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": true,
+     "drift": 4.458022837216863e-16,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "inverse-k 2.5",
+    "energy": {
+     "predicted": true,
+     "drift": 3.566115170242656e-05,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 3.1095675027536873e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": true,
+     "drift": 7.371713424449314e-16,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "anisotropic gravity",
+    "energy": {
+     "predicted": true,
+     "drift": 3.5952671661973115e-06,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 4.338988969031811e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": false,
+     "drift": 0.07125318731659694,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "axisymmetric gravity",
+    "energy": {
+     "predicted": true,
+     "drift": 2.0364630345051987e-06,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 2.198288797028772e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": true,
+     "drift": 2.961326884071249e-16,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "relativistic inertia c=1.5",
+    "energy": {
+     "predicted": true,
+     "drift": 1.2927841187591953e-06,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 3.684183154208762e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": true,
+     "drift": 7.412787611301041e-16,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "anisotropic inertia",
+    "energy": {
+     "predicted": true,
+     "drift": 2.4730153766211265e-06,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 7.703839689836546e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": false,
+     "drift": 0.028936457062396566,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "time-varying G",
+    "energy": {
+     "predicted": false,
+     "drift": 0.18199137186766198,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 3.331877713920833e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": true,
+     "drift": 4.557503856938921e-16,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "Lambda < 0 (AdS box)",
+    "energy": {
+     "predicted": true,
+     "drift": 2.1668567718607485e-06,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": false,
+     "drift": 3.3993428633395004e-16,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": true,
+     "drift": 2.184615093764766e-16,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "Coulomb + B field",
+    "energy": {
+     "predicted": true,
+     "drift": 1.3958393491359182e-06,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": true,
+     "drift": 8.551684992562981e-08,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": true,
+     "drift": 4.962494911828405e-08,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "non-reciprocal species",
+    "energy": {
+     "predicted": false,
+     "drift": 0.008707869312673543,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": false,
+     "drift": 0.09200055390784603,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": false,
+     "drift": 0.017840487632779164,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "retarded gravity c=3",
+    "energy": {
+     "predicted": false,
+     "drift": 0.030910204680764525,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": false,
+     "drift": 0.03966669917222489,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": false,
+     "drift": 0.018530942393505292,
+     "consistent": true
+    },
+    "consistency": 1.0
+   },
+   {
+    "name": "Langevin bath",
+    "energy": {
+     "predicted": false,
+     "drift": 1.1746980284563824,
+     "consistent": true
+    },
+    "momentum": {
+     "predicted": false,
+     "drift": 0.20706462221033936,
+     "consistent": true
+    },
+    "angular_momentum": {
+     "predicted": false,
+     "drift": 0.14025188571220154,
+     "consistent": true
+    },
+    "consistency": 1.0
+   }
+  ],
+  "search": {
+   "best": {
+    "genome_id": "02d1d5e62596",
+    "law": "tensor",
+    "fitness": 0.5764,
+    "richness": 0.603,
+    "novelty": 0.0,
+    "stability": 1.0,
+    "consistency": 1.0,
+    "feasibility": 0.828
+   },
+   "best_genome": {
+    "gravity": {
+     "law": "tensor",
+     "G": 1.0,
+     "k": 2.5,
+     "screening_length": 5.0,
+     "tensor_chol": [
+      0.3318866130179666,
+      0.12862693153848404,
+      0.4607267975987976,
+      0.05497033116657184,
+      -0.36734070951615005,
+      -0.41044775977369946
+     ],
+     "fractal_eps": 0.0,
+     "fractal_gamma": 0.5,
+     "fractal_omega": 6.0,
+     "fractal_beta": 2.0,
+     "fractal_octaves": 3,
+     "fractal_r0": 1.0,
+     "modulation_amp": 0.0,
+     "modulation_freq": 1.0
+    },
+    "em": {
+     "law": "off",
+     "alpha_ratio": 1.0,
+     "base_coupling": 0.5,
+     "k": 2.0,
+     "proca_mass": 1.0,
+     "specific_charge": 1.0,
+     "B": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "inertia": {
+     "model": "newtonian",
+     "c": 10.0,
+     "mass_tensor_chol": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "kinetic_exponent": 2.0,
+     "rest_energy_factor": 1.0,
+     "mass_spectrum": "equal",
+     "mass_spread": 0.5,
+     "imf_slope": 2.35
+    },
+    "thermo": {
+     "friction": 0.0,
+     "temperature": 0.0,
+     "noise": "gaussian",
+     "tsallis_q": 1.0,
+     "active_gamma": 0.0,
+     "active_v0": 0.5,
+     "adiabatic_index": 1.4
+    },
+    "fluid": {
+     "viscosity": 0.001,
+     "viscosity_tensor_chol": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "hyper_order": 1.0,
+     "advection": 1.0,
+     "ekman_drag": 0.02,
+     "forcing_amp": 0.5,
+     "forcing_k": 4,
+     "medium_drag": 0.0,
+     "drag_exponent": 2.0,
+     "rd_diffusion_u": 0.16,
+     "rd_diffusion_v": 0.08,
+     "rd_feed": 0.03,
+     "rd_kill": 0.062
+    },
+    "interaction": {
+     "propagation": "instantaneous",
+     "c_prop": 5.0,
+     "n_species": 1,
+     "species_matrix": [
+      [
+       1.2685659972821774
+      ]
+     ],
+     "species_range": 0.3,
+     "core_repulsion": 0.34716928276755166,
+     "core_range": 0.050270451737590253
+    },
+    "cosmology": {
+     "Lambda": 0.17843552957475467,
+     "hubble": 0.0
+    },
+    "dim": 3,
+    "name": "shiva-best-02d1d5e62596",
+    "genome_id": "02d1d5e62596",
+    "parents": [
+     "a16e7aeca948"
+    ],
+    "generation": 4,
+    "lineage": [
+     "g1: cosmology: Lambda=0.178, H=0",
+     "g2: gravity_escalate: inverse_k -> tensor",
+     "g3: interaction: prop=instantaneous, species=1, nonrecip=0.00, core=0",
+     "g4: interaction: prop=instantaneous, species=1, nonrecip=0.00, core=0.347"
+    ]
+   },
+   "best_description": "PhysicsGenome shiva-best-02d1d5e62596 (gen 4, dim 3)\n  gravity : tensor, G=1, k=2.5, Q-eig=[0.319, 1.489, 2.106]\n  em      : off (alpha/alpha0=1)\n  inertia : newtonian, masses=equal\n  thermo  : gamma=0, T=0, noise=gaussian(q=1), active=0@v0=0.5, adiabatic=1.4\n  fluid   : nu=0.001, h=1, lambda=1, N-eig=[1.0, 1.0], drag=0|v|^2\n  interact: instantaneous, species=1, nonreciprocity=0.000, sigma=0.3, core=0.347@0.0503\n  cosmos  : Lambda=0.178, H=0",
+   "history": [
+    {
+     "generation": 1,
+     "best_fitness": 0.5322577476128874,
+     "mean_fitness": 0.457208499844019,
+     "best_richness": 0.5529636035241859,
+     "success_rate": 0.625,
+     "strength": 1.2,
+     "laws": [
+      "inverse_k",
+      "inverse_k",
+      "inverse_square",
+      "inverse_k",
+      "tensor",
+      "inverse_square",
+      "yukawa",
+      "tensor",
+      "yukawa",
+      "tensor"
+     ]
+    },
+    {
+     "generation": 2,
+     "best_fitness": 0.5325550711775271,
+     "mean_fitness": 0.5102361081095337,
+     "best_richness": 0.5454259352360835,
+     "success_rate": 0.125,
+     "strength": 1.02,
+     "laws": [
+      "inverse_k",
+      "inverse_k",
+      "tensor",
+      "tensor",
+      "inverse_k",
+      "inverse_k",
+      "tensor",
+      "inverse_k",
+      "inverse_square",
+      "inverse_k"
+     ]
+    },
+    {
+     "generation": 3,
+     "best_fitness": 0.5686579497353261,
+     "mean_fitness": 0.5039793912125567,
+     "best_richness": 0.6046482578193675,
+     "success_rate": 0.25,
+     "strength": 1.224,
+     "laws": [
+      "tensor",
+      "inverse_k",
+      "inverse_k",
+      "fractal",
+      "inverse_k",
+      "tensor",
+      "inverse_square",
+      "inverse_k",
+      "tensor",
+      "inverse_square"
+     ]
+    },
+    {
+     "generation": 4,
+     "best_fitness": 0.5686579497353261,
+     "mean_fitness": 0.4738037222526673,
+     "best_richness": 0.6046482578193675,
+     "success_rate": 0.375,
+     "strength": 1.4687999999999999,
+     "laws": [
+      "inverse_k",
+      "tensor",
+      "tensor",
+      "fractal",
+      "inverse_k",
+      "tensor",
+      "fractal",
+      "inverse_k",
+      "inverse_k",
+      "tensor"
+     ]
+    },
+    {
+     "generation": 5,
+     "best_fitness": 0.5764105203045062,
+     "mean_fitness": 0.5288364149875082,
+     "best_richness": 0.6030117770617609,
+     "success_rate": 0.25,
+     "strength": 1.76256,
+     "laws": [
+      "inverse_k",
+      "tensor",
+      "inverse_k",
+      "tensor",
+      "fractal",
+      "tensor",
+      "tensor",
+      "inverse_k",
+      "inverse_k",
+      "tensor"
+     ]
+    }
+   ],
+   "bandit": {
+    "gravity_params": {
+     "pulls": 4,
+     "mean_reward": 0.32315577895618236
+    },
+    "gravity_escalate": {
+     "pulls": 4,
+     "mean_reward": 0.39614476458996273
+    },
+    "em": {
+     "pulls": 5,
+     "mean_reward": 0.5
+    },
+    "inertia": {
+     "pulls": 5,
+     "mean_reward": 0.48261509996398455
+    },
+    "thermo": {
+     "pulls": 3,
+     "mean_reward": 0.1668013129753098
+    },
+    "interaction": {
+     "pulls": 5,
+     "mean_reward": 0.5531979043151453
+    },
+    "symmetry": {
+     "pulls": 4,
+     "mean_reward": 0.4520391758575803
+    },
+    "cosmology": {
+     "pulls": 4,
+     "mean_reward": 0.42446001501173186
+    },
+    "crossover": {
+     "pulls": 6,
+     "mean_reward": 0.5623629086707091
+    }
+   },
+   "evaluations": 59,
+   "top10": [
+    {
+     "genome_id": "02d1d5e62596",
+     "law": "tensor",
+     "fitness": 0.5764,
+     "richness": 0.603,
+     "novelty": 0.0,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.828
+    },
+    {
+     "genome_id": "fafd2198ebbb",
+     "law": "inverse_k",
+     "fitness": 0.5687,
+     "richness": 0.6046,
+     "novelty": 0.2433,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.761
+    },
+    {
+     "genome_id": "e6f3c9c13912",
+     "law": "inverse_k",
+     "fitness": 0.5687,
+     "richness": 0.6046,
+     "novelty": 0.0,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.761
+    },
+    {
+     "genome_id": "01ff22092e7e",
+     "law": "inverse_k",
+     "fitness": 0.5635,
+     "richness": 0.5963,
+     "novelty": 0.0,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.78
+    },
+    {
+     "genome_id": "777685b15bf3",
+     "law": "inverse_k",
+     "fitness": 0.5613,
+     "richness": 0.5963,
+     "novelty": 0.1925,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.766
+    },
+    {
+     "genome_id": "a16e7aeca948",
+     "law": "tensor",
+     "fitness": 0.5575,
+     "richness": 0.579,
+     "novelty": 0.2248,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.857
+    },
+    {
+     "genome_id": "348a0d1f7bfd",
+     "law": "tensor",
+     "fitness": 0.5326,
+     "richness": 0.5454,
+     "novelty": 0.2522,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.9
+    },
+    {
+     "genome_id": "39d470500810",
+     "law": "inverse_k",
+     "fitness": 0.5323,
+     "richness": 0.553,
+     "novelty": 0.16,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.85
+    },
+    {
+     "genome_id": "9def1ddd84b3",
+     "law": "inverse_k",
+     "fitness": 0.5298,
+     "richness": 0.5539,
+     "novelty": 0.1702,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.826
+    },
+    {
+     "genome_id": "12c149ba130c",
+     "law": "inverse_k",
+     "fitness": 0.5227,
+     "richness": 0.542,
+     "novelty": 0.132,
+     "stability": 1.0,
+     "consistency": 1.0,
+     "feasibility": 0.857
+    }
+   ],
+   "cma_es": [
+    {
+     "best": -0.5843393859724295,
+     "mean": -0.35764522677045035,
+     "sigma": 0.1411840645393399
+    },
+    {
+     "best": -0.5885253099006748,
+     "mean": -0.25760724844491867,
+     "sigma": 0.1329373962585011
+    }
+   ],
+   "refined_fitness": 0.5885253099006748,
+   "noether": {
+    "energy": true,
+    "momentum": false,
+    "momentum_kind": "none",
+    "angular_axes": [],
+    "angular_kind": "none",
+    "time_reversal": true,
+    "liouville": true,
+    "virial_degree": null,
+    "symmetries": [
+     "time translation",
+     "time reversal"
+    ],
+    "broken": {
+     "energy": [],
+     "momentum": [
+      "external Lambda potential (no translation symmetry)"
+     ],
+     "angular_momentum": [
+      "anisotropic tensor (gravity metric / mass tensor)"
+     ]
+    }
+   },
+   "wall_time_s": 82.69112062454224,
+   "validation": [
+    {
+     "genome_id": "e27822b81220",
+     "law": "tensor",
+     "search_fitness": 0.5885253099006748,
+     "richness_per_seed": [
+      0.49431164247124354,
+      0.4307289659962077,
+      0.5765927825925712
+     ],
+     "richness_mean": 0.5005444636866742,
+     "richness_std": 0.07313138377770541
+    },
+    {
+     "genome_id": "02d1d5e62596",
+     "law": "tensor",
+     "search_fitness": 0.5764105203045062,
+     "richness_per_seed": [
+      0.6318913913330482,
+      0.6621296726709924,
+      0.6676655473452802
+     ],
+     "richness_mean": 0.6538955371164402,
+     "richness_std": 0.019256123723245387
+    },
+    {
+     "genome_id": "fafd2198ebbb",
+     "law": "inverse_k",
+     "search_fitness": 0.5686579497353261,
+     "richness_per_seed": [
+      0.5200938467368623,
+      0.6690723609977007,
+      0.6728135904148937
+     ],
+     "richness_mean": 0.6206599327164856,
+     "richness_std": 0.0871128718177386
+    },
+    {
+     "genome_id": "e6f3c9c13912",
+     "law": "inverse_k",
+     "search_fitness": 0.5686579497353261,
+     "richness_per_seed": [
+      0.5200938467368623,
+      0.6690723609977007,
+      0.6728135904148937
+     ],
+     "richness_mean": 0.6206599327164856,
+     "richness_std": 0.0871128718177386
+    }
+   ],
+   "validated_best": {
+    "genome_id": "02d1d5e62596",
+    "law": "tensor",
+    "search_fitness": 0.5764105203045062,
+    "richness_per_seed": [
+     0.6318913913330482,
+     0.6621296726709924,
+     0.6676655473452802
+    ],
+    "richness_mean": 0.6538955371164402,
+    "richness_std": 0.019256123723245387
+   }
+  },
+  "universe": {
+   "best": {
+    "evaluation": {
+     "stability": 1.0,
+     "conservation_consistency": 1.0,
+     "feasibility": 0.42911427593161855,
+     "conservation": {
+      "energy": {
+       "predicted": true,
+       "relative_drift": 0.00023369951494161975,
+       "tolerance": 0.02,
+       "measured_conserved": true,
+       "consistent": true
+      },
+      "momentum": {
+       "predicted": false,
+       "relative_drift": 5.199138594220132e-16,
+       "tolerance": 1e-06,
+       "measured_conserved": true,
+       "consistent": true
+      },
+      "angular_momentum": {
+       "predicted": false,
+       "relative_drift": 0.03287187301706418,
+       "tolerance": 1e-06,
+       "measured_conserved": false,
+       "consistent": true
+      }
+     },
+     "details": {
+      "survival": 1.0,
+      "final_rg": 4.936343854163608,
+      "bound_fraction": 0.8125,
+      "virial_deviation": 0.7422123356741948,
+      "lyapunov": 4.934818377195537
+     }
+    },
+    "emergence": {
+     "scores": {
+      "self_organization": 1.0,
+      "oscillation": 0.34351571259797425,
+      "attractor": 0.034308311050550544,
+      "chaos": 0.9928082329838187,
+      "fractal": 0.9565383907528974,
+      "symmetry_breaking": 0.5,
+      "clustering": 0.19921875,
+      "pattern_formation": 0.9965406226635353,
+      "coherent_vortices": 0.7216365312740332,
+      "rotational_symmetry_breaking": 0.5
+     },
+     "detected": {
+      "self_organization": true,
+      "oscillation": true,
+      "attractor": false,
+      "chaos": true,
+      "fractal": true,
+      "symmetry_breaking": true,
+      "clustering": false,
+      "pattern_formation": true,
+      "coherent_vortices": true,
+      "rotational_symmetry_breaking": true
+     },
+     "metrics": {
+      "self_organization": {
+       "score": 1.0,
+       "entropy_initial": 0.9175958675611239,
+       "entropy_final": 0.500951656679701,
+       "lmc_initial": 0.009030308537903124,
+       "lmc_final": 0.1273848498414097,
+       "order_gain": 0.0009278337453713092,
+       "polarization_final": 0.050116760251901066,
+       "milling_final": 0.035035809509637014
+      },
+      "oscillation": {
+       "score": 0.34351571259797425,
+       "peak_ratio": 10.357944243567502,
+       "period": 0.21729729729727942,
+       "observable": "kinetic"
+      },
+      "attractor": {
+       "score": 0.034308311050550544,
+       "DET": 0.8732673267326733,
+       "RR": 0.1,
+       "stationarity": 0.03928729496718373
+      },
+      "chaos": {
+       "score": 0.9928082329838187,
+       "lyapunov": 4.934818377195537,
+       "method": "benettin-twin",
+       "lyapunov_time": 0.2026417030100105
+      },
+      "fractal": {
+       "score": 0.9565383907528974,
+       "D2": 0.5967758090744802,
+       "D2_poisson_reference": 2.718234628116075,
+       "dimension_deficit": 0.7804546366594971,
+       "fit_r2": 0.9565383907528974,
+       "fit_range": [
+        0.162348211035719,
+        4.106112932335165
+       ],
+       "box_dimension": 1.3386070596381052,
+       "embedding_dimension": 3
+      },
+      "symmetry_breaking": {
+       "events": {
+        "asphericity": {
+         "delta": 0.3900210683188465,
+         "effect": 3.0260685260984226,
+         "index": 57,
+         "spontaneous": false,
+         "score": 0.5
+        },
+        "polarization": {
+         "delta": 0.014084645625145442,
+         "effect": 1.3396680079753671,
+         "index": 188,
+         "spontaneous": false,
+         "score": 0.010482638415376425
+        },
+        "milling": {
+         "delta": 0.02459117390626872,
+         "effect": 1.374040278059744,
+         "index": 30,
+         "spontaneous": false,
+         "score": 0.018771813017769444
+        },
+        "spin": {
+         "delta": -0.0450290861223451,
+         "effect": 2.504110206809029,
+         "index": 101,
+         "spontaneous": false,
+         "score": 0.06264321897902621
+        }
+       },
+       "score": 0.5,
+       "laws_rotationally_symmetric": false
+      },
+      "clustering": {
+       "score": 0.19921875,
+       "linking_length": 0.06004711872823634,
+       "n_groups": 2,
+       "group_sizes": [
+        46,
+        5
+       ],
+       "clustered_fraction": 0.31875,
+       "largest_fraction": 0.2875,
+       "correlation": {
+        "r0": 4.280526890723452,
+        "gamma": 2.6371261484307857,
+        "r": [
+         0.12225065467786085,
+         0.18270632433868333,
+         0.2730586682035776,
+         0.4080922570742403,
+         0.6099029610727658,
+         0.9115135498825614,
+         1.362277287780509,
+         2.0359537266798933,
+         3.0427781585753113,
+         4.5474996808503825
+        ],
+        "xi": [
+         3344.6981132075475,
+         5129.075471698114,
+         1887.188679245283,
+         1108.3642779390418,
+         259.24556000438787,
+         66.67655491913746,
+         25.796118000608644,
+         9.047878239029833,
+         0.8394829666671709,
+         -0.3147499786116446
+        ]
+       }
+      },
+      "pattern_formation": {
+       "score": 0.9965406226635353,
+       "std": 0.11269164234146185,
+       "components": 34,
+       "wavelength": 12.8,
+       "entropy": 0.9310279985192593
+      },
+      "coherent_vortices": {
+       "score": 0.7216365312740332,
+       "n_vortices": 27,
+       "kurtosis": 4.264909593822099,
+       "spectral_slope": -3.609764919066044
+      },
+      "rotational_symmetry_breaking": {
+       "score": 0.5,
+       "mean_flips": 2.25,
+       "major_axis_fraction": 0.0
+      }
+     },
+     "richness": 0.6670108531123524,
+     "stability": 1.0,
+     "descriptor": [
+      1.0,
+      0.34351571259797425,
+      0.034308311050550544,
+      0.9928082329838187,
+      0.9565383907528974,
+      0.5,
+      0.19921875,
+      0.9965406226635353,
+      0.7216365312740332,
+      0.5
+     ]
+    },
+    "particles": {
+     "genome_id": "02d1d5e62596",
+     "dim": 3,
+     "n_particles": 160,
+     "t_end": 7.999999999999341,
+     "records": 201,
+     "blew_up": false,
+     "blowup_time": null,
+     "lyapunov": 4.934818377195537,
+     "final_virial_ratio": 0.006766349293156911,
+     "final_bound_fraction": 0.8125,
+     "wall_time_s": 22.670538663864136
+    },
+    "rigid": {
+     "flips": [
+      2,
+      2,
+      3,
+      2
+     ],
+     "final_major_axis_alignment": [
+      0.0002,
+      0.0007,
+      0.3898,
+      0.0429
+     ],
+     "L_norm_drift": 1.1076238412655084e-14,
+     "dissipation": 0.0
+    },
+    "richness_stats": {
+     "richness_per_seed": [
+      0.6670108531123524,
+      0.6206102307468618,
+      0.6004272427061131,
+      0.6224414927745352,
+      0.6089550525110716
+     ],
+     "richness_mean": 0.6238889743701869,
+     "richness_std": 0.02571875125148203
+    },
+    "fields": {
+     "vorticity": {
+      "blew_up": false,
+      "params": {
+       "nu": 0.001,
+       "h": 1.0,
+       "lambda": 1.0,
+       "N": [
+        [
+         1.0,
+         0.0
+        ],
+        [
+         0.0,
+         1.0
+        ]
+       ],
+       "steps": 1962,
+       "t_end": 25.000000000001
+      },
+      "wall_time": 2.180363655090332
+     },
+     "reaction_diffusion": {
+      "blew_up": false,
+      "params": {
+       "F": 0.03,
+       "k": 0.062,
+       "Du": 0.16,
+       "Dv": 0.08,
+       "N": [
+        [
+         1.0,
+         0.0
+        ],
+        [
+         0.0,
+         1.0
+        ]
+       ],
+       "dt": 1.0,
+       "steps": 4000
+      },
+      "wall_time": 1.3312106132507324
+     }
+    }
+   },
+   "baseline": {
+    "evaluation": {
+     "stability": 1.0,
+     "conservation_consistency": 1.0,
+     "feasibility": 0.8620237185653546,
+     "conservation": {
+      "energy": {
+       "predicted": true,
+       "relative_drift": 0.00025351015825937796,
+       "tolerance": 0.02,
+       "measured_conserved": true,
+       "consistent": true
+      },
+      "momentum": {
+       "predicted": true,
+       "relative_drift": 4.982436921967681e-16,
+       "tolerance": 1e-06,
+       "measured_conserved": true,
+       "consistent": true
+      },
+      "angular_momentum": {
+       "predicted": true,
+       "relative_drift": 1.0244421312197747e-15,
+       "tolerance": 1e-06,
+       "measured_conserved": true,
+       "consistent": true
+      }
+     },
+     "details": {
+      "survival": 1.0,
+      "final_rg": 2.993620817969685,
+      "bound_fraction": 0.93125,
+      "virial_deviation": 0.11285873831574078,
+      "lyapunov": 2.007774819836785
+     }
+    },
+    "emergence": {
+     "scores": {
+      "self_organization": 1.0,
+      "oscillation": 0.0,
+      "attractor": 0.12726366918056764,
+      "chaos": 0.8657128444264912,
+      "fractal": 0.8721520396071368,
+      "symmetry_breaking": 0.6736002696105264,
+      "clustering": 0.121875,
+      "pattern_formation": 0.9965406226635353,
+      "coherent_vortices": 0.7216365312740332,
+      "rotational_symmetry_breaking": 0.5
+     },
+     "detected": {
+      "self_organization": true,
+      "oscillation": false,
+      "attractor": false,
+      "chaos": true,
+      "fractal": true,
+      "symmetry_breaking": true,
+      "clustering": false,
+      "pattern_formation": true,
+      "coherent_vortices": true,
+      "rotational_symmetry_breaking": true
+     },
+     "metrics": {
+      "self_organization": {
+       "score": 1.0,
+       "entropy_initial": 0.9175958675611239,
+       "entropy_final": 0.3127284197004217,
+       "lmc_initial": 0.009030308537903124,
+       "lmc_final": 0.16246985994912383,
+       "order_gain": 0.002164736176978148,
+       "polarization_final": 0.03597423070568972,
+       "milling_final": 0.03484869785321865
+      },
+      "oscillation": {
+       "score": 0.0,
+       "peak_ratio": 2.951762321687425,
+       "period": 0.535999999999956,
+       "observable": "kinetic"
+      },
+      "attractor": {
+       "score": 0.12726366918056764,
+       "DET": 0.9287128712871288,
+       "RR": 0.1,
+       "stationarity": 0.13703230903238092
+      },
+      "chaos": {
+       "score": 0.8657128444264912,
+       "lyapunov": 2.007774819836785,
+       "method": "benettin-twin",
+       "lyapunov_time": 0.4980638217593004
+      },
+      "fractal": {
+       "score": 0.8721520396071368,
+       "D2": 1.3173141844662657,
+       "D2_poisson_reference": 2.4286700841078015,
+       "dimension_deficit": 0.45759854618121365,
+       "fit_r2": 0.9529663576135531,
+       "fit_range": [
+        0.1,
+        0.8313875722626812
+       ],
+       "box_dimension": 0.8806559824027944,
+       "embedding_dimension": 3
+      },
+      "symmetry_breaking": {
+       "events": {
+        "asphericity": {
+         "delta": 0.20208008088315793,
+         "effect": 4.238234074847021,
+         "index": 42,
+         "spontaneous": true,
+         "score": 0.6736002696105264
+        },
+        "polarization": {
+         "delta": 0.017976295009199235,
+         "effect": 1.4186647790598024,
+         "index": 40,
+         "spontaneous": false,
+         "score": 0.014167964770855258
+        },
+        "milling": {
+         "delta": 0.019728178439889728,
+         "effect": 1.374990444401869,
+         "index": 44,
+         "spontaneous": true,
+         "score": 0.030140063155892613
+        },
+        "spin": {
+         "delta": -0.008114142730863473,
+         "effect": 1.2150248875903584,
+         "index": 54,
+         "spontaneous": false,
+         "score": 0.005477158533033065
+        }
+       },
+       "score": 0.6736002696105264,
+       "laws_rotationally_symmetric": true
+      },
+      "clustering": {
+       "score": 0.121875,
+       "linking_length": 0.06004711872823634,
+       "n_groups": 1,
+       "group_sizes": [
+        39
+       ],
+       "clustered_fraction": 0.24375,
+       "largest_fraction": 0.24375,
+       "correlation": {
+        "r0": 3.369575767628689,
+        "gamma": 2.699021229793555,
+        "r": [
+         0.12089964034513909,
+         0.17671565580266127,
+         0.25830037969190883,
+         0.3775505109942813,
+         0.5518551251146614,
+         0.806631351956855,
+         1.179030706337201,
+         1.7233565284979817,
+         2.518982506862049,
+         3.681926963428359
+        ],
+        "xi": [
+         4628.738974056604,
+         2113.7762803234505,
+         1657.6365650269543,
+         600.4829262129381,
+         200.94406165768194,
+         52.38325571634153,
+         13.483774834437087,
+         4.028974773315453,
+         -0.18885562955617494,
+         -0.8746678556498826
+        ]
+       }
+      },
+      "pattern_formation": {
+       "score": 0.9965406226635353,
+       "std": 0.11269164234146185,
+       "components": 34,
+       "wavelength": 12.8,
+       "entropy": 0.9310279985192593
+      },
+      "coherent_vortices": {
+       "score": 0.7216365312740332,
+       "n_vortices": 27,
+       "kurtosis": 4.264909593822099,
+       "spectral_slope": -3.609764919066044
+      },
+      "rotational_symmetry_breaking": {
+       "score": 0.5,
+       "mean_flips": 2.25,
+       "major_axis_fraction": 0.0
+      }
+     },
+     "richness": 0.6124842445160027,
+     "stability": 1.0,
+     "descriptor": [
+      1.0,
+      0.0,
+      0.12726366918056764,
+      0.8657128444264912,
+      0.8721520396071368,
+      0.6736002696105264,
+      0.121875,
+      0.9965406226635353,
+      0.7216365312740332,
+      0.5
+     ]
+    },
+    "particles": {
+     "genome_id": "957cc7ed569d",
+     "dim": 3,
+     "n_particles": 160,
+     "t_end": 7.999999999999341,
+     "records": 201,
+     "blew_up": false,
+     "blowup_time": null,
+     "lyapunov": 2.007774819836785,
+     "final_virial_ratio": 0.870589987699541,
+     "final_bound_fraction": 0.93125,
+     "wall_time_s": 9.238105058670044
+    },
+    "rigid": {
+     "flips": [
+      2,
+      2,
+      3,
+      2
+     ],
+     "final_major_axis_alignment": [
+      0.0002,
+      0.0007,
+      0.3898,
+      0.0429
+     ],
+     "L_norm_drift": 1.1076238412655084e-14,
+     "dissipation": 0.0
+    },
+    "richness_stats": {
+     "richness_per_seed": [
+      0.6124842445160027,
+      0.677117986271012,
+      0.5094927738947048,
+      0.5076480423434506,
+      0.48201232656793136
+     ],
+     "richness_mean": 0.5577510747186204,
+     "richness_std": 0.08339621525084025
+    },
+    "fields": {
+     "vorticity": {
+      "blew_up": false,
+      "params": {
+       "nu": 0.001,
+       "h": 1.0,
+       "lambda": 1.0,
+       "N": [
+        [
+         1.0,
+         0.0
+        ],
+        [
+         0.0,
+         1.0
+        ]
+       ],
+       "steps": 1962,
+       "t_end": 25.000000000001
+      },
+      "wall_time": 2.1244115829467773
+     },
+     "reaction_diffusion": {
+      "blew_up": false,
+      "params": {
+       "F": 0.03,
+       "k": 0.062,
+       "Du": 0.16,
+       "Dv": 0.08,
+       "N": [
+        [
+         1.0,
+         0.0
+        ],
+        [
+         0.0,
+         1.0
+        ]
+       ],
+       "dt": 1.0,
+       "steps": 4000
+      },
+      "wall_time": 1.316776990890503
+     }
+    }
+   },
+   "comparison": {
+    "t": 1.6945758656057677,
+    "p": 0.15395240565776408
+   }
+  },
+  "technology": {
+   "context": {
+    "name": "alien-02d1d5e62596",
+    "g": 9.80665,
+    "gravity_exponent": 2.5,
+    "air_density": 1.225,
+    "air_viscosity": 1.81e-05,
+    "ambient_pressure": 101325.0,
+    "speed_of_sound": 343.0,
+    "temperature": 288.0,
+    "liquid_density": 998.0,
+    "liquid_viscosity": 0.001,
+    "vapor_pressure": 2339.0,
+    "drag_exponent": 2.0,
+    "adiabatic_index": 1.4,
+    "propellant_gamma": 1.22,
+    "modulus_scale": 1.0,
+    "strength_scale": 1.0,
+    "density_scale": 1.0,
+    "speed_of_light": 299792458.0,
+    "alpha_ratio": 1.0,
+    "habitable_chemistry": true,
+    "description": "genome 02d1d5e62596: g=1 g0, alpha/alpha0=1, drag n=2, gamma=1.4"
+   },
+   "propulsion_nozzle": {
+    "domain": "propulsion_nozzle",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 49,
+    "evaluations": 1197,
+    "champion": {
+     "objectives": {
+      "efficiency": 0.7663961467420108,
+      "stability": 0.4713743455706464,
+      "adaptability": 0.7627636289025634,
+      "mappability": 0.8831980733710054,
+      "cosmic": 0.7784269897166787
+     },
+     "params": {
+      "chamber_pressure": 19999999.999999978,
+      "expansion_ratio": 12.567302310738567,
+      "throat_radius": 0.0069767954796804395,
+      "chamber_temperature": 2344.3579578244553,
+      "molar_mass": 0.027887185156147586,
+      "half_angle": 14.979243935440419,
+      "wall_thickness": 0.001876042147405063
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 30,
+     "joined_pareto_front": 13
+    },
+    "rl": {
+     "untrained_gain": 0.0,
+     "trained_gain": 0.33413504128695115,
+     "random_gain": 0.05084849601648846,
+     "final_sigma": 0.4856548926200478,
+     "learning_curve": [
+      0.013704352852404334,
+      0.07153711698782594,
+      0.18540071819825585,
+      -0.007972066342143189,
+      0.3539701628009869,
+      0.19492087496600005,
+      -0.11169345300008082,
+      0.1205294121155706,
+      -0.026101867941969163,
+      -0.02077388295857452,
+      0.32476791033303887,
+      0.09380387694137395,
+      0.32214810789156617,
+      0.3885061191512227,
+      0.19589450887185755,
+      0.27420091504846644,
+      0.20400465163842266,
+      0.12885925536953147,
+      0.28696289312290246,
+      0.3077284891509077,
+      0.4483875028589277,
+      0.06461424935055106,
+      0.347395754313802,
+      0.1685982832784308,
+      0.17262482618954098,
+      0.36858416232778896,
+      -0.029736933762312172,
+      0.37168663769622706,
+      0.10109133141620583,
+      0.3975925344549921,
+      0.15379294923930023,
+      0.2033485512459321,
+      0.3292952339663117,
+      0.43107631783304956,
+      0.20956837167203995,
+      0.23391684210691172,
+      0.4117886226400776,
+      0.38052645619362346,
+      0.3674763832497422,
+      0.3206202192206148
+     ]
+    }
+   },
+   "structure_truss": {
+    "domain": "structure_truss",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 46,
+    "evaluations": 1194,
+    "champion": {
+     "objectives": {
+      "efficiency": 0.5997519168607018,
+      "stability": 1.0,
+      "adaptability": 0.5932204637393446,
+      "mappability": 0.799875958430351,
+      "cosmic": 0.5997519168607018
+     },
+     "params": {
+      "h0": 0.9847212865875901,
+      "h1": 0.7528354372162145,
+      "h2": 0.39802189560086354,
+      "area_top": 0.00015186330757418622,
+      "area_bottom": 0.0003941828658669849,
+      "area_web": 0.0001900559999268156
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 31,
+     "joined_pareto_front": 17
+    },
+    "rl": {
+     "untrained_gain": 0.0,
+     "trained_gain": 0.19795894965921623,
+     "random_gain": -0.04165590284087701,
+     "final_sigma": 0.5565200946833678,
+     "learning_curve": [
+      -4.3319541698866095e-09,
+      0.08879674782571026,
+      6.155672575625942e-05,
+      0.1329004899963589,
+      0.026150220937258113,
+      0.04970210342278523,
+      0.08221964170582367,
+      0.1819901681488949,
+      0.006234150114534813,
+      0.03257994577400718,
+      0.1767457399287753,
+      0.13955302674389453,
+      0.06466779204859698,
+      0.08755635527007369,
+      0.24675980201493175,
+      -0.007264530372083654,
+      0.1842179394563616,
+      0.10009535936101426,
+      0.11335876722440047,
+      0.08371064078925819,
+      0.17630655340804163,
+      0.2226504120048052,
+      0.10498848252045564,
+      0.13121289746692613,
+      0.08131323417520644,
+      0.09845534799319869,
+      0.006222048675780453,
+      0.1309258101866428,
+      0.02961003177715825,
+      0.2111277329513515,
+      0.22369989209245955,
+      0.04610356769017051,
+      0.1329643677359522,
+      0.16101576285365343,
+      0.20885261365378183,
+      0.12336580498037752,
+      0.24569984685224872,
+      0.16613031508373619,
+      0.06344658669186105,
+      0.2523480424012567
+     ]
+    }
+   },
+   "energy_flywheel": {
+    "domain": "energy_flywheel",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 55,
+    "evaluations": 1203,
+    "champion": {
+     "objectives": {
+      "efficiency": 0.47872832085450046,
+      "stability": 1.0,
+      "adaptability": 0.46849888396927286,
+      "mappability": 0.7393641604272503,
+      "cosmic": 0.4861407665001244
+     },
+     "params": {
+      "outer_radius": 0.6737038614840782,
+      "inner_ratio": 0.13132497281576838,
+      "thickness": 0.39999999999999997,
+      "rpm": 7449.160904166621,
+      "housing_pressure_ratio": 9.999999999999997e-06
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 32,
+     "joined_pareto_front": 19
+    },
+    "rl": {
+     "untrained_gain": 0.0,
+     "trained_gain": 0.16713575019672916,
+     "random_gain": -0.023181401379716107,
+     "final_sigma": 0.4587191922947298,
+     "learning_curve": [
+      0.012670043570958465,
+      0.02457693543990629,
+      0.013383956660669431,
+      -0.02659304483586626,
+      0.028896640339910986,
+      0.06430029985555623,
+      0.0501197061159664,
+      0.04733247127714272,
+      0.018784936698204312,
+      0.056831023293290275,
+      0.025811331045982707,
+      0.04717469528894152,
+      0.029945953380963126,
+      -0.0021691734442265687,
+      0.06457177034451866,
+      -0.005687244942212361,
+      0.051480724079045845,
+      0.08094969237250083,
+      0.07103366460293654,
+      0.13079018102285017,
+      -0.0012223326885299115,
+      0.08067024188677158,
+      0.1605499705072947,
+      0.08216280336719137,
+      0.09513352964805238,
+      0.03618765434906135,
+      0.1408130587517811,
+      0.14104625651318342,
+      0.0783830172627821,
+      0.10708894654225692,
+      0.1031809370803404,
+      0.18296237802149784,
+      0.09261216579655675,
+      0.11276056708949975,
+      0.09647087562314371,
+      0.15390506646442115,
+      0.13895517091731985,
+      0.029381333207508874,
+      0.144320133367315,
+      0.20685651074123465
+     ]
+    }
+   },
+   "drone_frame": {
+    "domain": "drone_frame",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 51,
+    "evaluations": 1199,
+    "champion": {
+     "objectives": {
+      "efficiency": 1.0,
+      "stability": 0.9914378588131911,
+      "adaptability": 0.9326490106573995,
+      "mappability": 1.0,
+      "cosmic": 0.6000004866679876
+     },
+     "params": {
+      "arm_length": 0.30973005467845527,
+      "arm_od": 0.028077093596289175,
+      "wall_ratio": 0.06001390834441987,
+      "prop_diameter": 0.3763423523144471,
+      "n_arms": 3.0,
+      "battery_wh": 309.80547670714697
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 32,
+     "joined_pareto_front": 15
+    },
+    "rl": {}
+   },
+   "pump_impeller": {
+    "domain": "pump_impeller",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 43,
+    "evaluations": 1191,
+    "champion": {
+     "objectives": {
+      "efficiency": 0.8229066607607475,
+      "stability": 1.0,
+      "adaptability": 0.8216848053040638,
+      "mappability": 0.9114533303803738,
+      "cosmic": 0.3465458096917677
+     },
+     "params": {
+      "r1": 0.03413503658130956,
+      "r2": 0.13572862442570963,
+      "b2": 0.006429392046962454,
+      "beta1": 32.47405488047585,
+      "beta2": 21.553046260328035,
+      "blades": 7.0,
+      "rpm": 1645.4463959506852
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 30,
+     "joined_pareto_front": 7
+    },
+    "rl": {}
+   },
+   "gear_pair": {
+    "domain": "gear_pair",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 47,
+    "evaluations": 1195,
+    "champion": {
+     "objectives": {
+      "efficiency": 0.7566246952665578,
+      "stability": 0.9914744239565061,
+      "adaptability": 0.7537965340374023,
+      "mappability": 0.8783123476332789,
+      "cosmic": 0.7588228037391278
+     },
+     "params": {
+      "module": 0.0018112496613542878,
+      "z1": 40.0,
+      "face_factor": 15.658886028615898,
+      "pressure_angle": 22.454814002475633,
+      "shift": 0.33854048809319
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 31,
+     "joined_pareto_front": 11
+    },
+    "rl": {}
+   },
+   "cosmic_habitat": {
+    "domain": "cosmic_habitat",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 44,
+    "evaluations": 1192,
+    "champion": {
+     "objectives": {
+      "efficiency": 0.6450237128702503,
+      "stability": 0.87391459678636,
+      "adaptability": 0.6393067174941189,
+      "mappability": 0.8225118564351251,
+      "cosmic": 0.2580094851481001
+     },
+     "params": {
+      "radius": 170.93786939162874,
+      "rpm": 2.1774973851889925,
+      "thickness": 0.02366471198085608,
+      "width": 189.65376219337742,
+      "pressure": 52562.11702168915
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 26,
+     "joined_pareto_front": 8
+    },
+    "rl": {}
+   },
+   "cosmic_lightsail": {
+    "domain": "cosmic_lightsail",
+    "context": "alien-02d1d5e62596",
+    "pareto_size": 40,
+    "evaluations": 1188,
+    "champion": {
+     "objectives": {
+      "efficiency": 1.0,
+      "stability": 1.0,
+      "adaptability": 1.0,
+      "mappability": 1.0,
+      "cosmic": 0.8968924814232411
+     },
+     "params": {
+      "film_thickness": 9.093742131438031e-07,
+      "side_length": 443.43171006186867,
+      "reflectivity": 0.9312788063198714,
+      "boom_linear_density": 0.06028649524312316,
+      "distance_au": 0.4438089533053994
+     },
+     "feasible": true
+    },
+    "generative": {
+     "latent_dim": 3,
+     "samples": 32,
+     "feasible": 25,
+     "joined_pareto_front": 7
+    },
+    "rl": {}
+   }
+  },
+  "generative": {
+   "fitness_alien": 0.15710750249900177,
+   "fitness_earth": 0.15710750249900177,
+   "metrics_alien": {
+    "ok": true,
+    "compliance": 0.041833067584929585,
+    "max_disp": 0.0008515246333948242,
+    "max_stress": 2890432.256337467,
+    "volume_fraction": 0.44921875,
+    "islands": 0
+   },
+   "metrics_earth": {
+    "ok": true,
+    "compliance": 0.041833067584929585,
+    "max_disp": 0.0008515246333948242,
+    "max_stress": 2890432.256337467,
+    "volume_fraction": 0.44921875,
+    "islands": 0
+   },
+   "complexity": [
+    3,
+    9
+   ],
+   "shape": [
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   ],
+   "cad": {
+    "scad": "shiva_output/standard_seed42/cad/generative_bracket.scad",
+    "stl": "shiva_output/standard_seed42/cad/generative_bracket.stl",
+    "components": 1,
+    "triangles": 1140,
+    "components_watertight": true,
+    "bbox_mm": [
+     160.0,
+     50.0,
+     6.0
+    ],
+    "volume_mm3_sum_of_shells": 34500.0,
+    "freecad_macro": "shiva_output/standard_seed42/cad/generative_bracket.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/generative_bracket_openscad.stl"
+   }
+  },
+  "mapping": {
+   "propulsion_nozzle": {
+    "domain": "propulsion_nozzle",
+    "design_id": "fb7c2883",
+    "material": "ss304",
+    "material_name": "Stainless steel 304",
+    "alien_params": {
+     "chamber_pressure": 19999999.999999978,
+     "expansion_ratio": 12.567302310738567,
+     "throat_radius": 0.0069767954796804395,
+     "chamber_temperature": 2344.3579578244553,
+     "molar_mass": 0.027887185156147586,
+     "half_angle": 14.979243935440419,
+     "wall_thickness": 0.001876042147405063
+    },
+    "real_params": {
+     "chamber_pressure": 15055757.739819478,
+     "expansion_ratio": 12.567301768733738,
+     "throat_radius": 0.0059,
+     "chamber_temperature": 2344.357942535357,
+     "molar_mass": 0.027887184959573465,
+     "half_angle": 15.0,
+     "wall_thickness": 0.0021
+    },
+    "fidelity": 0.9593327348843953,
+    "alien_efficiency": 0.7663961467420108,
+    "real_efficiency": 0.7567370416821165,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "wall_safety": -0.01656024294837133,
+     "flow_separation": -2.2504603323469894,
+     "thrust_to_weight": -10.470530196024276
+    },
+    "prediction": {
+     "Isp_s": {
+      "mean": 214.75867460222997,
+      "std": 1.5083756015941596,
+      "p05": 212.409918304826,
+      "p95": 217.2602491320527
+     },
+     "Isp_ideal_s": {
+      "mean": 283.8082438204725,
+      "std": 1.9402220806812676,
+      "p05": 280.6629145603987,
+      "p95": 286.9863687776489
+     },
+     "thrust_N": {
+      "mean": 2706.348945474842,
+      "std": 63.70831570248151,
+      "p05": 2598.961512758166,
+      "p95": 2810.735627519433
+     },
+     "mass_flow_kg_s": {
+      "mean": 1.285072265617477,
+      "std": 0.030818148316162763,
+      "p05": 1.2363722447937067,
+      "p95": 1.3355086523091775
+     },
+     "exit_mach": {
+      "mean": 3.5027080143997233,
+      "std": 0.0073327257084656134,
+      "p05": 3.4913198193942865,
+      "p95": 3.5149288442957314
+     },
+     "exit_pressure_Pa": {
+      "mean": 131890.7202423842,
+      "std": 2092.177646294566,
+      "p05": 128039.26876604896,
+      "p95": 135296.29272803033
+     },
+     "thrust_coefficient": {
+      "mean": 1.6440459087287933,
+      "std": 0.002039483240621742,
+      "p05": 1.6406499701155177,
+      "p95": 1.6473231430695456
+     },
+     "c_star_m_s": {
+      "mean": 1281.0238725817026,
+      "std": 8.757570851377645,
+      "p05": 1266.8268153889842,
+      "p95": 1295.3689595509386
+     },
+     "wall_SF": {
+      "mean": 1.5238229567294763,
+      "std": 0.08500670117332648,
+      "p05": 1.3758178592193504,
+      "p95": 1.6656160898673587
+     },
+     "thrust_to_weight": {
+      "mean": 229.70587364513239,
+      "std": 5.778634979812159,
+      "p05": 220.9037800212007,
+      "p95": 240.0722974102054
+     },
+     "mass_kg": {
+      "mean": 1.2016542556904142,
+      "std": 0.023876394481081347,
+      "p05": 1.1639431899764225,
+      "p95": 1.2415074479633201
+     },
+     "length_m": {
+      "mean": 0.31193413422413413,
+      "std": 0.0009590223802576707,
+      "p05": 0.3103319262002223,
+      "p95": 0.3134945376740238
+     }
+    },
+    "reliability": 0.625,
+    "bom": [
+     {
+      "item": "nozzle/chamber body, Stainless steel 304 (SLM or 5-axis CNC)",
+      "qty": 1,
+      "mass_kg": 0.7219498860552973,
+      "cost_usd": 20.214596809548325
+     },
+     {
+      "item": "injector plate + manifold",
+      "qty": 1,
+      "mass_kg": 0.36097494302764865,
+      "cost_usd": 1500.0
+     },
+     {
+      "item": "flange bolts, seals, instrumentation ports",
+      "qty": 1,
+      "mass_kg": 0.12032498100921624,
+      "cost_usd": 300.0
+     }
+    ],
+    "cost_usd": 1820.2145968095483,
+    "mass_kg": 1.2032498100921623,
+    "build_instructions": [
+     "Generate the contour from the SCAD/STL (throat r = 5.9 mm, expansion ratio 12.6, half-angle 15.0 deg).",
+     "Fabricate in Stainless steel 304 by laser powder-bed fusion with integral regenerative cooling channels, or machine from bar; minimum wall 2.10 mm.",
+     "Stress-relieve and HIP printed parts; inspect channels by CT scan; flow-test the coolant circuit.",
+     "Hydrostatically proof-test the chamber at 1.5x design chamber pressure.",
+     "Hot-fire testing only at a licensed propulsion test facility under its safety procedures.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1.5x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "inconel718",
+      "merit_index": 75750.91575091575,
+      "feasible": true,
+      "efficiency": 0.7663961467420108,
+      "fidelity": 1.0,
+      "score": 0.8283031123717851
+     },
+     {
+      "material": "ss304",
+      "merit_index": 16125.0,
+      "feasible": true,
+      "efficiency": 0.7567725514529612,
+      "fidelity": 0.9585068622693875,
+      "score": 0.8392060341888623
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/propulsion_nozzle.scad",
+     "stl": "shiva_output/standard_seed42/cad/propulsion_nozzle.stl",
+     "components": 1,
+     "triangles": 7920,
+     "components_watertight": true,
+     "bbox_mm": [
+      45.888,
+      45.888,
+      313.105
+     ],
+     "volume_mm3_sum_of_shells": 53769.53365806999,
+     "freecad_macro": "shiva_output/standard_seed42/cad/propulsion_nozzle.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/propulsion_nozzle_openscad.stl"
+    },
+    "notes": []
+   },
+   "structure_truss": {
+    "domain": "structure_truss",
+    "design_id": "9f67ba99",
+    "material": "cfrp_qi",
+    "material_name": "CFRP quasi-isotropic laminate",
+    "alien_params": {
+     "h0": 0.9847212865875901,
+     "h1": 0.7528354372162145,
+     "h2": 0.39802189560086354,
+     "area_top": 0.00015186330757418622,
+     "area_bottom": 0.0003941828658669849,
+     "area_web": 0.0001900559999268156
+    },
+    "real_params": {
+     "h0": 0.985,
+     "h1": 0.755,
+     "h2": 0.4,
+     "area_top": 0.00015393804002589986,
+     "area_bottom": 0.00041547562843725016,
+     "area_web": 0.00020106192982974677
+    },
+    "fidelity": 0.9942886578949477,
+    "alien_efficiency": 0.5997519168607018,
+    "real_efficiency": 0.6686613191370299,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "yield": -0.9021434891788862,
+     "buckling": -0.47864857188949417,
+     "deflection": -0.5625662997315405
+    },
+    "prediction": {
+     "mass_kg": {
+      "mean": 2.9520583183654616,
+      "std": 0.04579106198176098,
+      "p05": 2.8751298766587774,
+      "p95": 3.0248414035733067
+     },
+     "tip_deflection_mm": {
+      "mean": 3.5034443128984982,
+      "std": 0.18309334670158595,
+      "p05": 3.2268063803535685,
+      "p95": 3.8176258414740487
+     },
+     "max_stress_MPa": {
+      "mean": 37.190204122921834,
+      "std": 0.2767499384315462,
+      "p05": 36.714190869708574,
+      "p95": 37.59425427094472
+     },
+     "buckling_utilisation": {
+      "mean": 0.5315144629271109,
+      "std": 0.05123725265949128,
+      "p05": 0.4635754124298718,
+      "p95": 0.6233303313449976
+     },
+     "payload_to_mass": {
+      "mean": 101.64851690472977,
+      "std": 1.5803588297895923,
+      "p05": 99.17875373577311,
+      "p95": 104.34311324650604
+     }
+    },
+    "reliability": 1.0,
+    "bom": [
+     {
+      "item": "top members: 14 mm round bar, CFRP quasi-isotropic laminate",
+      "qty": 1,
+      "length_m": 2.237981049317611,
+      "mass_kg": 0.5512166661552956,
+      "cost_usd": 33.072999969317735
+     },
+     {
+      "item": "bottom members: 23 mm round bar, CFRP quasi-isotropic laminate",
+      "qty": 1,
+      "length_m": 2.0,
+      "mass_kg": 1.3295220109992005,
+      "cost_usd": 79.77132065995204
+     },
+     {
+      "item": "web members: 16 mm round bar, CFRP quasi-isotropic laminate",
+      "qty": 1,
+      "length_m": 3.351607513619409,
+      "mass_kg": 1.078209079552316,
+      "cost_usd": 64.69254477313896
+     },
+     {
+      "item": "gusset plates (6 mm) + M8 bolts, 7 joints",
+      "qty": 7,
+      "mass_kg": 0.6,
+      "cost_usd": 70.0
+     }
+    ],
+    "cost_usd": 247.53686540240875,
+    "mass_kg": 2.958947756706812,
+    "build_instructions": [
+     "Cut members to the joint-to-joint lengths in the BOM (add gusset overlap).",
+     "Machine gusset plates in CFRP quasi-isotropic laminate; drill M8 clearance holes per joint.",
+     "Assemble on a flat jig; bolt joints (pin-jointed assumption) and torque to spec.",
+     "Anchor joints 0 and 4 to a rigid wall; apply the payload gradually while monitoring tip deflection.",
+     "Acceptance: tip deflection under 300 kg below 8.0 mm.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1.5x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "zylon",
+      "merit_index": 25367.12684283254,
+      "feasible": true,
+      "efficiency": 0.679164972128877,
+      "fidelity": 1.0,
+      "score": 0.7602780452454947
+     },
+     {
+      "material": "cfrp_ud",
+      "merit_index": 8893.905919223567,
+      "feasible": true,
+      "efficiency": 0.6754998440283894,
+      "fidelity": 1.0,
+      "score": 0.7723926060267919
+     },
+     {
+      "material": "cfrp_qi",
+      "merit_index": 3655.047879303362,
+      "feasible": true,
+      "efficiency": 0.6754998440283894,
+      "fidelity": 1.0,
+      "score": 0.7752999064170336
+     },
+     {
+      "material": "ti6al4v",
+      "merit_index": 2258.9610406014813,
+      "feasible": true,
+      "efficiency": 0.5280719295060078,
+      "fidelity": 1.0,
+      "score": 0.6905913198018537
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/structure_truss.scad",
+     "stl": "shiva_output/standard_seed42/cad/structure_truss.stl",
+     "components": 17,
+     "triangles": 2172,
+     "components_watertight": true,
+     "bbox_mm": [
+      2036.8,
+      35.877,
+      1021.8
+     ],
+     "volume_mm3_sum_of_shells": 1988938.85637602,
+     "freecad_macro": "shiva_output/standard_seed42/cad/structure_truss.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/structure_truss_openscad.stl"
+    },
+    "notes": []
+   },
+   "energy_flywheel": {
+    "domain": "energy_flywheel",
+    "design_id": "39f7f7ed",
+    "material": "al7075_t6",
+    "material_name": "Aluminium 7075-T6",
+    "alien_params": {
+     "outer_radius": 0.6737038614840782,
+     "inner_ratio": 0.13132497281576838,
+     "thickness": 0.39999999999999997,
+     "rpm": 7449.160904166621,
+     "housing_pressure_ratio": 9.999999999999997e-06
+    },
+    "real_params": {
+     "outer_radius": 0.641,
+     "inner_ratio": 0.1308297860989842,
+     "thickness": 0.4,
+     "rpm": 4800,
+     "housing_pressure_ratio": 9.999999999999997e-06
+    },
+    "fidelity": 0.9493195087743838,
+    "alien_efficiency": 0.47872832085450046,
+    "real_efficiency": 0.5618528710833443,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "burst_safety": -0.03204487934919609,
+     "aspect_ratio": -11.480499219968797,
+     "min_energy": -19.913574192364912
+    },
+    "prediction": {
+     "energy_kWh": {
+      "mean": 10.43983555986317,
+      "std": 0.5088896111159049,
+      "p05": 9.671930880517781,
+      "p95": 11.273916660432247
+     },
+     "specific_energy_Wh_kg": {
+      "mean": 7.339878722384331,
+      "std": 0.20584913993707274,
+      "p05": 7.030337232845896,
+      "p95": 7.707972889423348
+     },
+     "burst_SF": {
+      "mean": 2.0607823617624454,
+      "std": 0.11878466558691042,
+      "p05": 1.867539531080801,
+      "p95": 2.2428956710764485
+     },
+     "tip_speed_m_s": {
+      "mean": 322.32913289758517,
+      "std": 4.524662383726655,
+      "p05": 315.54054392041246,
+      "p95": 330.2527873082767
+     },
+     "self_discharge_h": {
+      "mean": 78.5331754578894,
+      "std": 1.4672211758544316,
+      "p05": 76.2574236308258,
+      "p95": 80.92476921861075
+     },
+     "windage_W": {
+      "mean": 27.599857318331498,
+      "std": 1.4742746365910913,
+      "p05": 25.327336830508052,
+      "p95": 29.887777382336893
+     },
+     "bearing_W": {
+      "mean": 105.26914813704337,
+      "std": 3.1332744571944615,
+      "p05": 100.18034564674055,
+      "p95": 110.5042645042522
+     },
+     "mass_kg": {
+      "mean": 1421.766462930713,
+      "std": 39.54587737245049,
+      "p05": 1355.3351865278423,
+      "p95": 1486.3559059733732
+     },
+     "max_stress_MPa": {
+      "mean": 243.62978155289858,
+      "std": 7.947799533403363,
+      "p05": 231.43721514572584,
+      "p95": 257.3371644798065
+     }
+    },
+    "reliability": 0.69,
+    "bom": [
+     {
+      "item": "rotor, Aluminium 7075-T6",
+      "qty": 1,
+      "mass_kg": 1426.0485687243408,
+      "cost_usd": 25668.874237038137
+     },
+     {
+      "item": "steel hub + shaft",
+      "qty": 1,
+      "mass_kg": 2.0,
+      "cost_usd": 250.0
+     },
+     {
+      "item": "precision bearings (or magnetic bearing set)",
+      "qty": 2,
+      "mass_kg": 0.5,
+      "cost_usd": 300.0
+     },
+     {
+      "item": "burst-containment steel housing",
+      "qty": 1,
+      "mass_kg": 4278.1457061730225,
+      "cost_usd": 28920.971374486817
+     },
+     {
+      "item": "vacuum pump + gauge",
+      "qty": 1,
+      "mass_kg": 8.0,
+      "cost_usd": 2000.0
+     }
+    ],
+    "cost_usd": 57139.84561152496,
+    "mass_kg": 1426.0485687243408,
+    "build_instructions": [
+     "Filament-wind (or machine) the rotor in Aluminium 7075-T6: R = 641 mm, bore = 84 mm, thickness 400 mm.",
+     "Cure per resin schedule; machine faces; press onto the hub with controlled interference.",
+     "Balance to ISO 21940 grade G2.5 or better.",
+     "Install in the burst-containment housing; evacuate to the design pressure ratio 1.0e-05.",
+     "Spin-test remotely in a spin pit up to 1.15x the design speed (5520 rpm) before any operation near people.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1.1x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "zylon",
+      "merit_index": 3717948.717948718,
+      "feasible": true,
+      "efficiency": 0.4109803896649094,
+      "fidelity": 1.0,
+      "score": 0.5993672957671141
+     },
+     {
+      "material": "cfrp_ud",
+      "merit_index": 937500.0,
+      "feasible": true,
+      "efficiency": 0.47872832085450046,
+      "fidelity": 1.0,
+      "score": 0.6543296921224585
+     },
+     {
+      "material": "ti6al4v",
+      "merit_index": 198645.59819413093,
+      "feasible": true,
+      "efficiency": 0.566866493351766,
+      "fidelity": 0.954620214640554,
+      "score": 0.6957161439655303
+     },
+     {
+      "material": "al7075_t6",
+      "merit_index": 179003.5587188612,
+      "feasible": true,
+      "efficiency": 0.5622152983057035,
+      "fidelity": 0.949422374259771,
+      "score": 0.7118153909156602
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/energy_flywheel.scad",
+     "stl": "shiva_output/standard_seed42/cad/energy_flywheel.stl",
+     "components": 3,
+     "triangles": 2304,
+     "components_watertight": true,
+     "bbox_mm": [
+      1282.0,
+      1282.0,
+      480.0
+     ],
+     "volume_mm3_sum_of_shells": 512667922.8841866,
+     "freecad_macro": "shiva_output/standard_seed42/cad/energy_flywheel.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/energy_flywheel_openscad.stl"
+    },
+    "notes": []
+   },
+   "drone_frame": {
+    "domain": "drone_frame",
+    "design_id": "31449a0b",
+    "material": "al6061_t6",
+    "material_name": "Aluminium 6061-T6",
+    "alien_params": {
+     "arm_length": 0.30973005467845527,
+     "arm_od": 0.028077093596289175,
+     "wall_ratio": 0.06001390834441987,
+     "prop_diameter": 0.3763423523144471,
+     "n_arms": 3.0,
+     "battery_wh": 309.80547670714697
+    },
+    "real_params": {
+     "arm_length": 0.31,
+     "arm_od": 0.028,
+     "wall_ratio": 0.05357142857142857,
+     "prop_diameter": 0.381,
+     "n_arms": 3.0,
+     "battery_wh": 325.6
+    },
+    "fidelity": 0.9607274139705403,
+    "alien_efficiency": 1.0,
+    "real_efficiency": 1.0,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "arm_strength": -16.551029842326024,
+     "arm_deflection": -0.9578847224052401,
+     "resonance": -2.420291596425545,
+     "prop_clearance": -0.21945968446008968,
+     "tip_mach": -0.5128109440985562,
+     "wall_min": -2.0
+    },
+    "prediction": {
+     "hover_time_min": {
+      "mean": 47.631281709747384,
+      "std": 1.1501659697885585,
+      "p05": 45.81598409129033,
+      "p95": 49.43545115712146
+     },
+     "total_mass_kg": {
+      "mean": 3.0471987258388875,
+      "std": 0.006597735313889033,
+      "p05": 3.0367184475629165,
+      "p95": 3.058020316600988
+     },
+     "hover_power_W": {
+      "mean": 348.8313861721258,
+      "std": 8.425807727275743,
+      "p05": 335.90471084825856,
+      "p95": 362.44119820680515
+     },
+     "rotor_hz": {
+      "mean": 59.32917249395954,
+      "std": 1.441657437944978,
+      "p05": 57.0519816090496,
+      "p95": 61.6003985932073
+     },
+     "arm_natural_hz": {
+      "mean": 99.61000138669567,
+      "std": 2.7131935336119257,
+      "p05": 95.04951389697541,
+      "p95": 104.1777434581763
+     },
+     "tip_mach": {
+      "mean": 0.29279524340357466,
+      "std": 0.0071147198368669284,
+      "p05": 0.28155708464632095,
+      "p95": 0.30400396536276775
+     },
+     "arm_SF": {
+      "mean": 34.90932826852688,
+      "std": 1.900851236391011,
+      "p05": 31.88390258669518,
+      "p95": 38.07932528503037
+     },
+     "thrust_per_motor_N": {
+      "mean": 9.96317098760836,
+      "std": 0.028782997488880985,
+      "p05": 9.91159770903174,
+      "p95": 10.003572766711557
+     },
+     "mass_kg": {
+      "mean": 3.0471987258388875,
+      "std": 0.006597735313889033,
+      "p05": 3.0367184475629165,
+      "p95": 3.058020316600988
+     }
+    },
+    "reliability": 1.0,
+    "bom": [
+     {
+      "item": "arm tube 28x1.5 mm, Aluminium 6061-T6",
+      "qty": 3,
+      "mass_kg": 0.31356943133826776,
+      "cost_usd": 24.0
+     },
+     {
+      "item": "centre plates (2x 2 mm CFRP) + standoffs",
+      "qty": 1,
+      "mass_kg": 0.1175,
+      "cost_usd": 40.0
+     },
+     {
+      "item": "brushless motor for 15\" props",
+      "qty": 3,
+      "mass_kg": 0.4714830000000001,
+      "cost_usd": 75.0
+     },
+     {
+      "item": "ESC",
+      "qty": 3,
+      "mass_kg": 0.036000000000000004,
+      "cost_usd": 45.0
+     },
+     {
+      "item": "15\" propellers (CW/CCW pairs)",
+      "qty": 3,
+      "mass_kg": 0.03,
+      "cost_usd": 9.0
+     },
+     {
+      "item": "4S LiPo 22000 mAh",
+      "qty": 1,
+      "mass_kg": 1.808888888888889,
+      "cost_usd": 390.72
+     },
+     {
+      "item": "flight controller + GNSS + receiver",
+      "qty": 1,
+      "mass_kg": 0.05,
+      "cost_usd": 120.0
+     }
+    ],
+    "cost_usd": 703.72,
+    "mass_kg": 3.047441320227157,
+    "build_instructions": [
+     "Cut 3 arm tubes (Aluminium 6061-T6) to 310 mm; deburr and scuff bond areas.",
+     "CNC-cut centre plates from the SCAD outline; clamp arms between plates with bonded inserts.",
+     "Print/machine motor mounts; mount motors at arm tips; route ESC wiring along arms.",
+     "Flash and configure the flight controller; set motor order and propeller direction.",
+     "Bench-test without propellers, then tethered hover test outdoors away from people; verify vibration spectrum shows no peak near the arm natural frequency.",
+     "Fly only in compliance with local aviation regulations.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1.5x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "zylon",
+      "merit_index": 333.08669376324565,
+      "feasible": true,
+      "efficiency": 1.0,
+      "fidelity": 1.0,
+      "score": 0.9527790619681684
+     },
+     {
+      "material": "cfrp_ud",
+      "merit_index": 229.63966338592294,
+      "feasible": true,
+      "efficiency": 1.0,
+      "fidelity": 1.0,
+      "score": 0.9670926996097583
+     },
+     {
+      "material": "cfrp_qi",
+      "merit_index": 153.09310892394865,
+      "feasible": true,
+      "efficiency": 1.0,
+      "fidelity": 1.0,
+      "score": 0.97
+     },
+     {
+      "material": "al6061_t6",
+      "merit_index": 97.21781295116064,
+      "feasible": true,
+      "efficiency": 1.0,
+      "fidelity": 1.0,
+      "score": 1.0
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/drone_frame.scad",
+     "stl": "shiva_output/standard_seed42/cad/drone_frame.stl",
+     "components": 7,
+     "triangles": 684,
+     "components_watertight": true,
+     "bbox_mm": [
+      530.34,
+      602.276,
+      46.0
+     ],
+     "volume_mm3_sum_of_shells": 638210.8271211553,
+     "freecad_macro": "shiva_output/standard_seed42/cad/drone_frame.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/drone_frame_openscad.stl"
+    },
+    "notes": []
+   },
+   "pump_impeller": {
+    "domain": "pump_impeller",
+    "design_id": "96421a39",
+    "material": "al6061_t6",
+    "material_name": "Aluminium 6061-T6",
+    "alien_params": {
+     "r1": 0.03413503658130956,
+     "r2": 0.13572862442570963,
+     "b2": 0.006429392046962454,
+     "beta1": 32.47405488047585,
+     "beta2": 21.553046260328035,
+     "blades": 7.0,
+     "rpm": 1645.4463959506852
+    },
+    "real_params": {
+     "r1": 0.0341,
+     "r2": 0.1357,
+     "b2": 0.0064,
+     "beta1": 32.5,
+     "beta2": 21.5,
+     "blades": 7.0,
+     "rpm": 1645.4463959506852
+    },
+    "fidelity": 0.9684830851259046,
+    "alien_efficiency": 0.8229066607607475,
+    "real_efficiency": 0.8226851497328207,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "head_min": -0.20513524941938677,
+     "head_max": -0.13918910755758096,
+     "cavitation": -0.835699494367701,
+     "de_haller": -0.3189759869912269,
+     "geometry": -0.6481945467943994,
+     "rim_stress": -61.32175208625969
+    },
+    "prediction": {
+     "pressure_rise_kPa": {
+      "mean": 300.5965022573703,
+      "std": 11.754524244315094,
+      "p05": 283.0137323023825,
+      "p95": 319.363826149767
+     },
+     "head_m": {
+      "mean": 30.722373169469993,
+      "std": 1.1953783239048805,
+      "p05": 28.977801767418338,
+      "p95": 32.55020034223277
+     },
+     "efficiency": {
+      "mean": 0.8226519455624576,
+      "std": 0.001331873991793029,
+      "p05": 0.8203526391144098,
+      "p95": 0.8248473817887098
+     },
+     "shaft_power_W": {
+      "mean": 4384.9440498077265,
+      "std": 175.17672175013666,
+      "p05": 4123.553140408959,
+      "p95": 4665.967904150987
+     },
+     "disk_friction_W": {
+      "mean": 299.52004257702106,
+      "std": 16.997152903291333,
+      "p05": 273.1913421193708,
+      "p95": 327.54309808709166
+     },
+     "npsh_required_m": {
+      "mean": 1.4067632863847843,
+      "std": 0.0323619146301833,
+      "p05": 1.3559576362388004,
+      "p95": 1.4624703444978655
+     },
+     "npsh_available_m": {
+      "mean": 11.10879994433284,
+      "std": 0.1976011193963081,
+      "p05": 10.784763088552033,
+      "p95": 11.42219477321636
+     },
+     "specific_speed_nq": {
+      "mean": 13.816646923989465,
+      "std": 0.329548701635369,
+      "p05": 13.305203803419829,
+      "p95": 14.305388186705851
+     },
+     "de_haller": {
+      "mean": 0.9249441522948934,
+      "std": 0.01747231870030187,
+      "p05": 0.8971331848377309,
+      "p95": 0.9534406822401832
+     },
+     "tip_speed_m_s": {
+      "mean": 23.363912132212562,
+      "std": 0.33774694855926646,
+      "p05": 22.855822507853304,
+      "p95": 23.919797274242313
+     },
+     "mass_kg": {
+      "mean": 1.32931501913903,
+      "std": 0.03370572303730569,
+      "p05": 1.270588160862652,
+      "p95": 1.3777896859697853
+     }
+    },
+    "reliability": 1.0,
+    "bom": [
+     {
+      "item": "impeller, Aluminium 6061-T6 (investment cast or 5-axis CNC)",
+      "qty": 1,
+      "mass_kg": 1.3307879395196207,
+      "cost_usd": 506.4630351615697
+     },
+     {
+      "item": "volute casing (cast iron/SS)",
+      "qty": 1,
+      "mass_kg": 8.0,
+      "cost_usd": 350.0
+     },
+     {
+      "item": "shaft, key, mechanical seal, 2 bearings",
+      "qty": 1,
+      "mass_kg": 3.0,
+      "cost_usd": 220.0
+     },
+     {
+      "item": "induction motor >= 5.1 kW @ 1645 rpm (VFD if non-standard)",
+      "qty": 1,
+      "mass_kg": 43.94640828793758,
+      "cost_usd": 859.1961243190636
+     }
+    ],
+    "cost_usd": 1935.6591594806332,
+    "mass_kg": 1.3307879395196207,
+    "build_instructions": [
+     "Export the impeller SCAD/STL: r1 = 34.1 mm, r2 = 135.7 mm, b2 = 6.4 mm, 7 blades, beta1/beta2 = 32.5/21.5 deg.",
+     "Produce in Aluminium 6061-T6 by investment casting (production) or SLS/SLM (prototype); machine bore and wear rings.",
+     "Dynamically balance to ISO 21940 G6.3.",
+     "Assemble with volute sized for the design flow; prime the pump before start-up.",
+     "Measure the H-Q curve per ISO 9906 at 1645 rpm; verify 250 kPa at 12 L/s and absence of cavitation noise.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1.5x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "ti6al4v",
+      "merit_index": 198645.59819413093,
+      "feasible": true,
+      "efficiency": 0.8229066607607475,
+      "fidelity": 1.0,
+      "score": 0.8674921585546974
+     },
+     {
+      "material": "inconel718",
+      "merit_index": 126251.52625152626,
+      "feasible": true,
+      "efficiency": 0.8229066607607475,
+      "fidelity": 1.0,
+      "score": 0.862209420783027
+     },
+     {
+      "material": "al6061_t6",
+      "merit_index": 102222.22222222222,
+      "feasible": true,
+      "efficiency": 0.8229066607607475,
+      "fidelity": 1.0,
+      "score": 0.8937439964564484
+     },
+     {
+      "material": "pom",
+      "merit_index": 49645.39007092199,
+      "feasible": true,
+      "efficiency": 0.8229066607607475,
+      "fidelity": 1.0,
+      "score": 0.8908366960662067
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/pump_impeller.scad",
+     "stl": "shiva_output/standard_seed42/cad/pump_impeller.stl",
+     "components": 9,
+     "triangles": 2852,
+     "components_watertight": true,
+     "bbox_mm": [
+      272.27,
+      271.451,
+      13.6
+     ],
+     "volume_mm3_sum_of_shells": 263708.7738993436,
+     "freecad_macro": "shiva_output/standard_seed42/cad/pump_impeller.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/pump_impeller_openscad.stl"
+    },
+    "notes": []
+   },
+   "gear_pair": {
+    "domain": "gear_pair",
+    "design_id": "05bd3438",
+    "material": "steel4140_qt",
+    "material_name": "Alloy steel 4140 (Q&T)",
+    "alien_params": {
+     "module": 0.0018112496613542878,
+     "z1": 40.0,
+     "face_factor": 15.658886028615898,
+     "pressure_angle": 22.454814002475633,
+     "shift": 0.33854048809319
+    },
+    "real_params": {
+     "module": 0.002,
+     "z1": 40.0,
+     "face_factor": 14.0,
+     "pressure_angle": 20.0,
+     "shift": 0.35000000000000003
+    },
+    "fidelity": 0.8705667504460859,
+    "alien_efficiency": 0.7566246952665578,
+    "real_efficiency": 0.7391973099095457,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "ratio": -1.0,
+     "contact_ratio": -0.2790780351168666,
+     "undercut_pinion": -0.7221694544615765,
+     "undercut_gear": -0.8076557761657068,
+     "tip_thickness": -0.6318444168645995,
+     "bending": -0.7865334110409413,
+     "contact": -0.3530332575338172
+    },
+    "prediction": {
+     "mesh_efficiency": {
+      "mean": 0.9953334396981804,
+      "std": 2.478532184949e-05,
+      "p05": 0.9952933895239183,
+      "p95": 0.9953713982669926
+     },
+     "contact_ratio": {
+      "mean": 1.7338908521155043,
+      "std": 2.220446049250313e-16,
+      "p05": 1.7338908521155045,
+      "p95": 1.7338908521155045
+     },
+     "bending_stress_MPa": {
+      "mean": 70.00262899183261,
+      "std": 0.6711230027192477,
+      "p05": 68.89128615529829,
+      "p95": 71.15183290348612
+     },
+     "contact_stress_MPa": {
+      "mean": 462.5475590220892,
+      "std": 10.766660211143218,
+      "p05": 444.68247837982665,
+      "p95": 480.51964880091873
+     },
+     "power_density_W_kg": {
+      "mean": 531.975135506575,
+      "std": 10.554693754169545,
+      "p05": 515.4786609774968,
+      "p95": 549.7038676588102
+     },
+     "center_distance_mm": {
+      "mean": 160.0,
+      "std": 0.0,
+      "p05": 160.0,
+      "p95": 160.0
+     },
+     "z2": {
+      "mean": 120.0,
+      "std": 0.0,
+      "p05": 120.0,
+      "p95": 120.0
+     },
+     "ratio": {
+      "mean": 3.0,
+      "std": 0.0,
+      "p05": 3.0,
+      "p95": 3.0
+     },
+     "pitch_velocity_m_s": {
+      "mean": 6.283185307179586,
+      "std": 0.0,
+      "p05": 6.283185307179586,
+      "p95": 6.283185307179586
+     },
+     "face_width_mm": {
+      "mean": 27.965640397571757,
+      "std": 0.26782595736003173,
+      "p05": 27.51142932988883,
+      "p95": 28.414168665039075
+     },
+     "mass_kg": {
+      "mean": 9.40262628329324,
+      "std": 0.18608200047163712,
+      "p05": 9.095807888364426,
+      "p95": 9.699722588995568
+     }
+    },
+    "reliability": 1.0,
+    "bom": [
+     {
+      "item": "pinion blank, Alloy steel 4140 (Q&T), z=40, m=2.00 mm, b=28 mm",
+      "qty": 1,
+      "mass_kg": 1.2180809231169405,
+      "cost_usd": 123.04520230779235
+     },
+     {
+      "item": "gear blank, Alloy steel 4140 (Q&T), z=120, m=2.00 mm, b=28 mm",
+      "qty": 1,
+      "mass_kg": 10.2777304193155,
+      "cost_usd": 145.69432604828876
+     },
+     {
+      "item": "hobbing + heat treatment + grinding",
+      "qty": 2,
+      "mass_kg": 0.0,
+      "cost_usd": 400.0
+     },
+     {
+      "item": "shafts, bearings, housing",
+      "qty": 1,
+      "mass_kg": 6.0,
+      "cost_usd": 350.0
+     }
+    ],
+    "cost_usd": 1018.7395283560811,
+    "mass_kg": 9.391100087522895,
+    "build_instructions": [
+     "Turn blanks in Alloy steel 4140 (Q&T); pinion z = 40, gear z = 120, module 2.00 mm, pressure angle 20.0 deg, profile shift x1 = +0.35 / x2 = -0.35.",
+     "Hob teeth (or wire-EDM/print for prototypes); through-harden or nitride as specified for steels.",
+     "Grind/finish flanks to ISO 1328 grade 6-7; deburr tips.",
+     "Mount on parallel shafts at centre distance 160.00 mm (no shift sum), check backlash and contact pattern with marking compound.",
+     "Run-in under 25 % load with ISO VG 220 oil, then load-test to 1.25x rated torque.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1.2x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "steel4140_qt",
+      "merit_index": 1020.0,
+      "feasible": true,
+      "efficiency": 0.7566246952665578,
+      "fidelity": 1.0,
+      "score": 0.8600984166396125
+     },
+     {
+      "material": "pom",
+      "merit_index": 72.0,
+      "feasible": true,
+      "efficiency": 0.7957413553387177,
+      "fidelity": 0.9396393318774682,
+      "score": 0.8503932455639762
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/gear_pair.scad",
+     "stl": "shiva_output/standard_seed42/cad/gear_pair.stl",
+     "components": 2,
+     "triangles": 12800,
+     "components_watertight": true,
+     "bbox_mm": [
+      323.972,
+      242.555,
+      28.0
+     ],
+     "volume_mm3_sum_of_shells": 1393238.0205253,
+     "freecad_macro": "shiva_output/standard_seed42/cad/gear_pair.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/gear_pair_openscad.stl"
+    },
+    "notes": []
+   },
+   "cosmic_habitat": {
+    "domain": "cosmic_habitat",
+    "design_id": "5ea3cef3",
+    "material": "cfrp_ud",
+    "material_name": "CFRP unidirectional (fibre direction)",
+    "alien_params": {
+     "radius": 170.93786939162874,
+     "rpm": 2.1774973851889925,
+     "thickness": 0.02366471198085608,
+     "width": 189.65376219337742,
+     "pressure": 52562.11702168915
+    },
+    "real_params": {
+     "radius": 171,
+     "rpm": 2.18,
+     "thickness": 0.024,
+     "width": 190,
+     "pressure": 52562.11702168915
+    },
+    "fidelity": 0.9987197281719662,
+    "alien_efficiency": 0.6450237128702503,
+    "real_efficiency": 0.6429286189810991,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "gravity_match": -0.08752582338519632,
+     "rpm_comfort": -0.45499999999999996,
+     "coriolis": -0.7950684782335165,
+     "gravity_gradient": -0.9220272904483431,
+     "hull_strength": -0.48828194922423096,
+     "spin_stability": -0.27654320987654324
+    },
+    "prediction": {
+     "gravity_g": {
+      "mean": 0.9068296593262815,
+      "std": 0.020226608742193734,
+      "p05": 0.8763820972585408,
+      "p95": 0.940769803649448
+     },
+     "rim_speed_m_s": {
+      "mean": 38.97918567480777,
+      "std": 0.5427890971475405,
+      "p05": 38.14817298402543,
+      "p95": 39.830434746704704
+     },
+     "hoop_stress_MPa": {
+      "mean": 503.17135597084575,
+      "std": 9.145617041162913,
+      "p05": 488.4544746813458,
+      "p95": 516.7721062949167
+     },
+     "hull_SF": {
+      "mean": 2.983672182602661,
+      "std": 0.15507408290841124,
+      "p05": 2.7467260248559016,
+      "p95": 3.2271986773134946
+     },
+     "habitable_area_km2": {
+      "mean": 0.2039943661824245,
+      "std": 0.0026584751792136673,
+      "p05": 0.19939412949487673,
+      "p95": 0.20794180330690326
+     },
+     "structure_mass_t": {
+      "mean": 9508.049190164404,
+      "std": 211.99519417069146,
+      "p05": 9158.82386299678,
+      "p95": 9839.49049414522
+     },
+     "population_capacity": {
+      "mean": 2039.943661824245,
+      "std": 26.58475179213668,
+      "p05": 1993.9412949487673,
+      "p95": 2079.418033069033
+     },
+     "coriolis_ratio": {
+      "mean": 0.051319352588857566,
+      "std": 0.0007123415240135767,
+      "p05": 0.05021285965156689,
+      "p95": 0.05242715223818983
+     },
+     "spin_inertia_ratio": {
+      "mean": 1.6581561590820662,
+      "std": 0.008242949670576894,
+      "p05": 1.6451453762840846,
+      "p95": 1.6714278501560338
+     },
+     "mass_kg": {
+      "mean": 9508049.190164404,
+      "std": 211995.19417069142,
+      "p05": 9158823.862996781,
+      "p95": 9839490.49414522
+     }
+    },
+    "reliability": 0.63,
+    "bom": [
+     {
+      "item": "pressure hull, CFRP unidirectional (fibre direction)",
+      "qty": 1,
+      "mass_kg": 9489318.84024473,
+      "cost_usd": 474465942.0122365
+     },
+     {
+      "item": "radiation shielding (regolith, 2 t/m^2), in-space sourced",
+      "qty": 1,
+      "mass_kg": 408281381.2605295,
+      "cost_usd": 0.0
+     },
+     {
+      "item": "1:1000 desktop model (PLA, from STL)",
+      "qty": 1,
+      "mass_kg": 0.2,
+      "cost_usd": 10.0
+     }
+    ],
+    "cost_usd": 474465952.0122365,
+    "mass_kg": 9489318.84024473,
+    "build_instructions": [
+     "Megastructure: the full-scale design is a conceptual study (launch/in-space manufacturing not costed).",
+     "Print the 1:1000 scale model from the STL (R = 171 m -> 171 mm).",
+     "Spin-up schedule: ramp to 2.18 rpm over weeks for vestibular adaptation (Hall 1999).",
+     "Hull segments must be proof-pressurised before habitation; spin about the maximum-inertia axis.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1.2x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "zylon",
+      "merit_index": 3717948.717948718,
+      "feasible": true,
+      "efficiency": 0.6488810099198264,
+      "fidelity": 1.0,
+      "score": 0.7421076679200642
+     },
+     {
+      "material": "cfrp_ud",
+      "merit_index": 937500.0,
+      "feasible": true,
+      "efficiency": 0.6450237128702503,
+      "fidelity": 1.0,
+      "score": 0.7541069273319084
+     },
+     {
+      "material": "cfrp_qi",
+      "merit_index": 356250.0,
+      "feasible": true,
+      "efficiency": 0.58023806178921,
+      "fidelity": 0.955204097385323,
+      "score": 0.7002244760276553
+     },
+     {
+      "material": "ti6al4v",
+      "merit_index": 198645.59819413093,
+      "feasible": true,
+      "efficiency": 0.470368090688072,
+      "fidelity": 0.9863846549124413,
+      "score": 0.6505228784760687
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/cosmic_habitat.scad",
+     "stl": "shiva_output/standard_seed42/cad/cosmic_habitat.stl",
+     "components": 8,
+     "triangles": 1952,
+     "components_watertight": true,
+     "bbox_mm": [
+      342.0,
+      342.0,
+      190.0
+     ],
+     "volume_mm3_sum_of_shells": 3923163.499692598,
+     "freecad_macro": "shiva_output/standard_seed42/cad/cosmic_habitat.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/cosmic_habitat_openscad.stl"
+    },
+    "notes": []
+   },
+   "cosmic_lightsail": {
+    "domain": "cosmic_lightsail",
+    "design_id": "1b28d3cc",
+    "material": "kapton",
+    "material_name": "Polyimide film (Kapton HN)",
+    "alien_params": {
+     "film_thickness": 9.093742131438031e-07,
+     "side_length": 443.43171006186867,
+     "reflectivity": 0.9312788063198714,
+     "boom_linear_density": 0.06028649524312316,
+     "distance_au": 0.4438089533053994
+    },
+    "real_params": {
+     "film_thickness": 9.000000000000001e-07,
+     "side_length": 443.4317103671343,
+     "reflectivity": 0.91,
+     "boom_linear_density": 0.060286495278378635,
+     "distance_au": 0.4438089534922589
+    },
+    "fidelity": 0.9727851470589095,
+    "alien_efficiency": 1.0,
+    "real_efficiency": 1.0,
+    "feasible": true,
+    "snapped": true,
+    "constraint_values": {
+     "temperature": -0.3305921447058501,
+     "boom_stiffness": -0.506021173458166,
+     "film_handling": -1.1102230246251565e-16
+    },
+    "prediction": {
+     "char_accel_mm_s2": {
+      "mean": 26.04970361846298,
+      "std": 0.6658902895422436,
+      "p05": 25.013131657237594,
+      "p95": 27.111473749576025
+     },
+     "lightness_number": {
+      "mean": 0.8645373944734177,
+      "std": 0.010878990458007361,
+      "p05": 0.8457982490708518,
+      "p95": 0.8839518570026106
+     },
+     "sail_temperature_K": {
+      "mean": 360.44293845700327,
+      "std": 2.020475105085688,
+      "p05": 357.1850330081755,
+      "p95": 363.7936105588346
+     },
+     "total_mass_kg": {
+      "mean": 331.7608039058421,
+      "std": 7.110206153792483,
+      "p05": 319.9807697275423,
+      "p95": 342.385357833673
+     },
+     "area_m2": {
+      "mean": 196183.49233258533,
+      "std": 4004.3145325718256,
+      "p05": 189227.69597075766,
+      "p95": 202690.8904514438
+     },
+     "force_mN": {
+      "mean": 8641.657331797851,
+      "std": 268.76507273560065,
+      "p05": 8207.093885152935,
+      "p95": 9046.81327244693
+     },
+     "mass_kg": {
+      "mean": 331.7608039058421,
+      "std": 7.110206153792483,
+      "p05": 319.9807697275423,
+      "p95": 342.385357833673
+     }
+    },
+    "reliability": 1.0,
+    "bom": [
+     {
+      "item": "aluminised Polyimide film (Kapton HN) film 0.9 um",
+      "qty": 1,
+      "area_m2": 196631.6817591221,
+      "mass_kg": 251.29528928815805,
+      "cost_usd": 615024.5742061822
+     },
+     {
+      "item": "deployable CFRP booms",
+      "qty": 4,
+      "mass_kg": 75.61218312310027,
+      "cost_usd": 96686.34207342686
+     },
+     {
+      "item": "deployer, tip vanes, avionics (payload)",
+      "qty": 1,
+      "mass_kg": 5.0,
+      "cost_usd": 50000.0
+     }
+    ],
+    "cost_usd": 761710.916279609,
+    "mass_kg": 331.9074724112583,
+    "build_instructions": [
+     "Procure 0.9 um Polyimide film (Kapton HN) with vapour-deposited aluminium front coat and high-emissivity back coat.",
+     "Cut four triangular quadrants for a 443.4 m square sail; add rip-stop tape grid.",
+     "Fold (frog-leg or Miura) onto the deployer spools; integrate booms and tip vanes.",
+     "Ground deployment test in a gravity-offload rig; thermal-vacuum test the coated film.",
+     "Inspect all critical dimensions against the CAD model (tolerances as noted) before assembly.",
+     "Proof-test to 1x the design load/pressure/speed behind a barrier before use; record results.",
+     "Planning values only: confirm material certificates and have a qualified engineer review load-bearing, rotating or pressurised parts."
+    ],
+    "material_ranking": [
+     {
+      "material": "kapton",
+      "merit_index": 0.47394366197183097,
+      "feasible": true,
+      "efficiency": 1.0,
+      "fidelity": 0.9977025238873628,
+      "score": 0.957142809294784
+     }
+    ],
+    "cad": {
+     "scad": "shiva_output/standard_seed42/cad/cosmic_lightsail.scad",
+     "stl": "shiva_output/standard_seed42/cad/cosmic_lightsail.stl",
+     "components": 4,
+     "triangles": 120,
+     "components_watertight": true,
+     "bbox_mm": [
+      4459.401,
+      4459.401,
+      195.11
+     ],
+     "volume_mm3_sum_of_shells": 32258695.98478003,
+     "freecad_macro": "shiva_output/standard_seed42/cad/cosmic_lightsail.FCMacro",
+     "openscad_stl": "shiva_output/standard_seed42/cad/cosmic_lightsail_openscad.stl"
+    },
+    "notes": [
+     "Free dimensions were re-optimised after snapping to standard stock sizes."
+    ]
+   }
+  }
+ },
+ "wall_time_s": 662.1264092922211
+}

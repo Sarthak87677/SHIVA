@@ -1,0 +1,28 @@
+{
+  "domain": "pump_impeller",
+  "params": {
+    "r1": 0.0341,
+    "r2": 0.1357,
+    "b2": 0.0064,
+    "beta1": 32.5,
+    "beta2": 21.5,
+    "blades": 7.0,
+    "rpm": 1645.4463959506852
+  },
+  "cad": {
+    "scad": "shiva_output/standard_seed42/cad/pump_impeller.scad",
+    "stl": "shiva_output/standard_seed42/cad/pump_impeller.stl",
+    "components": 9,
+    "triangles": 2852,
+    "components_watertight": true,
+    "bbox_mm": [
+      272.27,
+      271.451,
+      13.6
+    ],
+    "volume_mm3_sum_of_shells": 263708.7738993436,
+    "freecad_macro": "shiva_output/standard_seed42/cad/pump_impeller.FCMacro",
+    "openscad_stl": "shiva_output/standard_seed42/cad/pump_impeller_openscad.stl"
+  },
+  "material": "al6061_t6"
+}

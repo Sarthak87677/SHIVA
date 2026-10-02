@@ -1,0 +1,112 @@
+{
+  "gravity": {
+    "law": "tensor",
+    "G": 1.0,
+    "k": 2.5,
+    "screening_length": 5.0,
+    "tensor_chol": [
+      0.3318866130179666,
+      0.12862693153848404,
+      0.4607267975987976,
+      0.05497033116657184,
+      -0.36734070951615005,
+      -0.41044775977369946
+    ],
+    "fractal_eps": 0.0,
+    "fractal_gamma": 0.5,
+    "fractal_omega": 6.0,
+    "fractal_beta": 2.0,
+    "fractal_octaves": 3,
+    "fractal_r0": 1.0,
+    "modulation_amp": 0.0,
+    "modulation_freq": 1.0
+  },
+  "em": {
+    "law": "off",
+    "alpha_ratio": 1.0,
+    "base_coupling": 0.5,
+    "k": 2.0,
+    "proca_mass": 1.0,
+    "specific_charge": 1.0,
+    "B": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "inertia": {
+    "model": "newtonian",
+    "c": 10.0,
+    "mass_tensor_chol": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "kinetic_exponent": 2.0,
+    "rest_energy_factor": 1.0,
+    "mass_spectrum": "equal",
+    "mass_spread": 0.5,
+    "imf_slope": 2.35
+  },
+  "thermo": {
+    "friction": 0.0,
+    "temperature": 0.0,
+    "noise": "gaussian",
+    "tsallis_q": 1.0,
+    "active_gamma": 0.0,
+    "active_v0": 0.5,
+    "adiabatic_index": 1.4
+  },
+  "fluid": {
+    "viscosity": 0.001,
+    "viscosity_tensor_chol": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "hyper_order": 1.0,
+    "advection": 1.0,
+    "ekman_drag": 0.02,
+    "forcing_amp": 0.5,
+    "forcing_k": 4,
+    "medium_drag": 0.0,
+    "drag_exponent": 2.0,
+    "rd_diffusion_u": 0.16,
+    "rd_diffusion_v": 0.08,
+    "rd_feed": 0.03,
+    "rd_kill": 0.062
+  },
+  "interaction": {
+    "propagation": "instantaneous",
+    "c_prop": 5.0,
+    "n_species": 1,
+    "species_matrix": [
+      [
+        1.2685659972821774
+      ]
+    ],
+    "species_range": 0.3,
+    "core_repulsion": 0.34716928276755166,
+    "core_range": 0.050270451737590253
+  },
+  "cosmology": {
+    "Lambda": 0.17843552957475467,
+    "hubble": 0.0
+  },
+  "dim": 3,
+  "name": "shiva-best-02d1d5e62596",
+  "genome_id": "02d1d5e62596",
+  "parents": [
+    "a16e7aeca948"
+  ],
+  "generation": 4,
+  "lineage": [
+    "g1: cosmology: Lambda=0.178, H=0",
+    "g2: gravity_escalate: inverse_k -> tensor",
+    "g3: interaction: prop=instantaneous, species=1, nonrecip=0.00, core=0",
+    "g4: interaction: prop=instantaneous, species=1, nonrecip=0.00, core=0.347"
+  ]
+}
