@@ -208,12 +208,16 @@ def run_pipeline(out_dir: str = "shiva_output/run", seed: int = 42, profile: str
     def final_runs(g: PhysicsGenome, keep_first: bool, n_seeds: Optional[int] = None,
                    seed_base: int = 7919) -> Tuple[List[float], Any]:
         Rs, first = [], None
-        for k in range(n_seeds or P["final_seeds"]):
+        n = n_seeds or P["final_seeds"]
+        for k in range(n):
             cfg = SimulationConfig(n_particles=P["final_n"], steps=P["final_steps"], record_every=20,
                                    initial_condition="cold_collapse", seed=seed + seed_base + 101 * k)
+            t_run = time.time()
             run = run_universe(g, cfg, fields=True, rigid=True, field_resolution=P["field_n"])
             rep = det.analyze(run)
             Rs.append(rep.richness)
+            log(f"      {g.name or g.gravity.law}: seed {k + 1}/{n} R = {rep.richness:.3f}"
+                f" ({time.time() - t_run:.0f}s)")
             if k == 0 and keep_first:
                 first = (run, rep)
         return Rs, first
