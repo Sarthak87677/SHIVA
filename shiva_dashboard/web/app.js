@@ -28,8 +28,8 @@ const state = {
   tables: {},
   hiddenForces: new Set(),
 };
-const MODES = ['best', 'baseline', 'both'];
-const MODE_NAME = { best: 'evolved', baseline: 'Newtonian', both: 'side by side' };
+const MODES = ['best', 'baseline', 'both', 'sandbox'];
+const MODE_NAME = { best: 'evolved', baseline: 'Newtonian', both: 'side by side', sandbox: 'live sandbox' };
 const PLAY_SECONDS = 22; // one pass through the recorded trajectory at 1x
 
 // ===================================================================== 3-D helpers
@@ -139,13 +139,118 @@ class Viewport {
   }
 }
 
+// ===================================================================== live sandbox physics
+
+/**
+ * Real-time N-body "sandbox": the run's initial particle cloud evolves under a radial force law
+ * whose magnitude |F(r)| was tabulated from the SymPy potential on the Python side
+ * (dashboard_data.force_laws), plus a movable heavy "star" driven by the user's hand or mouse.
+ * Kick-drift-kick leapfrog with Plummer softening; masses sum to 1 as in the simulator.
+ */
+class Sandbox {
+  constructor(frame0, n, laws, softening = 0.05) {
+    this.n = n;
+    this.frame0 = Float64Array.from(frame0);
+    this.laws = laws; // {key: {name, logr, logF}}
+    this.eps2 = softening * softening;
+    this.law = Object.keys(laws)[0];
+    this.m = 1 / n;
+    this.star = { x: 0, y: 0, z: 0, active: false, mass: 0.35, heavy: false };
+    this.reset();
+  }
+
+  static table(r, F) {
+    const logr = [];
+    const logF = [];
+    r.forEach((x, i) => { if (x > 0 && F[i] > 0) { logr.push(Math.log(x)); logF.push(Math.log(F[i])); } });
+    return { logr: Float64Array.from(logr), logF: Float64Array.from(logF) };
+  }
+
+  /** |F(r)| between unit masses: log-log interpolation of the SymPy table, power-law extrapolation beyond it. */
+  force(r) {
+    const { logr, logF } = this.laws[this.law];
+    const x = Math.log(r);
+    const N = logr.length;
+    let i;
+    if (x <= logr[0]) i = 0;
+    else if (x >= logr[N - 1]) i = N - 2;
+    else { let lo = 0; let hi = N - 1; while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (logr[mid] <= x) lo = mid; else hi = mid; } i = lo; }
+    const t = (x - logr[i]) / (logr[i + 1] - logr[i]);
+    return Math.exp(logF[i] + t * (logF[i + 1] - logF[i]));
+  }
+
+  reset() {
+    this.pos = Float64Array.from(this.frame0);
+    this.vel = new Float64Array(this.n * 3);
+    let s = 12345; // deterministic small velocity dispersion (sigma 0.05, as the simulator's cold collapse)
+    const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return (s + 0.5) / 2147483648; };
+    for (let k = 0; k < this.vel.length; k++) this.vel[k] = 0.05 * Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+    this.acc = new Float64Array(this.n * 3);
+    this.t = 0;
+    this.accel();
+  }
+
+  accel() {
+    const { pos, acc, n, m, eps2 } = this;
+    acc.fill(0);
+    for (let i = 0; i < n; i++) {
+      const xi = pos[3 * i]; const yi = pos[3 * i + 1]; const zi = pos[3 * i + 2];
+      for (let j = i + 1; j < n; j++) {
+        const dx = pos[3 * j] - xi; const dy = pos[3 * j + 1] - yi; const dz = pos[3 * j + 2] - zi;
+        const re = Math.sqrt(dx * dx + dy * dy + dz * dz + eps2);
+        const f = (m * this.force(re)) / re;
+        acc[3 * i] += f * dx; acc[3 * i + 1] += f * dy; acc[3 * i + 2] += f * dz;
+        acc[3 * j] -= f * dx; acc[3 * j + 1] -= f * dy; acc[3 * j + 2] -= f * dz;
+      }
+    }
+    const S = this.star;
+    if (S.active) {
+      const M = S.mass * (S.heavy ? 4 : 1);
+      const se2 = 0.15 * 0.15; // the star is softer, so close passes slingshot instead of exploding
+      for (let i = 0; i < n; i++) {
+        const dx = S.x - pos[3 * i]; const dy = S.y - pos[3 * i + 1]; const dz = S.z - pos[3 * i + 2];
+        const re = Math.sqrt(dx * dx + dy * dy + dz * dz + se2);
+        const f = (M * this.force(re)) / re;
+        acc[3 * i] += f * dx; acc[3 * i + 1] += f * dy; acc[3 * i + 2] += f * dz;
+      }
+    }
+  }
+
+  step(dt) {
+    const sub = Math.max(1, Math.ceil(dt / 0.0015));
+    const h = dt / sub;
+    const { pos, vel, acc } = this;
+    const vmax = 25;
+    for (let s = 0; s < sub; s++) {
+      for (let k = 0; k < pos.length; k++) { vel[k] += 0.5 * h * acc[k]; pos[k] += h * vel[k]; }
+      this.accel();
+      for (let k = 0; k < pos.length; k += 3) {
+        vel[k] += 0.5 * h * acc[k]; vel[k + 1] += 0.5 * h * acc[k + 1]; vel[k + 2] += 0.5 * h * acc[k + 2];
+        const v = Math.hypot(vel[k], vel[k + 1], vel[k + 2]);
+        if (v > vmax) { const c = vmax / v; vel[k] *= c; vel[k + 1] *= c; vel[k + 2] *= c; }
+      }
+    }
+    this.t += dt;
+  }
+
+  radiusOfGyration() {
+    const { pos, n } = this;
+    let cx = 0; let cy = 0; let cz = 0;
+    for (let i = 0; i < n; i++) { cx += pos[3 * i]; cy += pos[3 * i + 1]; cz += pos[3 * i + 2]; }
+    cx /= n; cy /= n; cz /= n;
+    let s = 0;
+    for (let i = 0; i < n; i++) s += (pos[3 * i] - cx) ** 2 + (pos[3 * i + 1] - cy) ** 2 + (pos[3 * i + 2] - cz) ** 2;
+    return Math.sqrt(s / n);
+  }
+}
+
 // ===================================================================== universe view
 
 const TRAIL = 18; // samples per trail
 const TRAIL_STEP = 0.4; // frames between trail samples
 
 class UniverseView extends Viewport {
-  constructor(canvas, panel, universes) {
+  constructor(canvas, panel, universes, forceLaws) {
     super(canvas, panel);
     this.renderer.setClearColor(0x0b0b0b, 1);
     // normalise by the typical (median) particle radius over the run, so a collapsing
@@ -158,6 +263,7 @@ class UniverseView extends Viewport {
       best: this.build(universes.best, C.s1),
       baseline: this.build(universes.baseline, C.s2),
     };
+    this.initSandbox(universes, forceLaws);
     this.backdrop();
     this.onResize = (w, h) => {
       const s = this.renderer.getPixelRatio() * h / (2 * Math.tan((this.camera.fov * Math.PI) / 360));
@@ -181,7 +287,37 @@ class UniverseView extends Viewport {
   }
 
   get materials() {
-    return [this.u.best.points.material, this.u.baseline.points.material, this.stars.material];
+    const m = [this.u.best.points.material, this.u.baseline.points.material, this.stars.material];
+    if (this.live) m.push(this.live.points.material, this.starMesh.material);
+    return m;
+  }
+
+  /** Points + fading trails + radius-of-gyration ring + floor grid for n particles. */
+  makeSet(n, color) {
+    const group = new THREE.Group();
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+    g.setAttribute('aBright', new THREE.BufferAttribute(new Float32Array(n), 1));
+    const points = new THREE.Points(g, glowMaterial(color, 0.14));
+    points.frustumCulled = false;
+    const tg = new THREE.BufferGeometry();
+    tg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * TRAIL * 2 * 3), 3));
+    tg.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n * TRAIL * 2 * 3), 3));
+    const trails = new THREE.LineSegments(tg, new THREE.LineBasicMaterial({
+      vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    }));
+    trails.frustumCulled = false;
+    const ringPts = [];
+    for (let k = 0; k <= 128; k++) { const a = (k / 128) * Math.PI * 2; ringPts.push(new THREE.Vector3(Math.cos(a), 0, Math.sin(a))); }
+    const ring = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),
+      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.35 }));
+    const polar = new THREE.PolarGridHelper(2.4, 12, 4, 96, 0x383835, 0x2c2c2a);
+    polar.position.y = -2.2;
+    polar.material.transparent = true;
+    polar.material.opacity = 0.5;
+    group.add(points, trails, ring, polar);
+    this.scene.add(group);
+    return { n, group, points, trails, ring, col: new THREE.Color(color), tmp: new Float32Array((TRAIL + 1) * n * 3) };
   }
 
   build(u, color) {
@@ -199,34 +335,8 @@ class UniverseView extends Viewport {
       }
     }
     steps.sort((a, b) => a - b);
-    const vref = Math.max(steps[Math.floor(steps.length / 2)] || 1e-3, 1e-4);
-
-    const group = new THREE.Group();
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
-    g.setAttribute('aBright', new THREE.BufferAttribute(new Float32Array(n), 1));
-    const points = new THREE.Points(g, glowMaterial(color, 0.14));
-    points.frustumCulled = false;
-    const tg = new THREE.BufferGeometry();
-    tg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * TRAIL * 2 * 3), 3));
-    tg.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n * TRAIL * 2 * 3), 3));
-    const trails = new THREE.LineSegments(tg, new THREE.LineBasicMaterial({
-      vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    }));
-    trails.frustumCulled = false;
-    // radius-of-gyration ring (horizontal), drawn at the current R_g
-    const ringPts = [];
-    for (let k = 0; k <= 128; k++) { const a = (k / 128) * Math.PI * 2; ringPts.push(new THREE.Vector3(Math.cos(a), 0, Math.sin(a))); }
-    const ring = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts),
-      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.35 }));
-    const polar = new THREE.PolarGridHelper(2.4, 12, 4, 96, 0x383835, 0x2c2c2a);
-    polar.position.y = -2.2;
-    polar.material.transparent = true;
-    polar.material.opacity = 0.5;
-    group.add(points, trails, ring, polar);
-    this.scene.add(group);
-    const col = new THREE.Color(color);
-    return { u, n, F, pos, vref, group, points, trails, ring, col, cur: new Float32Array(n * 3), tmp: new Float32Array((TRAIL + 1) * n * 3) };
+    const vref = Math.max(steps[Math.floor(steps.length / 2)] || 1e-3, 1e-4) / TRAIL_STEP;
+    return { ...this.makeSet(n, color), u, F, pos, vref };
   }
 
   backdrop() {
@@ -243,6 +353,174 @@ class UniverseView extends Viewport {
     this.scene.add(this.stars);
   }
 
+  initSandbox(universes, fl) {
+    const laws = {};
+    const pick = (re) => (fl?.laws || []).find((l) => re.test(l.name));
+    const ev = pick(/evolved/i);
+    const nw = pick(/newton/i);
+    if (ev) laws.evolved = { name: ev.name, ...Sandbox.table(fl.r, ev.absF) };
+    if (nw) laws.newtonian = { name: nw.name, ...Sandbox.table(fl.r, nw.absF) };
+    if (!Object.keys(laws).length) return;
+    const u = universes.best;
+    this.sim = new Sandbox(u.frames[0], u.n, laws, fl.softening ?? 0.05);
+    this.live = this.makeSet(u.n, C.s1);
+    this.live.vref = 0.4;
+    this.live.hist = []; // past snapshots (display units), newest first
+    this.live.group.visible = false;
+    // the user's star: a big glow plus a pulsing halo ring
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3));
+    sg.setAttribute('aBright', new THREE.BufferAttribute(new Float32Array([1]), 1));
+    this.starMesh = new THREE.Points(sg, glowMaterial(C.s4, 0.9));
+    this.starMesh.frustumCulled = false;
+    const hp = [];
+    for (let k = 0; k <= 64; k++) { const a = (k / 64) * Math.PI * 2; hp.push(new THREE.Vector3(Math.cos(a), Math.sin(a), 0)); }
+    this.halo = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(hp), new THREE.LineBasicMaterial({ color: new THREE.Color(C.s4), transparent: true, opacity: 0.6 }));
+    this.starGroup = new THREE.Group();
+    this.starGroup.add(this.starMesh, this.halo);
+    this.starGroup.visible = false;
+    this.scene.add(this.starGroup);
+    this.raycaster = new THREE.Raycaster();
+    this.setLaw(laws.evolved ? 'evolved' : 'newtonian');
+    // mouse drives the star when no hand is doing so
+    this.canvas.addEventListener('pointermove', (e) => { if (this.mode === 'sandbox' && !this.handStar) this.setStarClient(e.clientX, e.clientY, true); });
+    this.canvas.addEventListener('pointerleave', () => { if (!this.handStar) this.setStarActive(false); });
+  }
+
+  setLaw(key) {
+    if (!this.sim || !this.sim.laws[key]) return;
+    this.sim.law = key;
+    this.live.col.set(key === 'evolved' ? C.s1 : C.s2);
+    this.live.points.material.uniforms.uColor.value.set(key === 'evolved' ? C.s1 : C.s2);
+    this.live.ring.material.color.set(key === 'evolved' ? C.s1 : C.s2);
+    this.sim.accel();
+  }
+
+  resetSandbox() { if (this.sim) { this.sim.reset(); this.live.hist = []; } }
+
+  /** Put the star where the screen point (clientX, clientY) meets the plane through the view centre. */
+  setStarClient(cx, cy, active = true) {
+    if (!this.sim) return;
+    const r = this.canvas.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
+    if (Math.abs(ndc.x) > 1 || Math.abs(ndc.y) > 1) { this.setStarActive(false); return; }
+    this.raycaster.setFromCamera(ndc, this.camera);
+    const n = this.camera.getWorldDirection(new THREE.Vector3());
+    const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(n, this.controls.target);
+    const p = this.raycaster.ray.intersectPlane(plane, new THREE.Vector3());
+    if (!p) return;
+    Object.assign(this.sim.star, { x: p.x / this.scale, y: p.y / this.scale, z: p.z / this.scale });
+    this.setStarActive(active);
+  }
+
+  setStarActive(on) {
+    if (!this.sim) return;
+    this.sim.star.active = on && this.mode === 'sandbox';
+  }
+
+  setMode(mode, instant = false) {
+    if (mode === 'sandbox' && !this.sim) mode = 'best';
+    this.mode = mode;
+    const both = mode === 'both';
+    this.u.best.group.visible = mode === 'best' || both;
+    this.u.baseline.group.visible = mode === 'baseline' || both;
+    if (this.live) this.live.group.visible = mode === 'sandbox';
+    if (mode !== 'sandbox') this.setStarActive(false);
+    this.u.best.group.position.x = both ? -this.offset : 0;
+    this.u.baseline.group.position.x = both ? this.offset : 0;
+    const pos = both ? new THREE.Vector3(0, 2.6, 10.8) : mode === 'sandbox' ? new THREE.Vector3(0, 1.2, 6.2) : new THREE.Vector3(0, 1.5, 5.4);
+    if (instant) { this.camera.position.copy(pos); this.controls.target.set(0, 0, 0); this.controls.update(); }
+    else this.flyTo(pos);
+  }
+
+  reset() { this.touch(); this.setMode(this.mode); }
+
+  /** Write points (with speed glow) and fading trails from U.tmp = [now, older, ...] snapshots. */
+  draw(U, samples, stepLen) {
+    const n = U.n;
+    const m = n * 3;
+    const T = U.tmp;
+    const P = U.points.geometry.attributes.position.array;
+    const Bt = U.points.geometry.attributes.aBright.array;
+    P.set(T.subarray(0, m));
+    for (let p = 0; p < n; p++) {
+      const a = p * 3;
+      const b = m + a;
+      const v = samples > 1 ? Math.hypot(T[a] - T[b], T[a + 1] - T[b + 1], T[a + 2] - T[b + 2]) / stepLen : 0;
+      Bt[p] = clamp(v / (3 * U.vref) - 0.15, 0, 1);
+    }
+    U.points.geometry.attributes.position.needsUpdate = true;
+    U.points.geometry.attributes.aBright.needsUpdate = true;
+    const TP = U.trails.geometry.attributes.position.array;
+    const TC = U.trails.geometry.attributes.color.array;
+    const jump = 1.2;
+    for (let p = 0; p < n; p++) {
+      for (let j = 0; j < TRAIL; j++) {
+        const s0 = j * m + p * 3;
+        const s1 = (j + 1 < samples ? j + 1 : j) * m + p * 3;
+        const o = (p * TRAIL + j) * 6;
+        let x1 = T[s1];
+        let y1 = T[s1 + 1];
+        let z1 = T[s1 + 2];
+        if (Math.hypot(x1 - T[s0], y1 - T[s0 + 1], z1 - T[s0 + 2]) > jump) { x1 = T[s0]; y1 = T[s0 + 1]; z1 = T[s0 + 2]; }
+        TP[o] = T[s0]; TP[o + 1] = T[s0 + 1]; TP[o + 2] = T[s0 + 2];
+        TP[o + 3] = x1; TP[o + 4] = y1; TP[o + 5] = z1;
+        const w0 = 0.75 * (1 - j / TRAIL) ** 1.6;
+        const w1 = 0.75 * (1 - (j + 1) / TRAIL) ** 1.6;
+        TC[o] = U.col.r * w0; TC[o + 1] = U.col.g * w0; TC[o + 2] = U.col.b * w0;
+        TC[o + 3] = U.col.r * w1; TC[o + 4] = U.col.g * w1; TC[o + 5] = U.col.b * w1;
+      }
+    }
+    U.trails.geometry.attributes.position.needsUpdate = true;
+    U.trails.geometry.attributes.color.needsUpdate = true;
+  }
+
+  update(phase, dtSim = 0) {
+    for (const key of ['best', 'baseline']) {
+      const U = this.u[key];
+      if (!U.group.visible) continue;
+      const f = phase * (U.F - 1);
+      for (let j = 0; j <= TRAIL; j++) this.sample(U, Math.max(0, f - j * TRAIL_STEP), U.tmp, j * U.n * 3);
+      this.draw(U, TRAIL + 1, TRAIL_STEP);
+      U.ring.scale.setScalar(Math.max(this.at(U.u.radius_of_gyration, phase) * this.scale, 1e-3));
+    }
+    if (this.live && this.mode === 'sandbox') this.updateSandbox(dtSim);
+    this.placeLabels();
+  }
+
+  updateSandbox(dtSim) {
+    const L = this.live;
+    const S = this.sim;
+    if (dtSim > 0) S.step(dtSim);
+    const m = L.n * 3;
+    const cur = new Float32Array(m);
+    for (let k = 0; k < m; k++) cur[k] = S.pos[k] * this.scale;
+    if (dtSim > 0 && (!L.hist.length || (L.tick = (L.tick || 0) + 1) % 2 === 0)) {
+      L.hist.unshift(cur);
+      if (L.hist.length > TRAIL) L.hist.pop();
+    }
+    L.tmp.set(cur, 0);
+    const samples = Math.min(TRAIL + 1, L.hist.length + 1);
+    for (let j = 1; j <= TRAIL; j++) L.tmp.set(L.hist[Math.min(j - 1, L.hist.length - 1)] || cur, j * m);
+    // brightness reference: running median-ish speed of the cloud
+    if (samples > 1) {
+      let s = 0;
+      for (let p = 0; p < L.n; p += 4) { const a = p * 3; s += Math.hypot(L.tmp[a] - L.tmp[m + a], L.tmp[a + 1] - L.tmp[m + a + 1], L.tmp[a + 2] - L.tmp[m + a + 2]); }
+      L.vref = 0.95 * L.vref + 0.05 * Math.max(1e-4, s / Math.ceil(L.n / 4));
+    }
+    this.draw(L, samples, 1);
+    L.ring.scale.setScalar(Math.max(S.radiusOfGyration() * this.scale, 1e-3));
+    const st = S.star;
+    this.starGroup.visible = st.active;
+    if (st.active) {
+      this.starGroup.position.set(st.x * this.scale, st.y * this.scale, st.z * this.scale);
+      this.halo.quaternion.copy(this.camera.quaternion);
+      const pulse = 1 + 0.12 * Math.sin(performance.now() / 160);
+      this.halo.scale.setScalar((st.heavy ? 0.55 : 0.3) * pulse);
+      this.starMesh.material.uniforms.uSize.value = st.heavy ? 1.6 : 0.9;
+    }
+  }
+
   sample(U, f, out, off = 0) {
     const i0 = clamp(Math.floor(f), 0, U.F - 1);
     const i1 = Math.min(i0 + 1, U.F - 1);
@@ -251,67 +529,6 @@ class UniverseView extends Viewport {
     const A = i0 * m;
     const B = i1 * m;
     for (let k = 0; k < m; k++) out[off + k] = U.pos[A + k] * (1 - a) + U.pos[B + k] * a;
-  }
-
-  setMode(mode, instant = false) {
-    this.mode = mode;
-    const both = mode === 'both';
-    this.u.best.group.visible = mode !== 'baseline';
-    this.u.baseline.group.visible = mode !== 'best';
-    this.u.best.group.position.x = both ? -this.offset : 0;
-    this.u.baseline.group.position.x = both ? this.offset : 0;
-    const pos = both ? new THREE.Vector3(0, 2.6, 10.8) : new THREE.Vector3(0, 1.5, 5.4);
-    if (instant) { this.camera.position.copy(pos); this.controls.target.set(0, 0, 0); this.controls.update(); }
-    else this.flyTo(pos);
-  }
-
-  reset() { this.touch(); this.setMode(this.mode); }
-
-  update(phase) {
-    for (const key of ['best', 'baseline']) {
-      const U = this.u[key];
-      if (!U.group.visible) continue;
-      const f = phase * (U.F - 1);
-      const n = U.n;
-      const m = n * 3;
-      for (let j = 0; j <= TRAIL; j++) this.sample(U, Math.max(0, f - j * TRAIL_STEP), U.tmp, j * m);
-      const P = U.points.geometry.attributes.position.array;
-      const Bt = U.points.geometry.attributes.aBright.array;
-      P.set(U.tmp.subarray(0, m));
-      for (let p = 0; p < n; p++) {
-        const a = p * 3;
-        const b = m + a;
-        const v = Math.hypot(U.tmp[a] - U.tmp[b], U.tmp[a + 1] - U.tmp[b + 1], U.tmp[a + 2] - U.tmp[b + 2]) / TRAIL_STEP;
-        Bt[p] = clamp(v / (3 * U.vref) - 0.15, 0, 1);
-      }
-      U.points.geometry.attributes.position.needsUpdate = true;
-      U.points.geometry.attributes.aBright.needsUpdate = true;
-      const TP = U.trails.geometry.attributes.position.array;
-      const TC = U.trails.geometry.attributes.color.array;
-      const jump = 1.2;
-      for (let p = 0; p < n; p++) {
-        for (let j = 0; j < TRAIL; j++) {
-          const s0 = j * m + p * 3;
-          const s1 = s0 + m;
-          const o = (p * TRAIL + j) * 6;
-          let x1 = U.tmp[s1];
-          let y1 = U.tmp[s1 + 1];
-          let z1 = U.tmp[s1 + 2];
-          if (Math.hypot(x1 - U.tmp[s0], y1 - U.tmp[s0 + 1], z1 - U.tmp[s0 + 2]) > jump) { x1 = U.tmp[s0]; y1 = U.tmp[s0 + 1]; z1 = U.tmp[s0 + 2]; }
-          TP[o] = U.tmp[s0]; TP[o + 1] = U.tmp[s0 + 1]; TP[o + 2] = U.tmp[s0 + 2];
-          TP[o + 3] = x1; TP[o + 4] = y1; TP[o + 5] = z1;
-          const w0 = 0.75 * (1 - j / TRAIL) ** 1.6;
-          const w1 = 0.75 * (1 - (j + 1) / TRAIL) ** 1.6;
-          TC[o] = U.col.r * w0; TC[o + 1] = U.col.g * w0; TC[o + 2] = U.col.b * w0;
-          TC[o + 3] = U.col.r * w1; TC[o + 4] = U.col.g * w1; TC[o + 5] = U.col.b * w1;
-        }
-      }
-      U.trails.geometry.attributes.position.needsUpdate = true;
-      U.trails.geometry.attributes.color.needsUpdate = true;
-      const rg = this.at(U.u.radius_of_gyration, phase) * this.scale;
-      U.ring.scale.setScalar(Math.max(rg, 1e-3));
-    }
-    this.placeLabels();
   }
 
   /** Linear interpolation of a per-frame series at the given phase. */
@@ -793,12 +1010,14 @@ function narrative(d) {
   if (nn) log(`Noether check: ${(d.noether || []).filter((r) => (r.consistency ?? 0) >= 0.999).length}/${nn} universes conserve exactly what their symmetries predict.`);
   const t = d.technology;
   log(`technology: ${t.filter((x) => x.feasible).length}/${t.length} designs survive mapping to real materials; ${t.filter((x) => x.stl).length} have CAD models.`);
-  log('ready. type "help" for commands, or press G for hand control.', 'sys');
+  log('ready. press G (or the ✋ button) for hand control, S for the live sandbox, or type "help".', 'sys');
 }
 
 const HELP = [
   ['help', 'this list'],
   ['evolved · newtonian · both', 'switch the 3-D universe'],
+  ['sandbox', 'live simulation you can push around with your hand'],
+  ['law evolved | newtonian', 'force law used by the sandbox'],
   ['play · pause · speed <0.5–4>', 'playback'],
   ['show <design>', 'open a prototype, e.g. "show gear"'],
   ['designs', 'list the prototypes'],
@@ -827,6 +1046,12 @@ function command(raw) {
     case 'evolved': case 'best-universe': setMode('best'); break;
     case 'newtonian': case 'baseline': setMode('baseline'); break;
     case 'both': case 'side': setMode('both'); break;
+    case 'sandbox': case 'play-god': case 'live': setMode('sandbox'); break;
+    case 'law': {
+      if (/newt|base/.test(arg)) setLaw('newtonian'); else if (/evol|best|alien/.test(arg)) setLaw('evolved');
+      else log('usage: law evolved | law newtonian (sandbox force law)', 'sys');
+      break;
+    }
     case 'compare': {
       setMode('both');
       const e = d.emergence;
@@ -877,7 +1102,7 @@ function command(raw) {
       log($('#search-note').textContent || 'no validation data.', 'sys');
       break;
     case 'hands': case 'gestures': case 'hand': toggleGestures(); break;
-    case 'reset': C.uni?.reset(); C.cad?.reset(); log('cameras reset', 'sys'); break;
+    case 'reset': C.uni?.reset(); C.cad?.reset(); if (state.mode === 'sandbox') C.uni?.resetSandbox(); log(state.mode === 'sandbox' ? 'sandbox and cameras reset' : 'cameras reset', 'sys'); break;
     case 'clear': $('#console-log').innerHTML = ''; break;
     default: {
       const t = findTech(text.toLowerCase());
@@ -890,13 +1115,31 @@ function command(raw) {
 // ===================================================================== interaction
 
 function setMode(mode, { announce = true } = {}) {
+  if (mode === 'sandbox' && !C.uni?.sim) mode = 'best';
   state.mode = mode;
-  $$('#universe-panel .seg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === mode));
+  $$('#universe-panel .seg button[data-mode]').forEach((b) => b.classList.toggle('on', b.dataset.mode === mode));
   C.uni?.setMode(mode);
+  document.body.classList.toggle('sandbox', mode === 'sandbox');
   const gl = gravityLine(state.data.universes.best.description).replace(/^gravity\s*:\s*/, '');
-  $('#universe-sub').textContent = mode === 'best' ? `evolved laws · ${gl} gravity`
-    : mode === 'baseline' ? 'Newtonian inverse-square gravity (reference)' : 'evolved (blue, left) vs Newtonian (orange, right)';
+  const sub = {
+    best: `evolved laws · ${gl} gravity`,
+    baseline: 'Newtonian inverse-square gravity (reference)',
+    both: 'evolved (blue, left) vs Newtonian (orange, right)',
+    sandbox: 'live simulation · you are the gold star (hand or mouse) · pinch = heavy',
+  };
+  $('#universe-sub').textContent = sub[mode];
   if (announce) log(`universe view: ${MODE_NAME[mode]}`, 'sys');
+  if (mode === 'sandbox' && announce) {
+    log(`sandbox: ${C.uni.sim.n} particles from the run's initial cloud, integrated live in your browser (leapfrog, softening ${C.uni.sim.eps2 ** 0.5}) under a radial force |F(r)| tabulated from the SymPy potential. ` +
+      'Newtonian reproduces the recorded collapse; "Evolved" uses only the evolved gravity law (radial profile, softest axis), so it is a simplified version of the full evolved universe.');
+  }
+}
+
+function setLaw(key) {
+  if (!C.uni?.sim) return;
+  C.uni.setLaw(key);
+  $$('#sandbox-bar [data-law]').forEach((b) => b.classList.toggle('on', b.dataset.law === key));
+  log(`sandbox law: ${C.uni.sim.laws[key].name}${key === 'evolved' ? ' — gravity channel only, radial approximation' : ''}`, 'sys');
 }
 
 function setPlaying(on) {
@@ -906,36 +1149,166 @@ function setPlaying(on) {
 }
 
 function setFocus(name, scroll = false) {
-  state.focus = name;
-  $$('.focusable').forEach((p) => p.classList.toggle('focused', p.dataset.focus === name));
+  if (state.focus !== name || scroll) {
+    state.focus = name;
+    $$('.focusable').forEach((p) => p.classList.toggle('focused', p.dataset.focus === name));
+  }
   if (scroll) $(`[data-focus="${name}"]`).scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 const focusedView = () => (state.focus === 'cad' ? C.cad : C.uni);
 
-function step(frac) {
-  state.phase = clamp(state.phase + frac, 0, 1);
-}
+function cycleMode() { setMode(MODES[(MODES.indexOf(state.mode) + 1) % MODES.length], { announce: false }); }
 
 function onAction(a) {
-  const G = { 'toggle-play': '✊', 'cycle-mode': '✌️', 'switch-focus': '3️⃣', 'swipe-left': '☝️←', 'swipe-right': '☝️→' };
-  switch (a) {
-    case 'toggle-play': setPlaying(!state.playing); log(`${G[a]} ${state.playing ? 'play' : 'pause'}`, 'sys'); break;
-    case 'cycle-mode': setMode(MODES[(MODES.indexOf(state.mode) + 1) % MODES.length], { announce: false }); log(`${G[a]} universe: ${MODE_NAME[state.mode]}`, 'sys'); break;
-    case 'switch-focus': setFocus(state.focus === 'universe' ? 'cad' : 'universe', true); log(`${G[a]} focus: ${state.focus === 'cad' ? 'prototype viewer' : 'universe'}`, 'sys'); break;
-    case 'swipe-left': case 'swipe-right': {
-      const dir = a === 'swipe-right' ? 1 : -1;
-      if (state.focus === 'cad') selectProto(state.proto + dir, { announce: true });
-      else { step(dir * 0.1); log(`${G[a]} time ${dir > 0 ? '+' : '−'}10%`, 'sys'); }
-      break;
-    }
-    default: break;
+  if (a === 'toggle-play') { setPlaying(!state.playing); log(`✊ ${state.playing ? 'play' : 'pause'}`, 'sys'); }
+  else if (a === 'cycle-mode') { cycleMode(); log(`✌️ universe view: ${MODE_NAME[state.mode]}`, 'sys'); }
+}
+
+// -------------------------------------------------------------- hand cursor
+// The hand drives an on-screen cursor: pinch = click, pinch-and-move = drag
+// (rotate a 3-D view, move the time slider, scroll a list or the page).
+
+const CLICKABLE = 'button, a, select, input, .proto, figure, .legend .item.toggle, [data-click]';
+const hand = { x: 0, y: 0, visible: false, hover: null, drag: null };
+
+function clientXY(x, y) { return [x * innerWidth, y * innerHeight]; }
+
+function hitAt(cx, cy) {
+  const el = document.elementFromPoint(cx, cy);
+  return { el, clickable: el && el.closest(CLICKABLE), panel: el && el.closest('.focusable'), canvas: el && el.tagName === 'CANVAS' ? el : null };
+}
+
+function viewFor(panel) {
+  if (!panel) return null;
+  return panel.dataset.focus === 'cad' ? C.cad : C.uni;
+}
+
+function onCursor(c) {
+  const el = $('#hand-cursor');
+  hand.visible = c.visible;
+  el.hidden = !c.visible;
+  document.body.classList.toggle('hand-present', c.visible);
+  if (!c.visible) {
+    if (hand.hover) { hand.hover.classList.remove('hand-hover'); hand.hover = null; }
+    if (C.uni) { C.uni.handStar = false; C.uni.setStarActive(false); }
+    return;
   }
+  const [cx, cy] = clientXY(c.x, c.y);
+  hand.x = cx;
+  hand.y = cy;
+  el.style.transform = `translate(${cx}px, ${cy}px)`;
+  el.dataset.g = c.gesture;
+  el.classList.toggle('pinch', !!c.pinching);
+  el.style.setProperty('--p', String(c.progress || 0));
+  const hit = hitAt(cx, cy);
+  const hov = hit.clickable && !hit.clickable.disabled ? hit.clickable : null;
+  if (hov !== hand.hover) {
+    hand.hover?.classList.remove('hand-hover');
+    hov?.classList.add('hand-hover');
+    hand.hover = hov;
+  }
+  if (hit.panel && !hand.drag) setFocus(hit.panel.dataset.focus);
+  // sandbox: the hand is the star while it is over the universe
+  if (C.uni?.sim) {
+    const over = state.mode === 'sandbox' && hit.panel?.dataset.focus === 'universe' && c.gesture !== 'fist';
+    C.uni.handStar = over;
+    if (over) C.uni.setStarClient(cx, cy, true);
+    else C.uni.setStarActive(false);
+    C.uni.sim.star.heavy = over && !!c.pinching;
+  }
+}
+
+function tapAt(x, y) {
+  const [cx, cy] = clientXY(x, y);
+  const cur = $('#hand-cursor');
+  cur.classList.remove('click');
+  void cur.offsetWidth; // restart the click ripple
+  cur.classList.add('click');
+  const hit = hitAt(cx, cy);
+  const t = hit.clickable;
+  if (!t) {
+    const modal = hit.el && hit.el.closest('.modal');
+    if (modal) modal.hidden = true;
+    return;
+  }
+  if (t.tagName === 'SELECT') {
+    t.selectedIndex = (t.selectedIndex + 1) % t.options.length;
+    t.dispatchEvent(new Event('change', { bubbles: true }));
+  } else if (t.tagName === 'INPUT' && t.type === 'range') {
+    setRange(t, cx);
+  } else if (t.tagName === 'INPUT') {
+    t.focus();
+  } else {
+    t.click();
+  }
+}
+
+function setRange(input, cx) {
+  const r = input.getBoundingClientRect();
+  const f = clamp((cx - r.left) / r.width, 0, 1);
+  input.value = String(Math.round(Number(input.min) + f * (Number(input.max) - Number(input.min))));
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function scrollableAt(el) {
+  for (let e = el; e && e !== document.body; e = e.parentElement) {
+    const s = getComputedStyle(e);
+    if (/(auto|scroll)/.test(s.overflowY) && e.scrollHeight > e.clientHeight + 2) return e;
+  }
+  return null;
+}
+
+function onDrag(phase, x, y, dx, dy) {
+  const [cx, cy] = clientXY(x, y);
+  if (phase === 'start') {
+    const hit = hitAt(cx, cy);
+    if (hit.el && hit.el.id === 'scrub') { hand.drag = { kind: 'range', el: hit.el }; state.scrubbing = true; }
+    else if (hit.canvas && hit.panel) {
+      hand.drag = state.mode === 'sandbox' && hit.panel.dataset.focus === 'universe' ? { kind: 'star' } : { kind: 'rotate', view: viewFor(hit.panel) };
+    } else hand.drag = { kind: 'scroll', el: scrollableAt(hit.el) };
+    $('#hand-cursor').classList.add('dragging');
+    return;
+  }
+  const d = hand.drag;
+  if (!d) return;
+  if (phase === 'end') {
+    if (d.kind === 'range') state.scrubbing = false;
+    hand.drag = null;
+    $('#hand-cursor').classList.remove('dragging');
+    return;
+  }
+  if (d.kind === 'range') setRange(d.el, cx);
+  else if (d.kind === 'rotate') d.view?.rotate(dx * 5.5, dy * 4);
+  else if (d.kind === 'scroll') {
+    const by = -dy * innerHeight * 1.6; // grab and pull, like a touch screen
+    if (d.el) d.el.scrollTop += by; else window.scrollBy(0, by);
+  }
+}
+
+function onPalm(dx, dy, x, y) {
+  if (state.mode === 'sandbox' && C.uni?.handStar) return; // the palm is moving the star
+  const hit = hitAt(...clientXY(x, y));
+  (viewFor(hit.panel) || focusedView())?.rotate(dx * 5, dy * 3.6);
+}
+
+function onZoom(f) {
+  const hit = hand.visible ? hitAt(hand.x, hand.y) : {};
+  (viewFor(hit.panel) || focusedView())?.zoom(f);
+}
+
+function gestureHint(g, hint) {
+  if (state.mode === 'sandbox') {
+    if (g === 'open' || g === 'point') return 'you are the star — move through the cloud';
+    if (g === 'pinch') return 'heavy star! (release to lighten)';
+  }
+  return hint;
 }
 
 async function toggleGestures() {
   const btn = $('#btn-gesture');
   const dock = $('#gesture-dock');
+  closeWelcome();
   if (state.gestures?.running) {
     state.gestures.stop();
     dock.hidden = true;
@@ -949,27 +1322,10 @@ async function toggleGestures() {
   document.body.classList.add('gesture-on');
   $('#gesture-name').textContent = 'starting…';
   try {
-    if (!state.gestures) {
-      const mod = await import('./gestures.js');
-      C.GESTURES = mod.GESTURES;
-      state.gestures = new mod.GestureController({
-        video: $('#gesture-video'),
-        overlay: $('#gesture-overlay'),
-        colors: { line: C.s1, joint: '#ffffff', ring: C.good },
-        onRotate: (dx, dy) => focusedView()?.rotate(dx * 4.2, dy * 3.2),
-        onZoom: (f) => focusedView()?.zoom(f),
-        onAction,
-        onState: (g, hint) => {
-          const info = C.GESTURES[g] || C.GESTURES.none;
-          $('#gesture-name').textContent = g === 'none' ? (state.gestures?.running ? '· hand control' : 'starting…') : `${info.icon} ${info.name}`;
-          $('#gesture-status').textContent = hint;
-        },
-      });
-    }
-    log('hand control: starting camera (the browser will ask for permission)…', 'sys');
+    await ensureController();
+    log('hand control: starting camera — click "Allow" if the browser asks…', 'sys');
     await state.gestures.start();
-    setFocus(state.focus);
-    log('hand control on — ✋ rotate · 🤏 zoom · ✊ play/pause · ✌️ universe · 3️⃣ focus · ☝️ swipe', 'em');
+    log('hand control ON — raise a hand: ☝️ move the cursor · 🤏 pinch = click · 🤏 hold + move = drag/rotate/scroll · ✋ rotate · 🙌 spread = zoom · ✊ hold = play/pause · ✌️ hold = next view', 'em');
   } catch (err) {
     console.error(err);
     btn.classList.remove('on');
@@ -977,25 +1333,58 @@ async function toggleGestures() {
     $('#gesture-name').textContent = 'hand control unavailable';
     $('#gesture-status').textContent = err.message;
     log(err.message, 'sys');
-    setTimeout(() => { if (!state.gestures?.running) dock.hidden = true; }, 9000);
+    setTimeout(() => { if (!state.gestures?.running) dock.hidden = true; }, 12000);
   }
 }
 
+async function ensureController() {
+  if (state.gestures) return state.gestures;
+  const mod = await import('./gestures.js');
+  C.GESTURES = mod.GESTURES;
+  state.gestures = new mod.GestureController({
+    video: $('#gesture-video'),
+    overlay: $('#gesture-overlay'),
+    colors: { line: C.s1, joint: '#ffffff', ring: C.good },
+    onCursor,
+    onTap: tapAt,
+    onDrag,
+    onPalm,
+    onZoom,
+    onAction,
+    onState: (g, hint) => {
+      const info = C.GESTURES[g] || C.GESTURES.none;
+      $('#gesture-name').textContent = g === 'none' ? '🖐️ waiting for a hand' : `${info.icon} ${info.name}`;
+      $('#gesture-status').textContent = gestureHint(g, hint);
+      $$('#gesture-help li').forEach((li) => li.classList.toggle('on', li.dataset.g === g));
+    },
+  });
+  return state.gestures;
+}
+
+function closeWelcome() {
+  $('#welcome').hidden = true;
+  try { localStorage.setItem('shiva.welcomed', '1'); } catch (e) { /* storage unavailable */ }
+}
+
 function bindUI() {
-  $$('#universe-panel .seg button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  $$('#universe-panel .seg button[data-mode]').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  $$('#sandbox-bar [data-law]').forEach((b) => b.addEventListener('click', () => setLaw(b.dataset.law)));
+  $('#sandbox-reset').addEventListener('click', () => { C.uni?.resetSandbox(); log('sandbox reset to the run\'s initial cloud', 'sys'); });
   $('#btn-play').addEventListener('click', () => setPlaying(!state.playing));
   $('#speed').addEventListener('change', (e) => { state.speed = parseFloat(e.target.value); });
   const scrub = $('#scrub');
   scrub.addEventListener('input', () => { state.phase = scrub.value / 1000; });
   scrub.addEventListener('pointerdown', () => { state.scrubbing = true; });
-  window.addEventListener('pointerup', () => { state.scrubbing = false; });
+  window.addEventListener('pointerup', () => { if (!hand.drag) state.scrubbing = false; });
   $('#cad-prev').addEventListener('click', () => selectProto(state.proto - 1));
   $('#cad-next').addEventListener('click', () => selectProto(state.proto + 1));
   $$('.focusable').forEach((p) => p.addEventListener('pointerdown', () => setFocus(p.dataset.focus)));
   $('#btn-gesture').addEventListener('click', toggleGestures);
+  $$('[data-start-hands]').forEach((b) => b.addEventListener('click', () => { if (!state.gestures?.running) toggleGestures(); else closeWelcome(); }));
+  $$('[data-start-sandbox]').forEach((b) => b.addEventListener('click', () => { closeWelcome(); setMode('sandbox'); setFocus('universe', true); }));
   $('#btn-help').addEventListener('click', () => { $('#help-modal').hidden = false; });
-  $$('[data-close]').forEach((b) => b.addEventListener('click', () => { b.closest('.modal').hidden = true; }));
-  $$('.modal').forEach((m) => m.addEventListener('click', (e) => { if (e.target === m || m.id === 'lightbox') m.hidden = true; }));
+  $$('[data-close]').forEach((b) => b.addEventListener('click', () => { b.closest('.modal').hidden = true; if (b.closest('#welcome')) closeWelcome(); }));
+  $$('.modal').forEach((m) => m.addEventListener('click', (e) => { if (e.target === m || m.id === 'lightbox') { m.hidden = true; if (m.id === 'welcome') closeWelcome(); } }));
   $('#console-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const inp = $('#console-input');
@@ -1008,6 +1397,7 @@ function bindUI() {
     const k = e.key.toLowerCase();
     if (k === ' ') { e.preventDefault(); setPlaying(!state.playing); }
     else if (k === 'b') setMode(MODES[(MODES.indexOf(state.mode) + 1) % MODES.length]);
+    else if (k === 's') setMode('sandbox');
     else if (k === 'f') setFocus(state.focus === 'universe' ? 'cad' : 'universe');
     else if (k === 'arrowright') selectProto(state.proto + 1);
     else if (k === 'arrowleft') selectProto(state.proto - 1);
@@ -1022,6 +1412,13 @@ function bindUI() {
 
 function readouts() {
   const U = state.data.universes;
+  if (state.mode === 'sandbox' && C.uni?.sim) {
+    const S = C.uni.sim;
+    $('#ro-time').textContent = fmt(S.t, 3);
+    $('#ro-energy').textContent = 'open system';
+    $('#ro-radius').textContent = fmt(S.radiusOfGyration(), 3);
+    return;
+  }
   const keys = state.mode === 'both' ? ['best', 'baseline'] : [state.mode];
   const at = (s) => (C.uni ? C.uni.at(s, state.phase) : s[Math.round(state.phase * (s.length - 1))]);
   const dot = (k) => (keys.length > 1 ? `<span class="key" style="background:${k === 'best' ? C.s1 : C.s2}"></span>` : '');
@@ -1034,16 +1431,19 @@ function readouts() {
 function loop() {
   let last = performance.now();
   let lastRO = 0;
+  const times = state.data.universes.best.times;
+  const simPerSecond = (times[times.length - 1] - times[0] || 4) / PLAY_SECONDS;
   const frame = (now) => {
     // rAF timestamps can precede the loop's start: never let dt go negative
     const dt = clamp((now - last) / 1000, 0, 0.1);
     last = Math.max(last, now);
-    if (state.playing && !state.scrubbing) {
+    const live = state.playing && !state.scrubbing;
+    if (live && state.mode !== 'sandbox') {
       state.phase += (dt * state.speed) / PLAY_SECONDS;
       if (state.phase > 1) state.phase = 0;
     }
     state.phase = clamp(state.phase, 0, 1);
-    if (C.uni) { C.uni.update(state.phase); C.uni.render(dt); }
+    if (C.uni) { C.uni.update(state.phase, live ? Math.min(dt, 0.05) * state.speed * simPerSecond : 0); C.uni.render(dt); }
     if (C.cad) C.cad.render(dt);
     if (now - lastRO > 90) { readouts(); lastRO = now; }
     requestAnimationFrame(frame);
@@ -1085,14 +1485,19 @@ async function main() {
   renderNoether(d);
   renderLab(d);
   renderFigures(d);
-  try { C.uni = new UniverseView($('#universe-canvas'), $('#universe-panel'), d.universes); } catch (err) { webglFailed($('#universe-panel'), err); }
+  try { C.uni = new UniverseView($('#universe-canvas'), $('#universe-panel'), d.universes, d.force_laws); } catch (err) { webglFailed($('#universe-panel'), err); }
   try { C.cad = new CadView($('#cad-canvas'), $('#cad-panel')); } catch (err) { webglFailed($('#cad-panel'), err); }
+  if (!C.uni?.sim) $$('[data-mode="sandbox"], [data-start-sandbox]').forEach((b) => { b.hidden = true; });
   setMode('best', { announce: false });
   setFocus('universe');
   selectProto(0);
   narrative(d);
   loop();
-  window.shiva = { state, command, onAction, setMode, setFocus, selectProto }; // handy from the dev console
+  let welcomed = false;
+  try { welcomed = localStorage.getItem('shiva.welcomed') === '1'; } catch (e) { /* storage unavailable */ }
+  if (!welcomed && !/[?&]nowelcome/.test(location.search)) $('#welcome').hidden = false;
+  // handy from the dev console, and used by the browser tests to feed synthetic hands
+  window.shiva = { state, command, onAction, setMode, setFocus, selectProto, setLaw, ensureController, views: C };
 }
 
 main();

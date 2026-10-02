@@ -44,18 +44,54 @@ for (const angle of [0, 0.5, -0.5, 1.2, Math.PI]) { // rotation invariance
 
 const events = [];
 const g = new GestureController({
-  video: null, overlay: null, onState: () => {},
-  onRotate: (dx, dy) => events.push(['rotate', dx, dy]), onZoom: (f) => events.push(['zoom', f]), onAction: (a) => events.push(['action', a]),
+  video: null, overlay: null,
+  onCursor: (c) => events.push(['cursor', c]), onTap: (x, y) => events.push(['tap', x, y]),
+  onDrag: (phase, x, y, dx, dy) => events.push(['drag', phase, dx, dy]), onPalm: (dx, dy) => events.push(['palm', dx, dy]),
+  onZoom: (f) => events.push(['zoom', f]), onAction: (a) => events.push(['action', a]),
 });
+const of = (kind) => events.filter((e) => e[0] === kind);
 let t = 0;
-for (let k = 0; k < 40; k++) g.process(hand({ fingers: CURL, thumb: 'in' }), (t += 33)); // held fist
-for (let k = 0; k < 20; k++) g.process(hand({ cx: 0.4 + 0.01 * k }), (t += 33)); // palm moves toward image +x (user's left)
-for (let k = 0; k < 20; k++) g.process(hand({ ...PINCH, cy: 0.7 - 0.01 * k }), (t += 33)); // pinch raised
-for (let k = 0; k < 14; k++) g.process(hand({ ...POINT, cx: 0.7 - 0.03 * k }), (t += 33)); // swipe to the user's right
-const actions = events.filter((e) => e[0] === 'action').map((e) => e[1]);
-assert.deepEqual(actions, ['toggle-play', 'swipe-right'], 'a held fist fires once; a pointing swipe fires once');
-const rot = events.filter((e) => e[0] === 'rotate').reduce((s, e) => s + e[1], 0);
-assert.ok(rot < -0.05, `mirrored rotation should be negative, got ${rot}`);
-const zoom = events.filter((e) => e[0] === 'zoom').reduce((s, e) => s * e[1], 1);
-assert.ok(zoom < 0.9, `raising a pinch zooms in, got factor ${zoom}`);
+const feed = (cfg, frames, move = () => ({})) => { for (let k = 0; k < frames; k++) g.process([hand({ ...cfg, ...move(k) })], (t += 33)); };
+
+// 1. pointing moves a visible cursor; the cursor is mirrored (camera +x = screen left)
+feed(POINT, 10, (k) => ({ cx: 0.6 - 0.01 * k }));
+const cur = of('cursor').map((e) => e[1]);
+assert.ok(cur.at(-1).visible && cur.at(-1).x > cur[0].x, 'cursor follows the hand, mirrored');
+
+// 2. a quick pinch is a tap (click) at the cursor; no drag
+events.length = 0;
+feed(PINCH, 5);
+feed(POINT, 4);
+assert.equal(of('tap').length, 1, 'quick pinch = one tap');
+assert.equal(of('drag').length, 0, 'no drag for a quick pinch');
+
+// 3. a held, moving pinch is a drag: start, moves, end (and no tap)
+events.length = 0;
+feed(PINCH, 25, (k) => ({ cy: 0.6 - 0.006 * k }));
+feed(POINT, 4);
+const phases = of('drag').map((e) => e[1]);
+assert.equal(phases[0], 'start');
+assert.equal(phases.at(-1), 'end');
+assert.ok(phases.filter((p) => p === 'move').length > 5, 'drag moves');
+assert.ok(of('drag').filter((e) => e[1] === 'move').reduce((s, e) => s + e[3], 0) < -0.02, 'raising the hand drags upward');
+assert.equal(of('tap').length, 0, 'a drag is not a tap');
+
+// 4. open palm motion -> palm events; held fist -> exactly one toggle-play; held two fingers -> cycle-mode
+events.length = 0;
+feed({}, 20, (k) => ({ cx: 0.4 + 0.01 * k }));
+assert.ok(of('palm').length > 5 && of('palm').reduce((s, e) => s + e[1], 0) < -0.05, 'mirrored palm motion');
+feed({ fingers: CURL, thumb: 'in' }, 40);
+feed({ fingers: ['ext', 'ext', 'curl', 'curl'], thumb: 'in' }, 40);
+assert.deepEqual(of('action').map((e) => e[1]), ['toggle-play', 'cycle-mode']);
+
+// 5. two open hands moving apart -> zoom in (factor < 1)
+events.length = 0;
+for (let k = 0; k < 15; k++) g.process([hand({ cx: 0.4 - 0.008 * k, s: 0.08 }), hand({ cx: 0.6 + 0.008 * k, s: 0.08 })], (t += 33));
+const zoom = of('zoom').reduce((s, e) => s * e[1], 1);
+assert.ok(zoom < 0.8, `spreading two hands zooms in, got factor ${zoom}`);
+
+// 6. losing the hand hides the cursor
+events.length = 0;
+for (let k = 0; k < 8; k++) g.process([], (t += 33));
+assert.equal(of('cursor').at(-1)[1].visible, false);
 console.log('gesture tests passed');

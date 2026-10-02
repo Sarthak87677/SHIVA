@@ -6,8 +6,14 @@
 // hand control is switched on.
 //
 // classifyHand() is a pure function of the 21 landmarks, so it can be tested
-// without a camera; GestureController turns the stream of classified hands
-// into rotate / zoom deltas and discrete actions.
+// without a camera. GestureController turns the stream of detected hands into
+// a screen cursor plus events:
+//   cursor  - hand position mapped to the screen (index knuckles, smoothed)
+//   tap     - quick pinch (thumb + index) = click under the cursor
+//   drag    - pinch held and moved (start / move / end)
+//   palm    - open palm moved (rotate a view, or move the sandbox star)
+//   zoom    - two open hands spread/closed, or three fingers moved up/down
+//   action  - held poses: fist = toggle-play, two fingers = cycle-mode
 
 export const VISION_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
 export const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
@@ -25,21 +31,26 @@ const CONNECTIONS = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7,
   [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]];
 
 export const GESTURES = {
-  open: { icon: '✋', name: 'open palm', hint: 'move to rotate' },
-  pinch: { icon: '🤏', name: 'pinch', hint: 'raise / lower to zoom' },
+  point: { icon: '☝️', name: 'point', hint: 'move your hand to move the cursor' },
+  pinch: { icon: '🤏', name: 'pinch', hint: 'quick pinch = click · hold + move = drag' },
+  open: { icon: '✋', name: 'open palm', hint: 'move to rotate the view under the cursor' },
   fist: { icon: '✊', name: 'fist', hint: 'hold: play / pause' },
-  two: { icon: '✌️', name: 'two fingers', hint: 'hold: switch universe' },
-  three: { icon: '3️⃣', name: 'three fingers', hint: 'hold: switch focus' },
-  point: { icon: '☝️', name: 'point', hint: 'swipe left / right' },
-  none: { icon: '·', name: 'hand', hint: 'open palm, pinch, fist, ✌️, 3 or ☝️' },
+  two: { icon: '✌️', name: 'two fingers', hint: 'hold: next universe view' },
+  three: { icon: '3️⃣', name: 'three fingers', hint: 'move up / down to zoom' },
+  twohands: { icon: '🙌', name: 'two hands', hint: 'spread / close to zoom' },
+  none: { icon: '🖐️', name: 'hand', hint: 'point to move the cursor, pinch to click' },
 };
 
-const HOLD_ACTIONS = { fist: 'toggle-play', two: 'cycle-mode', three: 'switch-focus' };
-const HOLD_MS = 650;
-const SWIPE_WINDOW_MS = 420;
-const SWIPE_DIST = 0.16; // fraction of the frame width
-const SWIPE_COOLDOWN_MS = 750;
+const HOLD_ACTIONS = { fist: 'toggle-play', two: 'cycle-mode' };
+const HOLD_MS = 700;
 const STABLE_FRAMES = 3;
+const PINCH_ON = 0.27; // thumb–index distance / palm size
+const PINCH_OFF = 0.42; // hysteresis: release only when clearly apart
+const TAP_MS = 450;
+const DRAG_START_MS = 320;
+const DRAG_START_DIST = 0.025; // fraction of the screen
+// usable part of the camera frame -> full screen (hands rarely reach the frame edges)
+const REACH = { x0: 0.12, x1: 0.88, y0: 0.1, y1: 0.75 };
 
 /**
  * Classify one hand from its 21 normalised landmarks ({x, y, z} in image coordinates).
@@ -54,10 +65,10 @@ export function classifyHand(lm, aspect = 4 / 3) {
   const extended = FINGERS.map(([tip, pip]) => d(WRIST, tip) > 1.12 * d(WRIST, pip));
   const pinch = d(THUMB_TIP, INDEX_TIP) / palm;
   const thumbOut = d(THUMB_TIP, INDEX_MCP) / palm > 0.6;
-  const indexReach = d(WRIST, INDEX_TIP) / Math.max(d(WRIST, INDEX_PIP), 1e-6);
+  const reach = d(WRIST, INDEX_TIP) / Math.max(d(WRIST, INDEX_PIP), 1e-6);
   const [i, m, r, p] = extended;
   let gesture = 'none';
-  if (pinch < 0.3 && indexReach > 0.85) gesture = 'pinch'; // thumb and index tips touch, index not curled
+  if (pinch < 0.3 && reach > 0.85) gesture = 'pinch'; // thumb and index tips touch, index not curled
   else if (!i && !m && !r && !p) gesture = 'fist';
   else if (i && !m && !r && !p) gesture = 'point';
   else if (i && m && !r && !p) gesture = 'two';
@@ -65,7 +76,17 @@ export function classifyHand(lm, aspect = 4 / 3) {
   else if (i && m && r && p) gesture = 'open';
   const cx = PALM.reduce((s, k) => s + lm[k].x, 0) / PALM.length;
   const cy = PALM.reduce((s, k) => s + lm[k].y, 0) / PALM.length;
-  return { gesture, extended, thumbOut, pinch, palm: { x: cx, y: cy }, tip: { x: lm[INDEX_TIP].x, y: lm[INDEX_TIP].y }, size: palm };
+  // cursor anchor: the index/middle knuckles barely move when the fingers pinch or curl
+  const ax = (lm[INDEX_MCP].x + lm[MIDDLE_MCP].x) / 2;
+  const ay = (lm[INDEX_MCP].y + lm[MIDDLE_MCP].y) / 2;
+  return { gesture, extended, thumbOut, pinch, reach, palm: { x: cx, y: cy }, anchor: { x: ax, y: ay },
+    tip: { x: lm[INDEX_TIP].x, y: lm[INDEX_TIP].y }, size: palm };
+}
+
+/** Camera coordinates (unmirrored, 0..1) -> screen fraction (mirrored like a selfie view). */
+export function toScreen(p) {
+  const clamp01 = (v) => Math.min(1, Math.max(0, v));
+  return { x: clamp01((1 - p.x - REACH.x0) / (REACH.x1 - REACH.x0)), y: clamp01((p.y - REACH.y0) / (REACH.y1 - REACH.y0)) };
 }
 
 async function createLandmarker() {
@@ -74,9 +95,9 @@ async function createLandmarker() {
   const options = (delegate) => ({
     baseOptions: { modelAssetPath: MODEL_URL, delegate },
     runningMode: 'VIDEO',
-    numHands: 1,
-    minHandDetectionConfidence: 0.6,
-    minHandPresenceConfidence: 0.6,
+    numHands: 2,
+    minHandDetectionConfidence: 0.55,
+    minHandPresenceConfidence: 0.55,
     minTrackingConfidence: 0.5,
   });
   try {
@@ -89,27 +110,26 @@ async function createLandmarker() {
 
 function explain(err) {
   const n = err && err.name;
-  if (n === 'NotAllowedError' || n === 'SecurityError') return 'Camera permission was denied. Allow the camera in the address bar and try again.';
+  if (n === 'NotAllowedError' || n === 'SecurityError') return 'Camera permission was denied. Click the camera icon in the address bar, choose "Allow", then press Hand control again.';
   if (n === 'NotFoundError' || n === 'OverconstrainedError') return 'No webcam found.';
-  if (n === 'NotReadableError') return 'The webcam is busy in another app (close Zoom/Teams/Camera) and try again.';
+  if (n === 'NotReadableError') return 'The webcam is busy in another app (close Zoom / Teams / Camera) and try again.';
   if (err && /import|fetch|Failed to fetch|network|dynamically imported/i.test(String(err.message || err))) {
     return 'Could not download the hand-tracking model. It needs internet the first time.';
   }
   return `Hand control failed: ${err && err.message ? err.message : err}`;
 }
 
+const noop = () => {};
+
 export class GestureController {
   /**
-   * @param {object} o
-   * @param {HTMLVideoElement} o.video
-   * @param {HTMLCanvasElement} o.overlay
-   * @param {(dx:number, dy:number)=>void} o.onRotate  palm displacement (fraction of the frame, mirrored)
-   * @param {(factor:number)=>void} o.onZoom          distance multiplier (<1 = closer)
-   * @param {(action:string)=>void} o.onAction        toggle-play | cycle-mode | switch-focus | swipe-left | swipe-right
-   * @param {(gesture:string, text:string)=>void} o.onState
+   * @param {object} o  video, overlay, colors and callbacks:
+   *   onCursor({x, y, visible, gesture, pinching, dragging, progress})  x, y in 0..1 of the screen
+   *   onTap(x, y) · onDrag(phase, x, y, dx, dy) · onPalm(dx, dy, x, y) · onZoom(factor < 1 = closer)
+   *   onAction('toggle-play' | 'cycle-mode') · onState(gesture, hint, progress)
    */
   constructor(o) {
-    Object.assign(this, o);
+    Object.assign(this, { onCursor: noop, onTap: noop, onDrag: noop, onPalm: noop, onZoom: noop, onAction: noop, onState: noop }, o);
     this.running = false;
     this.landmarker = null;
     this.colors = o.colors || { line: '#3987e5', joint: '#ffffff', ring: '#0ca30c' };
@@ -122,11 +142,14 @@ export class GestureController {
     this.stable = 'none';
     this.since = 0;
     this.fired = false;
-    this.prev = null;
-    this.sx = null;
-    this.sy = null;
-    this.track = [];
-    this.lastSwipe = 0;
+    this.cursor = null; // smoothed screen position
+    this.prevCursor = null;
+    this.pinchOn = false;
+    this.pinchFrames = 0;
+    this.pinchStart = 0;
+    this.pinchAt = null;
+    this.dragging = false;
+    this.two = null; // previous two-hand distance
     this.lost = 0;
     this.lastVideoTime = -1;
   }
@@ -147,7 +170,7 @@ export class GestureController {
       }
       this._reset();
       this.running = true;
-      this.onState('none', 'show one hand to the camera');
+      this.onState('none', 'raise one hand in front of the camera');
       this._loop();
     } catch (err) {
       this.stop();
@@ -161,6 +184,8 @@ export class GestureController {
     if (this.stream) this.stream.getTracks().forEach((t) => t.stop());
     this.stream = null;
     if (this.video) this.video.srcObject = null;
+    this._release(performance.now(), false);
+    this.onCursor({ x: 0, y: 0, visible: false, gesture: 'none' });
     const ctx = this.overlay && this.overlay.getContext('2d');
     if (ctx) ctx.clearRect(0, 0, this.overlay.width, this.overlay.height);
   }
@@ -171,79 +196,158 @@ export class GestureController {
     if (v.readyState >= 2 && v.currentTime !== this.lastVideoTime) {
       this.lastVideoTime = v.currentTime;
       const now = performance.now();
-      let lm = null;
+      let hands = [];
       try {
         const res = this.landmarker.detectForVideo(v, now);
-        lm = res && res.landmarks && res.landmarks.length ? res.landmarks[0] : null;
+        hands = (res && res.landmarks) || [];
       } catch (err) {
         console.warn(err);
       }
-      this.process(lm, now, v.videoWidth && v.videoHeight ? v.videoWidth / v.videoHeight : 4 / 3);
+      this.process(hands, now, v.videoWidth && v.videoHeight ? v.videoWidth / v.videoHeight : 4 / 3);
     }
     this.raf = requestAnimationFrame(() => this._loop());
   }
 
-  /** Feed one detection (or null). Exposed for testing with synthetic landmarks. */
-  process(lm, now, aspect = 4 / 3) {
-    if (!lm) {
+  /** End a pinch: a short, still pinch is a tap (click); a held one ends its drag. */
+  _release(now, allowTap = true) {
+    if (!this.pinchOn) return;
+    this.pinchOn = false;
+    this.pinchFrames = 0;
+    if (this.dragging) {
+      this.dragging = false;
+      const c = this.cursor || this.pinchAt;
+      this.onDrag('end', c.x, c.y, 0, 0);
+    } else if (allowTap && this.pinchAt && now - this.pinchStart < TAP_MS) {
+      this.onTap(this.pinchAt.x, this.pinchAt.y);
+    }
+  }
+
+  _smooth(target) {
+    if (!this.cursor) return { ...target };
+    // adaptive smoothing: steady when the hand is still, responsive when it moves fast
+    const v = Math.hypot(target.x - this.cursor.x, target.y - this.cursor.y);
+    const a = Math.min(0.85, Math.max(0.22, v * 14));
+    return { x: this.cursor.x + a * (target.x - this.cursor.x), y: this.cursor.y + a * (target.y - this.cursor.y) };
+  }
+
+  /**
+   * Feed one camera frame: `hands` is a list of 21-landmark hands (a single hand is also accepted;
+   * null or [] = no hand). Exposed for testing with synthetic landmarks.
+   */
+  process(hands, now, aspect = 4 / 3) {
+    if (hands && hands.length === 21 && hands[0] && hands[0].x !== undefined) hands = [hands];
+    hands = (hands || []).filter(Boolean);
+    if (!hands.length) {
       this.lost += 1;
-      if (this.lost > 5 && this.stable !== 'none') { this.stable = 'none'; this.prev = null; this.sx = null; }
-      if (this.lost === 6) this.onState('none', 'show one hand to the camera');
-      this._draw(null);
+      if (this.lost > 4) {
+        this._release(now, false);
+        this.stable = 'none';
+        this.candidate = 'none';
+        this.two = null;
+        this.prevCursor = null;
+        if (this.lost === 5) {
+          this.onCursor({ x: this.cursor ? this.cursor.x : 0.5, y: this.cursor ? this.cursor.y : 0.5, visible: false, gesture: 'none' });
+          this.onState('none', 'raise one hand in front of the camera', 0);
+        }
+      }
+      this._draw([], 'none', 0);
       return null;
     }
     this.lost = 0;
-    const h = classifyHand(lm, aspect);
-    if (h.gesture === this.candidate) this.count += 1;
-    else { this.candidate = h.gesture; this.count = 1; }
-    if (this.count >= STABLE_FRAMES && this.stable !== h.gesture) {
-      this.stable = h.gesture;
-      this.since = now;
-      this.fired = false;
-      this.prev = null;
-      this.track = [];
-    }
-    // mirrored coordinates: moving the hand to the user's right moves things right
-    const px = 1 - h.palm.x;
-    const py = h.palm.y;
-    const k = 0.5;
-    this.sx = this.sx == null ? px : this.sx + k * (px - this.sx);
-    this.sy = this.sy == null ? py : this.sy + k * (py - this.sy);
-    const g = this.stable;
-    if (g === 'open' || g === 'pinch') {
-      if (this.prev) {
-        const dx = this.sx - this.prev.x;
-        const dy = this.sy - this.prev.y;
-        if (g === 'open' && Math.hypot(dx, dy) > 0.0015) this.onRotate(dx, dy);
-        if (g === 'pinch' && Math.abs(dy) > 0.0015) this.onZoom(Math.exp(dy * 3.2));
+    const cls = hands.map((lm) => classifyHand(lm, aspect));
+
+    // ---- two hands: spread / close to zoom
+    if (cls.length >= 2 && cls[0].gesture === cls[1].gesture && (cls[0].gesture === 'open' || cls[0].gesture === 'pinch')) {
+      this._release(now, false);
+      const a = toScreen(cls[0].palm);
+      const b = toScreen(cls[1].palm);
+      const dist = Math.hypot((a.x - b.x) * aspect, a.y - b.y);
+      if (this.two && dist > 0.02) {
+        const f = this.two / dist;
+        if (Math.abs(f - 1) > 0.004) this.onZoom(Math.min(1.15, Math.max(0.87, f)));
       }
-      this.prev = { x: this.sx, y: this.sy };
-    } else {
-      this.prev = null;
+      this.two = dist;
+      this.cursor = this._smooth({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+      this.prevCursor = null;
+      this.stable = 'twohands';
+      this.onCursor({ ...this.cursor, visible: true, gesture: 'twohands' });
+      this.onState('twohands', GESTURES.twohands.hint, 0);
+      this._draw(hands, 'twohands', 0);
+      return 'twohands';
     }
+    this.two = null;
+
+    // ---- one (primary) hand: the one nearest the current cursor
+    let k = 0;
+    if (cls.length > 1 && this.cursor) {
+      const dd = cls.map((c) => { const s = toScreen(c.anchor); return Math.hypot(s.x - this.cursor.x, s.y - this.cursor.y); });
+      k = dd[1] < dd[0] ? 1 : 0;
+    }
+    const h = cls[k];
+    this.cursor = this._smooth(toScreen(h.anchor));
+
+    // pinch with hysteresis (fast onset, firm release) so clicks don't flicker
+    if (!this.pinchOn) {
+      if (h.pinch < PINCH_ON && h.reach > 0.85) this.pinchFrames += 1;
+      else this.pinchFrames = 0;
+      if (this.pinchFrames >= 2) {
+        this.pinchOn = true;
+        this.pinchStart = now;
+        this.pinchAt = { ...(this.prevCursor || this.cursor) };
+        this.dragging = false;
+      }
+    } else if (h.pinch > PINCH_OFF || h.reach < 0.7) {
+      this._release(now);
+    }
+
+    let g;
+    if (this.pinchOn) {
+      g = 'pinch';
+      if (this.stable !== 'pinch') { this.stable = 'pinch'; this.since = now; this.fired = false; }
+      const moved = Math.hypot(this.cursor.x - this.pinchAt.x, this.cursor.y - this.pinchAt.y);
+      if (!this.dragging && (now - this.pinchStart > DRAG_START_MS || moved > DRAG_START_DIST)) {
+        this.dragging = true;
+        this.onDrag('start', this.pinchAt.x, this.pinchAt.y, 0, 0);
+        this.prevCursor = { ...this.pinchAt };
+      }
+      if (this.dragging && this.prevCursor) {
+        const dx = this.cursor.x - this.prevCursor.x;
+        const dy = this.cursor.y - this.prevCursor.y;
+        if (dx || dy) this.onDrag('move', this.cursor.x, this.cursor.y, dx, dy);
+      }
+    } else {
+      const raw = h.gesture === 'pinch' ? this.candidate : h.gesture; // pinch onset is handled above
+      if (raw === this.candidate) this.count += 1;
+      else { this.candidate = raw; this.count = 1; }
+      if (this.count >= STABLE_FRAMES && this.stable !== raw) {
+        this.stable = raw;
+        this.since = now;
+        this.fired = false;
+        this.prevCursor = null;
+      }
+      g = this.stable;
+      if (this.prevCursor) {
+        const dx = this.cursor.x - this.prevCursor.x;
+        const dy = this.cursor.y - this.prevCursor.y;
+        if (g === 'open' && Math.hypot(dx, dy) > 0.0008) this.onPalm(dx, dy, this.cursor.x, this.cursor.y);
+        if (g === 'three' && Math.abs(dy) > 0.0008) this.onZoom(Math.exp(dy * 2.6));
+      }
+    }
+
     let progress = 0;
     if (HOLD_ACTIONS[g]) {
       progress = this.fired ? 1 : Math.min(1, (now - this.since) / HOLD_MS);
       if (progress >= 1 && !this.fired) { this.fired = true; this.onAction(HOLD_ACTIONS[g]); }
     }
-    if (g === 'point') {
-      const tx = 1 - h.tip.x;
-      this.track.push([now, tx]);
-      while (this.track.length && now - this.track[0][0] > SWIPE_WINDOW_MS) this.track.shift();
-      const dx = tx - this.track[0][1];
-      if (now - this.lastSwipe > SWIPE_COOLDOWN_MS && Math.abs(dx) > SWIPE_DIST) {
-        this.lastSwipe = now;
-        this.track = [];
-        this.onAction(dx > 0 ? 'swipe-right' : 'swipe-left');
-      }
-    }
+    this.prevCursor = { ...this.cursor };
+    this.onCursor({ ...this.cursor, visible: true, gesture: g, pinching: this.pinchOn, dragging: this.dragging, progress });
     const info = GESTURES[g] || GESTURES.none;
     this.onState(g, info.hint, progress);
-    this._draw(lm, g, progress);
+    this._draw(hands, g, progress, k);
     return g;
   }
 
-  _draw(lm, g = 'none', progress = 0) {
+  _draw(hands, g = 'none', progress = 0, primary = 0) {
     const c = this.overlay;
     if (!c) return;
     const W = (this.video && this.video.videoWidth) || 640;
@@ -251,28 +355,29 @@ export class GestureController {
     if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
     const ctx = c.getContext('2d');
     ctx.clearRect(0, 0, W, H);
-    if (!lm) return;
     const X = (p) => (1 - p.x) * W;
     const Y = (p) => p.y * H;
-    const active = g !== 'none';
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = active ? this.colors.line : 'rgba(255,255,255,0.45)';
-    ctx.shadowColor = this.colors.line;
-    ctx.shadowBlur = active ? 12 : 0;
-    ctx.beginPath();
-    for (const [a, b] of CONNECTIONS) { ctx.moveTo(X(lm[a]), Y(lm[a])); ctx.lineTo(X(lm[b]), Y(lm[b])); }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = this.colors.joint;
-    for (const p of lm) { ctx.beginPath(); ctx.arc(X(p), Y(p), 3.5, 0, Math.PI * 2); ctx.fill(); }
-    if (progress > 0 && HOLD_ACTIONS[g]) {
-      const cx = PALM.reduce((s, k) => s + X(lm[k]), 0) / PALM.length;
-      const cy = PALM.reduce((s, k) => s + Y(lm[k]), 0) / PALM.length;
-      ctx.lineWidth = 6;
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-      ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.stroke();
-      ctx.strokeStyle = this.colors.ring;
-      ctx.beginPath(); ctx.arc(cx, cy, 34, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2); ctx.stroke();
-    }
+    hands.forEach((lm, i) => {
+      const active = g !== 'none' && (i === primary || g === 'twohands');
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = active ? this.colors.line : 'rgba(255,255,255,0.45)';
+      ctx.shadowColor = this.colors.line;
+      ctx.shadowBlur = active ? 12 : 0;
+      ctx.beginPath();
+      for (const [a, b] of CONNECTIONS) { ctx.moveTo(X(lm[a]), Y(lm[a])); ctx.lineTo(X(lm[b]), Y(lm[b])); }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = this.colors.joint;
+      for (const p of lm) { ctx.beginPath(); ctx.arc(X(p), Y(p), 3.5, 0, Math.PI * 2); ctx.fill(); }
+      if (i === primary && progress > 0 && HOLD_ACTIONS[g]) {
+        const cx = PALM.reduce((s, q) => s + X(lm[q]), 0) / PALM.length;
+        const cy = PALM.reduce((s, q) => s + Y(lm[q]), 0) / PALM.length;
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = this.colors.ring;
+        ctx.beginPath(); ctx.arc(cx, cy, 34, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2); ctx.stroke();
+      }
+    });
   }
 }

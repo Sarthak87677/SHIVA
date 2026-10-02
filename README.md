@@ -73,13 +73,18 @@ This opens `http://localhost:8765` with:
 
 * a **3-D universe**: the evolved universe and the Newtonian baseline replayed from the simulation
   (particle trails, radius-of-gyration ring, energy-drift readout), alone or side by side;
+* a **live sandbox**: the run's initial cloud integrated in real time in the browser (leapfrog, the
+  simulator's softening, radial |F(r)| tabulated from the SymPy potential). Your hand or mouse is a gold star
+  that pulls the particles; pinch to make it 4x heavier. Newtonian reproduces the recorded collapse; "Evolved
+  gravity" uses only the evolved gravity law's radial profile, a simplified version of the full evolved universe;
 * a **prototype viewer**: every generated STL, with specification, predicted performance, BOM and build steps;
 * emergence, universe-search and force-law **charts** (hover for values, "Table" for the numbers),
   the Noether symmetry → conservation check and all run figures;
-* a **console**: type `help`, `compare`, `show gear`, `explain chaos`, `laws`, `noether`, ...;
-* **hand-gesture control**: click *Hand control* (or press G) and allow the webcam.
-  ✋ open palm rotates the focused 3-D view, 🤏 pinch + raise/lower zooms, ✊ hold = play/pause,
-  ✌️ hold = switch universe, 3 fingers hold = switch focus, ☝️ swipe = next prototype / scrub time.
+* a **console**: type `help`, `compare`, `sandbox`, `show gear`, `explain chaos`, `laws`, `noether`, ...;
+* **hand-gesture control** of the whole page: click *Hand control* (or press G) and allow the webcam.
+  A cursor follows your hand. ☝️ move = cursor, 🤏 quick pinch = click, 🤏 pinch + move = drag (rotate a 3-D
+  view, move the time bar, scroll), ✋ open palm = rotate the view under the cursor, 🙌 two hands apart /
+  together = zoom (or 3 fingers up / down), ✊ hold = play / pause, ✌️ hold = next universe view.
   Hand tracking (MediaPipe) runs locally in the browser; no video leaves the computer. The first start
   downloads the hand model (~18 MB) and needs internet; everything else works offline (three.js is vendored).
 

@@ -23,8 +23,8 @@
   </div>
   <div class="topbar-actions">
     <button class="btn" id="btn-help" title="Keyboard and gesture help (H)">Controls</button>
-    <button class="btn btn-accent" id="btn-gesture" title="Control with your hand via the webcam (G)">
-      <span class="dot" aria-hidden="true"></span> Hand control
+    <button class="btn btn-accent btn-hand" id="btn-gesture" title="Control with your hand via the webcam (G)">
+      <span class="dot" aria-hidden="true"></span> ✋ Hand control
     </button>
   </div>
 </header>
@@ -42,7 +42,20 @@
           <button data-mode="best" class="on">Evolved</button>
           <button data-mode="baseline">Newtonian</button>
           <button data-mode="both">Side by side</button>
+          <button data-mode="sandbox" title="Live simulation you can push around (S)">✦ Sandbox</button>
         </div>
+        <div class="sandbox-bar" id="sandbox-bar">
+          <span class="sub">force law</span>
+          <div class="seg">
+            <button data-law="evolved" class="on" title="evolved gravity law only (radial profile along its softest axis)">Evolved gravity</button>
+            <button data-law="newtonian">Newtonian</button>
+          </div>
+          <button class="btn btn-small" id="sandbox-reset">↺ Reset</button>
+        </div>
+      </div>
+      <div class="hand-cta" id="hand-cta">
+        <button class="cta-main" data-start-hands>✋ Control with your hand</button>
+        <button class="cta-alt" data-start-sandbox>✦ Touch the universe (sandbox)</button>
       </div>
       <canvas id="universe-canvas" aria-label="3-D particle universe"></canvas>
       <div class="vp-label" id="lbl-best">Evolved</div>
@@ -159,6 +172,40 @@
   <div class="gesture-state">
     <div class="gesture-name" id="gesture-name">starting…</div>
     <div class="gesture-status" id="gesture-status"></div>
+    <ul class="gesture-help" id="gesture-help">
+      <li data-g="point"><b>☝️</b> move hand → cursor</li>
+      <li data-g="pinch"><b>🤏</b> pinch = click · hold+move = drag</li>
+      <li data-g="open"><b>✋</b> open palm → rotate 3-D</li>
+      <li data-g="twohands"><b>🙌</b> two hands apart/together → zoom</li>
+      <li data-g="three"><b>3️⃣</b> three fingers up/down → zoom</li>
+      <li data-g="fist"><b>✊</b> hold → play / pause</li>
+      <li data-g="two"><b>✌️</b> hold → next universe view</li>
+    </ul>
+  </div>
+</div>
+<div class="hand-cursor" id="hand-cursor" hidden aria-hidden="true"><span class="ring"></span><span class="dot"></span></div>
+
+<div class="modal" id="welcome" hidden>
+  <div class="modal-card welcome-card">
+    <div class="welcome-mark" aria-hidden="true"></div>
+    <h1>Control SHIVA-1 with your hand</h1>
+    <p class="sub">Your webcam tracks one or two hands right here in the browser (nothing is uploaded).
+      A glowing cursor follows your hand — every button, list and 3-D view on the page works with it.</p>
+    <div class="welcome-grid">
+      <div><b>☝️</b><span>Move your hand</span><em>the cursor follows</em></div>
+      <div><b>🤏</b><span>Pinch</span><em>click · hold and move to drag</em></div>
+      <div><b>✋</b><span>Open palm</span><em>rotate the universe</em></div>
+      <div><b>🙌</b><span>Two hands</span><em>pull apart to zoom in</em></div>
+      <div><b>✊</b><span>Fist (hold)</span><em>play / pause</em></div>
+      <div><b>✦</b><span>Sandbox</span><em>your hand becomes a star that pulls the particles</em></div>
+    </div>
+    <div class="welcome-actions">
+      <button class="cta-main" data-start-hands>✋ Start hand control</button>
+      <button class="cta-alt" data-start-sandbox>✦ Open the sandbox</button>
+      <button class="btn" data-close>Just look around</button>
+    </div>
+    <p class="note">Needs a webcam and internet the first time (the hand model is ~18 MB). Works best in Chrome or Edge,
+      with your hand 40–80 cm from the camera and the room reasonably lit.</p>
   </div>
 </div>
 
@@ -169,12 +216,15 @@
       <div>
         <h3>Hand gestures</h3>
         <table class="kv">
-          <tr><td>✋ Open palm</td><td>move hand left/right/up/down to rotate the focused 3-D view</td></tr>
-          <tr><td>🤏 Pinch</td><td>raise / lower the pinched hand to zoom in / out</td></tr>
-          <tr><td>✊ Fist (hold)</td><td>play / pause the universe</td></tr>
-          <tr><td>✌️ Two fingers (hold)</td><td>switch Evolved / Newtonian / side by side</td></tr>
-          <tr><td>3️⃣ Three fingers (hold)</td><td>move focus between universe and prototype viewer</td></tr>
-          <tr><td>☝️ Point + swipe</td><td>next / previous prototype · scrub time in the universe</td></tr>
+          <tr><td>☝️ Move your hand</td><td>a cursor follows it across the whole page</td></tr>
+          <tr><td>🤏 Quick pinch</td><td>click whatever is under the cursor (buttons, prototypes, figures, the time bar)</td></tr>
+          <tr><td>🤏 Pinch, hold &amp; move</td><td>drag: rotate a 3-D view, move the time bar, scroll a list or the page</td></tr>
+          <tr><td>✋ Open palm</td><td>rotate the 3-D view under the cursor</td></tr>
+          <tr><td>🙌 Two open hands</td><td>move them apart / together to zoom in / out</td></tr>
+          <tr><td>3️⃣ Three fingers</td><td>move up / down to zoom (one-handed)</td></tr>
+          <tr><td>✊ Fist (hold)</td><td>play / pause</td></tr>
+          <tr><td>✌️ Two fingers (hold)</td><td>next universe view: evolved → Newtonian → side by side → sandbox</td></tr>
+          <tr><td>✦ Sandbox</td><td>your hand is a gold star pulling the particles; pinch to make it 4× heavier</td></tr>
         </table>
         <p class="note">Hand tracking runs locally in your browser (MediaPipe); no video leaves your computer.
           The first start downloads the model (~18 MB) and needs internet.</p>
@@ -184,6 +234,7 @@
         <table class="kv">
           <tr><td><kbd>Space</kbd></td><td>play / pause</td></tr>
           <tr><td><kbd>B</kbd></td><td>cycle universe view</td></tr>
+          <tr><td><kbd>S</kbd></td><td>live sandbox (the mouse is the star)</td></tr>
           <tr><td><kbd>F</kbd></td><td>switch focus</td></tr>
           <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>previous / next prototype</td></tr>
           <tr><td><kbd>R</kbd></td><td>reset cameras</td></tr>

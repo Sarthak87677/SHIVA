@@ -162,7 +162,10 @@ def _force_laws(summary: Dict[str, Any]) -> Dict[str, Any]:
             F = sym.force_profile(r)
         laws.append({"name": name, "absF": [float(f"{abs(v):.4e}") for v in F],
                      "ratio": [round(float(-v / (g.gravity.G / rr ** 2)), 4) for v, rr in zip(F, r)]})
-    return {"r": [round(float(x), 5) for x in r], "laws": laws}
+    from .universe_simulator import SimulationConfig
+
+    # softening lets the browser sandbox integrate with the same Plummer core as the simulator
+    return {"r": [round(float(x), 5) for x in r], "laws": laws, "softening": SimulationConfig().softening}
 
 
 def build_dashboard_data(run_dir: Path, summary: Optional[Dict[str, Any]] = None,
