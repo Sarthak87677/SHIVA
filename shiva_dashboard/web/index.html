@@ -23,6 +23,7 @@
   </div>
   <div class="topbar-actions">
     <button class="btn" id="btn-help" title="Keyboard and gesture help (H)">Controls</button>
+    <button class="btn btn-write" id="btn-write" title="Write in the air with your finger (W, or hold 🤙 / 👍)">✍️ Air write</button>
     <button class="btn btn-accent btn-hand" id="btn-gesture" title="Control with your hand via the webcam (G)">
       <span class="dot" aria-hidden="true"></span> ✋ Hand control
     </button>
@@ -180,7 +181,23 @@
       <li data-g="three"><b>3️⃣</b> three fingers up/down → zoom</li>
       <li data-g="fist"><b>✊</b> hold → play / pause</li>
       <li data-g="two"><b>✌️</b> hold → next universe view</li>
+      <li data-g="pinky"><b>🤙</b> little finger / 👍 thumbs up, hold → air writing</li>
     </ul>
+  </div>
+</div>
+<div class="airdraw" id="airdraw" hidden>
+  <div class="ad-stage">
+    <video class="ad-video" playsinline muted></video>
+    <canvas class="ad-ink" aria-label="Air-writing canvas"></canvas>
+    <div class="ad-top"></div>
+    <div class="ad-text-panel">
+      <input class="ad-text-input" maxlength="40" placeholder="type a word…" aria-label="Text to place">
+      <div class="ad-fonts"></div>
+    </div>
+    <div class="ad-bottom"></div>
+    <div class="ad-status"></div>
+    <div class="ad-ghost" hidden></div>
+    <div class="ad-cursor" hidden><span></span></div>
   </div>
 </div>
 <div class="hand-cursor" id="hand-cursor" hidden aria-hidden="true"><span class="ring"></span><span class="dot"></span></div>
@@ -197,11 +214,14 @@
       <div><b>✋</b><span>Open palm</span><em>rotate the universe</em></div>
       <div><b>🙌</b><span>Two hands</span><em>pull apart to zoom in</em></div>
       <div><b>✊</b><span>Fist (hold)</span><em>play / pause</em></div>
+      <div><b>✌️</b><span>Two fingers (hold)</span><em>next universe view</em></div>
       <div><b>✦</b><span>Sandbox</span><em>your hand becomes a star that pulls the particles</em></div>
+      <div><b>🤙</b><span>Little finger (hold)</span><em>write in the air on your camera view (👍 works too)</em></div>
     </div>
     <div class="welcome-actions">
       <button class="cta-main" data-start-hands>✋ Start hand control</button>
       <button class="cta-alt" data-start-sandbox>✦ Open the sandbox</button>
+      <button class="cta-alt cta-write" data-start-write>✍️ Air writing</button>
       <button class="btn" data-close>Just look around</button>
     </div>
     <p class="note">Needs a webcam and internet the first time (the hand model is ~18 MB). Works best in Chrome or Edge,
@@ -225,6 +245,8 @@
           <tr><td>✊ Fist (hold)</td><td>play / pause</td></tr>
           <tr><td>✌️ Two fingers (hold)</td><td>next universe view: evolved → Newtonian → side by side → sandbox</td></tr>
           <tr><td>✦ Sandbox</td><td>your hand is a gold star pulling the particles; pinch to make it 4× heavier</td></tr>
+          <tr><td>🤙 Little finger up (hold) · 👍 thumbs up (hold)</td><td>air writing on / off</td></tr>
+          <tr><td colspan="2"><b>In air writing</b> — ☝️ index finger only = write · ✌️ / ✋ = pen up · hover a button ~0.6 s or pinch it = select colour, size, pen style, eraser, text font · ✊ fist = rub out · Undo / Redo / Clear / Save PNG in the bottom bar</td></tr>
         </table>
         <p class="note">Hand tracking runs locally in your browser (MediaPipe); no video leaves your computer.
           The first start downloads the model (~18 MB) and needs internet.</p>
@@ -235,6 +257,7 @@
           <tr><td><kbd>Space</kbd></td><td>play / pause</td></tr>
           <tr><td><kbd>B</kbd></td><td>cycle universe view</td></tr>
           <tr><td><kbd>S</kbd></td><td>live sandbox (the mouse is the star)</td></tr>
+          <tr><td><kbd>W</kbd></td><td>air writing (also draws with the mouse) · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo · <kbd>E</kbd> eraser · <kbd>Esc</kbd> exit</td></tr>
           <tr><td><kbd>F</kbd></td><td>switch focus</td></tr>
           <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>previous / next prototype</td></tr>
           <tr><td><kbd>R</kbd></td><td>reset cameras</td></tr>

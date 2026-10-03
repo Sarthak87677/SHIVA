@@ -13,7 +13,10 @@
 //   drag    - pinch held and moved (start / move / end)
 //   palm    - open palm moved (rotate a view, or move the sandbox star)
 //   zoom    - two open hands spread/closed, or three fingers moved up/down
-//   action  - held poses: fist = toggle-play, two fingers = cycle-mode
+//   action  - held poses: fist = toggle-play, two fingers = cycle-mode,
+//             little finger up / thumbs up = toggle-draw (air writing)
+// In 'draw' mode (air writing) the controller instead reports the index
+// fingertip in camera-view coordinates every frame through onDraw().
 
 export const VISION_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
 export const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
@@ -38,10 +41,19 @@ export const GESTURES = {
   two: { icon: '✌️', name: 'two fingers', hint: 'hold: next universe view' },
   three: { icon: '3️⃣', name: 'three fingers', hint: 'move up / down to zoom' },
   twohands: { icon: '🙌', name: 'two hands', hint: 'spread / close to zoom' },
+  pinky: { icon: '🤙', name: 'little finger', hint: 'hold: air writing on / off' },
+  thumbsup: { icon: '👍', name: 'thumbs up', hint: 'hold: air writing on / off' },
   none: { icon: '🖐️', name: 'hand', hint: 'point to move the cursor, pinch to click' },
 };
 
-const HOLD_ACTIONS = { fist: 'toggle-play', two: 'cycle-mode' };
+const HOLD_ACTIONS = { fist: 'toggle-play', two: 'cycle-mode', pinky: 'toggle-draw', thumbsup: 'toggle-draw' };
+const DRAW_HINTS = {
+  point: 'writing — move your index finger',
+  pinch: 'pinch = click a button / place text',
+  fist: 'erasing — rub with your fist',
+  pinky: 'hold to leave air writing',
+  thumbsup: 'hold to leave air writing',
+};
 const HOLD_MS = 700;
 const STABLE_FRAMES = 3;
 const PINCH_ON = 0.27; // thumb–index distance / palm size
@@ -65,11 +77,14 @@ export function classifyHand(lm, aspect = 4 / 3) {
   const extended = FINGERS.map(([tip, pip]) => d(WRIST, tip) > 1.12 * d(WRIST, pip));
   const pinch = d(THUMB_TIP, INDEX_TIP) / palm;
   const thumbOut = d(THUMB_TIP, INDEX_MCP) / palm > 0.6;
+  // thumbs up: thumb clearly away from the curled fingers and straightened (tip beyond its IP joint)
+  const thumbUp = d(THUMB_TIP, MIDDLE_MCP) / palm > 0.85 && thumbOut && d(WRIST, THUMB_TIP) > d(WRIST, 3);
   const reach = d(WRIST, INDEX_TIP) / Math.max(d(WRIST, INDEX_PIP), 1e-6);
   const [i, m, r, p] = extended;
   let gesture = 'none';
   if (pinch < 0.3 && reach > 0.85) gesture = 'pinch'; // thumb and index tips touch, index not curled
-  else if (!i && !m && !r && !p) gesture = 'fist';
+  else if (!i && !m && !r && !p) gesture = thumbUp ? 'thumbsup' : 'fist';
+  else if (!i && !m && !r && p) gesture = 'pinky';
   else if (i && !m && !r && !p) gesture = 'point';
   else if (i && m && !r && !p) gesture = 'two';
   else if (i && m && r && !p) gesture = 'three';
@@ -79,7 +94,7 @@ export function classifyHand(lm, aspect = 4 / 3) {
   // cursor anchor: the index/middle knuckles barely move when the fingers pinch or curl
   const ax = (lm[INDEX_MCP].x + lm[MIDDLE_MCP].x) / 2;
   const ay = (lm[INDEX_MCP].y + lm[MIDDLE_MCP].y) / 2;
-  return { gesture, extended, thumbOut, pinch, reach, palm: { x: cx, y: cy }, anchor: { x: ax, y: ay },
+  return { gesture, extended, thumbOut, thumbUp, pinch, reach, palm: { x: cx, y: cy }, anchor: { x: ax, y: ay },
     tip: { x: lm[INDEX_TIP].x, y: lm[INDEX_TIP].y }, size: palm };
 }
 
@@ -129,7 +144,9 @@ export class GestureController {
    *   onAction('toggle-play' | 'cycle-mode') · onState(gesture, hint, progress)
    */
   constructor(o) {
-    Object.assign(this, { onCursor: noop, onTap: noop, onDrag: noop, onPalm: noop, onZoom: noop, onAction: noop, onState: noop }, o);
+    Object.assign(this, { onCursor: noop, onTap: noop, onDrag: noop, onPalm: noop, onZoom: noop, onAction: noop, onState: noop,
+      onDraw: noop }, o);
+    this.mode = 'ui';
     this.running = false;
     this.landmarker = null;
     this.colors = o.colors || { line: '#3987e5', joint: '#ffffff', ring: '#0ca30c' };
@@ -208,6 +225,93 @@ export class GestureController {
     this.raf = requestAnimationFrame(() => this._loop());
   }
 
+  /** 'ui' (cursor, clicks, drags) or 'draw' (air writing: fingertip pen). */
+  setMode(mode) {
+    if (mode === this.mode) return;
+    this._release(performance.now(), false);
+    this.onCursor({ x: 0, y: 0, visible: false, gesture: 'none' });
+    this.mode = mode;
+    this.candidate = 'none';
+    this.count = 0;
+    this.stable = 'none';
+    this.fired = true;
+    this.toggleLock = true; // the pose that switched modes must be released before it can toggle again
+    this.tip = null;
+    this.prevTip = null;
+    this.cursor = null;
+    this.prevCursor = null;
+  }
+
+  /** Air-writing frame: report the (smoothed, mirrored) index fingertip, palm, pose and pinch taps. */
+  _processDraw(hands, now, aspect) {
+    if (!hands.length) {
+      this.lost += 1;
+      if (this.lost === 3) {
+        this.toggleLock = false; // lowering the hand also releases the toggle pose
+        this.pinchOn = false;
+        this.pinchFrames = 0;
+        this.stable = 'none';
+        this.candidate = 'none';
+        this.onDraw({ visible: false, gesture: 'none' });
+        this.onState('none', 'raise one hand in front of the camera', 0);
+      }
+      this._draw([], 'none', 0);
+      return null;
+    }
+    this.lost = 0;
+    const cls = hands.map((lm) => classifyHand(lm, aspect));
+    let k = 0;
+    if (cls.length > 1 && this.tip) {
+      const dd = cls.map((c) => Math.hypot(1 - c.tip.x - this.tip.x, c.tip.y - this.tip.y));
+      k = dd[1] < dd[0] ? 1 : 0;
+    }
+    const h = cls[k];
+    const raw = { x: 1 - h.tip.x, y: h.tip.y };
+    if (!this.tip) this.tip = raw;
+    else {
+      // adaptive smoothing: kills jitter when slow, keeps up when writing fast
+      const v = Math.hypot(raw.x - this.tip.x, raw.y - this.tip.y);
+      const a = Math.min(0.9, Math.max(0.3, v * 18));
+      this.tip = { x: this.tip.x + a * (raw.x - this.tip.x), y: this.tip.y + a * (raw.y - this.tip.y) };
+    }
+    let tap = null;
+    if (!this.pinchOn) {
+      if (h.pinch < PINCH_ON && h.reach > 0.85) this.pinchFrames += 1;
+      else this.pinchFrames = 0;
+      if (this.pinchFrames >= 2) { this.pinchOn = true; this.pinchStart = now; this.pinchAt = { ...(this.prevTip || this.tip) }; }
+    } else if (h.pinch > PINCH_OFF || h.reach < 0.7) {
+      this.pinchOn = false;
+      this.pinchFrames = 0;
+      if (now - this.pinchStart < TAP_MS) tap = { ...this.pinchAt };
+    }
+    const pose = this.pinchOn ? 'pinch' : h.gesture;
+    if (pose === this.candidate) this.count += 1;
+    else { this.candidate = pose; this.count = 1; }
+    if (this.count >= 2 && this.stable !== pose) {
+      this.stable = pose;
+      this.since = now;
+      this.fired = false;
+    }
+    const g = this.stable;
+    const progress = this._hold(g, now, (a) => a === 'toggle-draw');
+    this.prevTip = { ...this.tip };
+    this.onDraw({ visible: true, gesture: g, tip: { ...this.tip }, palm: { x: 1 - h.palm.x, y: h.palm.y }, tap, progress, size: h.size });
+    this.onState(g, DRAW_HINTS[g] || 'pen up — hover a button to pick it', progress);
+    this._draw(hands, g, progress, k);
+    return g;
+  }
+
+  /** Progress (0..1) of a held pose; fires its action once when the hold completes. */
+  _hold(g, now, allowed = () => true) {
+    const action = HOLD_ACTIONS[g];
+    if (action === 'toggle-draw' && this.toggleLock) return 0;
+    if (action !== 'toggle-draw' && g !== 'none') this.toggleLock = false; // a different, real pose releases it
+    if (!action || !allowed(action)) return 0;
+    const progress = this.fired ? 1 : Math.min(1, (now - this.since) / HOLD_MS);
+    if (progress >= 1 && !this.fired) { this.fired = true; this.onAction(action); }
+    return progress;
+  }
+
   /** End a pinch: a short, still pinch is a tap (click); a held one ends its drag. */
   _release(now, allowTap = true) {
     if (!this.pinchOn) return;
@@ -237,9 +341,11 @@ export class GestureController {
   process(hands, now, aspect = 4 / 3) {
     if (hands && hands.length === 21 && hands[0] && hands[0].x !== undefined) hands = [hands];
     hands = (hands || []).filter(Boolean);
+    if (this.mode === 'draw') return this._processDraw(hands, now, aspect);
     if (!hands.length) {
       this.lost += 1;
       if (this.lost > 4) {
+        this.toggleLock = false;
         this._release(now, false);
         this.stable = 'none';
         this.candidate = 'none';
@@ -334,11 +440,7 @@ export class GestureController {
       }
     }
 
-    let progress = 0;
-    if (HOLD_ACTIONS[g]) {
-      progress = this.fired ? 1 : Math.min(1, (now - this.since) / HOLD_MS);
-      if (progress >= 1 && !this.fired) { this.fired = true; this.onAction(HOLD_ACTIONS[g]); }
-    }
+    const progress = this._hold(g, now);
     this.prevCursor = { ...this.cursor };
     this.onCursor({ ...this.cursor, visible: true, gesture: g, pinching: this.pinchOn, dragging: this.dragging, progress });
     const info = GESTURES[g] || GESTURES.none;

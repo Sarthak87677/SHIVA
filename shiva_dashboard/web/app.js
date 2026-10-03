@@ -1028,6 +1028,7 @@ const HELP = [
   ['noether', 'symmetry → conservation summary'],
   ['search', 'search progress and validation'],
   ['hands', 'hand-gesture control on / off'],
+  ['write', 'air writing: draw on your camera view with a finger'],
   ['reset · clear', 'reset cameras · clear the console'],
 ];
 
@@ -1102,6 +1103,7 @@ function command(raw) {
       log($('#search-note').textContent || 'no validation data.', 'sys');
       break;
     case 'hands': case 'gestures': case 'hand': toggleGestures(); break;
+    case 'write': case 'draw': case 'air': openAirDraw(); break;
     case 'reset': C.uni?.reset(); C.cad?.reset(); if (state.mode === 'sandbox') C.uni?.resetSandbox(); log(state.mode === 'sandbox' ? 'sandbox and cameras reset' : 'cameras reset', 'sys'); break;
     case 'clear': $('#console-log').innerHTML = ''; break;
     default: {
@@ -1163,6 +1165,36 @@ function cycleMode() { setMode(MODES[(MODES.indexOf(state.mode) + 1) % MODES.len
 function onAction(a) {
   if (a === 'toggle-play') { setPlaying(!state.playing); log(`✊ ${state.playing ? 'play' : 'pause'}`, 'sys'); }
   else if (a === 'cycle-mode') { cycleMode(); log(`✌️ universe view: ${MODE_NAME[state.mode]}`, 'sys'); }
+  else if (a === 'toggle-draw') { if (C.air?.open) closeAirDraw(); else openAirDraw(); }
+}
+
+// -------------------------------------------------------------- air writing
+async function openAirDraw() {
+  if (C.air?.open) return;
+  closeWelcome();
+  if (!state.gestures?.running) await toggleGestures(); // if the camera fails, air writing still works with the mouse
+  if (!C.air) {
+    const mod = await import('./airdraw.js');
+    C.air = new mod.AirDraw({ root: $('#airdraw'), log: (m) => log(`✍️ ${m}`, 'sys'), onExit: closeAirDraw });
+  }
+  const live = !!state.gestures?.running;
+  C.air.show(live ? state.gestures.stream : null);
+  document.body.classList.add('air-writing');
+  if (live) {
+    state.gestures.onDraw = (f) => C.air.frame(f);
+    state.gestures.setMode('draw');
+    log('✍️ air writing ON — ☝️ index finger = write · ✌️ = pen up · hover a button (or 🤏 pinch it) to pick colour / size / pen / eraser / text · ✊ = rub out · 🤙 or 👍 hold = exit', 'em');
+  } else {
+    log('✍️ air writing with the mouse (hand control is off): drag to draw, Esc to exit', 'em');
+  }
+}
+
+function closeAirDraw() {
+  if (!C.air?.open) return;
+  C.air.hide();
+  state.gestures?.setMode('ui');
+  document.body.classList.remove('air-writing');
+  log('✍️ air writing off', 'sys');
 }
 
 // -------------------------------------------------------------- hand cursor
@@ -1310,6 +1342,7 @@ async function toggleGestures() {
   const dock = $('#gesture-dock');
   closeWelcome();
   if (state.gestures?.running) {
+    closeAirDraw();
     state.gestures.stop();
     dock.hidden = true;
     btn.classList.remove('on');
@@ -1325,7 +1358,7 @@ async function toggleGestures() {
     await ensureController();
     log('hand control: starting camera — click "Allow" if the browser asks…', 'sys');
     await state.gestures.start();
-    log('hand control ON — raise a hand: ☝️ move the cursor · 🤏 pinch = click · 🤏 hold + move = drag/rotate/scroll · ✋ rotate · 🙌 spread = zoom · ✊ hold = play/pause · ✌️ hold = next view', 'em');
+    log('hand control ON — raise a hand: ☝️ move the cursor · 🤏 pinch = click · 🤏 hold + move = drag/rotate/scroll · ✋ rotate · 🙌 spread = zoom · ✊ hold = play/pause · ✌️ hold = next view · 🤙 or 👍 hold = air writing', 'em');
   } catch (err) {
     console.error(err);
     btn.classList.remove('on');
@@ -1355,7 +1388,7 @@ async function ensureController() {
       const info = C.GESTURES[g] || C.GESTURES.none;
       $('#gesture-name').textContent = g === 'none' ? '🖐️ waiting for a hand' : `${info.icon} ${info.name}`;
       $('#gesture-status').textContent = gestureHint(g, hint);
-      $$('#gesture-help li').forEach((li) => li.classList.toggle('on', li.dataset.g === g));
+      $$('#gesture-help li').forEach((li) => li.classList.toggle('on', li.dataset.g === g || (li.dataset.g === 'pinky' && g === 'thumbsup')));
     },
   });
   return state.gestures;
@@ -1380,6 +1413,8 @@ function bindUI() {
   $('#cad-next').addEventListener('click', () => selectProto(state.proto + 1));
   $$('.focusable').forEach((p) => p.addEventListener('pointerdown', () => setFocus(p.dataset.focus)));
   $('#btn-gesture').addEventListener('click', toggleGestures);
+  $('#btn-write').addEventListener('click', openAirDraw);
+  $$('[data-start-write]').forEach((b) => b.addEventListener('click', openAirDraw));
   $$('[data-start-hands]').forEach((b) => b.addEventListener('click', () => { if (!state.gestures?.running) toggleGestures(); else closeWelcome(); }));
   $$('[data-start-sandbox]').forEach((b) => b.addEventListener('click', () => { closeWelcome(); setMode('sandbox'); setFocus('universe', true); }));
   $('#btn-help').addEventListener('click', () => { $('#help-modal').hidden = false; });
@@ -1392,6 +1427,7 @@ function bindUI() {
     inp.value = '';
   });
   window.addEventListener('keydown', (e) => {
+    if (C.air?.open && C.air.key(e)) return;
     if (e.key === 'Escape') { $$('.modal').forEach((m) => { m.hidden = true; }); return; }
     if (e.target.closest('input, select, textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
     const k = e.key.toLowerCase();
@@ -1403,6 +1439,7 @@ function bindUI() {
     else if (k === 'arrowleft') selectProto(state.proto - 1);
     else if (k === 'r') { C.uni?.reset(); C.cad?.reset(); }
     else if (k === 'g') toggleGestures();
+    else if (k === 'w') openAirDraw();
     else if (k === 'h' || k === '?') $('#help-modal').hidden = !$('#help-modal').hidden;
     else if (k === '/') { e.preventDefault(); $('#console-input').focus(); }
   });
@@ -1497,7 +1534,7 @@ async function main() {
   try { welcomed = localStorage.getItem('shiva.welcomed') === '1'; } catch (e) { /* storage unavailable */ }
   if (!welcomed && !/[?&]nowelcome/.test(location.search)) $('#welcome').hidden = false;
   // handy from the dev console, and used by the browser tests to feed synthetic hands
-  window.shiva = { state, command, onAction, setMode, setFocus, selectProto, setLaw, ensureController, views: C };
+  window.shiva = { state, command, onAction, setMode, setFocus, selectProto, setLaw, ensureController, openAirDraw, closeAirDraw, views: C };
 }
 
 main();

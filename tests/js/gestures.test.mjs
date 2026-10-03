@@ -37,6 +37,9 @@ const cases = [
   ['three', { fingers: ['ext', 'ext', 'ext', 'curl'], thumb: 'in' }],
   ['pinch', PINCH],
   ['pinch', { fingers: ['bent', 'curl', 'curl', 'curl'], thumb: 'pinch' }],
+  ['thumbsup', { fingers: CURL, thumb: 'out' }],
+  ['pinky', { fingers: ['curl', 'curl', 'curl', 'ext'], thumb: 'in' }],
+  ['pinky', { fingers: ['curl', 'curl', 'curl', 'ext'], thumb: 'out' }], // 🤙 shaka counts too
 ];
 for (const angle of [0, 0.5, -0.5, 1.2, Math.PI]) { // rotation invariance
   for (const [want, cfg] of cases) assert.equal(classifyHand(hand({ ...cfg, angle })).gesture, want, `${want} at ${angle} rad`);
@@ -94,4 +97,31 @@ assert.ok(zoom < 0.8, `spreading two hands zooms in, got factor ${zoom}`);
 events.length = 0;
 for (let k = 0; k < 8; k++) g.process([], (t += 33));
 assert.equal(of('cursor').at(-1)[1].visible, false);
+// 7. air writing: holding the little finger toggles draw mode once; then the fingertip is reported every frame
+events.length = 0;
+const PINKY = { fingers: ['curl', 'curl', 'curl', 'ext'], thumb: 'in' };
+feed(PINKY, 40);
+assert.deepEqual(of('action').map((e) => e[1]), ['toggle-draw'], 'holding 🤙 fires toggle-draw once');
+const frames = [];
+g.onDraw = (f) => frames.push(f);
+g.setMode('draw');
+feed(PINKY, 40); // still held after the switch: must NOT toggle straight back
+assert.equal(of('action').length, 1, 'the toggling pose is locked until released');
+frames.length = 0;
+feed(POINT, 12, (k) => ({ cx: 0.6 - 0.01 * k }));
+const pen = frames.filter((f) => f.gesture === 'point');
+assert.ok(pen.length >= 9, 'pointing = pen down within two frames');
+assert.ok(pen.at(-1).tip.x > pen[0].tip.x, 'fingertip is mirrored like the camera view');
+assert.ok(pen.every((f) => f.tip.x >= 0 && f.tip.x <= 1 && f.tip.y >= 0 && f.tip.y <= 1), 'tip in view coordinates');
+frames.length = 0;
+feed(PINCH, 4);
+feed(POINT, 3);
+assert.equal(frames.filter((f) => f.tap).length, 1, 'a quick pinch is one tap in draw mode');
+feed({ fingers: CURL, thumb: 'in' }, 30);
+assert.ok(frames.some((f) => f.gesture === 'fist'), 'fist reported (eraser)');
+assert.equal(of('action').length, 1, 'fist does not toggle play while writing');
+feed(PINKY, 40);
+assert.deepEqual(of('action').map((e) => e[1]), ['toggle-draw', 'toggle-draw'], 'holding 🤙 again leaves air writing');
+for (let k = 0; k < 4; k++) g.process([], (t += 33));
+assert.equal(frames.at(-1).visible, false, 'losing the hand lifts the pen');
 console.log('gesture tests passed');

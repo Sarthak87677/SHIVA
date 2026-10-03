@@ -18,7 +18,8 @@ Pure NumPy/SciPy/SymPy/matplotlib; optional OpenSCAD, FreeCAD, PyBullet, Jupyter
 `real_world_mapper` imports `tech_evolver` lazily (inside `map`) to avoid a cycle.
 `dashboard_server` turns a run directory into `dashboard_data.json` and serves `shiva_dashboard/web/`
 (plain ES modules, three.js vendored in `web/vendor/`, no build step; MediaPipe hand tracking is loaded from
-a CDN only when hand control is switched on). `gestures.js::classifyHand` is tested by `tests/js/gestures.test.mjs`
+a CDN only when hand control is switched on; `airdraw.js` is the air-writing mode fed by `GestureController` in
+'draw' mode). `gestures.js::classifyHand` and the controller are tested by `tests/js/gestures.test.mjs`
 (run from pytest when Node.js is installed).
 
 ## Invariants to preserve

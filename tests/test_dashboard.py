@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_web_app_files_present():
-    for f in ("index.html", "style.css", "app.js", "charts.js", "gestures.js", "vendor/three.module.js",
+    for f in ("index.html", "style.css", "app.js", "charts.js", "gestures.js", "airdraw.js", "vendor/three.module.js",
               "vendor/OrbitControls.js", "vendor/STLLoader.js", "vendor/RoomEnvironment.js"):
         assert (WEB_DIR / f).is_file(), f
     html = (WEB_DIR / "index.html").read_text(encoding="utf-8")

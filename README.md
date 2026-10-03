@@ -85,6 +85,12 @@ This opens `http://localhost:8765` with:
   A cursor follows your hand. ☝️ move = cursor, 🤏 quick pinch = click, 🤏 pinch + move = drag (rotate a 3-D
   view, move the time bar, scroll), ✋ open palm = rotate the view under the cursor, 🙌 two hands apart /
   together = zoom (or 3 fingers up / down), ✊ hold = play / pause, ✌️ hold = next universe view.
+* **air writing**: hold up your little finger 🤙 (or a thumbs-up 👍), click *✍️ Air write*, or press W. The
+  camera view opens large and mirrored and your index fingertip becomes a pen: ☝️ index finger = write,
+  ✌️ / ✋ = pen up, hover a button ~0.6 s or pinch it to pick a colour, size (S–XL), pen style (Pen, Neon, Brush,
+  Rainbow, Dotted, Spray), the eraser or the text tool (type a word, pick a font: Clean, Classic, Script, Comic,
+  Bold, Code, then pinch to place it), ✊ fist = rub out. Undo / Redo / Clear, Camera / Board / Paper background
+  and Save (PNG of your drawing over the camera frame) are in the bottom bar; the mouse draws too.
   Hand tracking (MediaPipe) runs locally in the browser; no video leaves the computer. The first start
   downloads the hand model (~18 MB) and needs internet; everything else works offline (three.js is vendored).
 
