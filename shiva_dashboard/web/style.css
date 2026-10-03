@@ -322,3 +322,10 @@ body.hand-present { cursor: none; }
 .ad-cursor[data-g="fist"] span { border-style: dashed; background: rgba(255,255,255,0.15); }
 body.air-writing .gesture-dock { display: none; }
 @media (max-width: 640px) { .airdraw [data-ad] { min-width: 36px; height: 36px; } .airdraw [data-ad] em { display: none; } .ad-status .ad-hint { display: none; } }
+
+.hold-toast { position: fixed; left: 50%; top: 18%; transform: translateX(-50%); z-index: 70; pointer-events: none; display: grid; justify-items: center; gap: 6px;
+  background: rgba(15, 15, 18, 0.9); border: 1px solid var(--s5); border-radius: 16px; padding: 14px 22px; box-shadow: 0 0 30px rgba(213, 81, 129, 0.45); min-width: 260px; }
+.hold-toast[hidden] { display: none; }
+.hold-toast b { font-size: 44px; line-height: 1; }
+.hold-toast span { font: 600 14px var(--sans); }
+.hold-toast i { display: block; height: 6px; border-radius: 3px; background: var(--s5); justify-self: start; transition: width 60ms linear; }

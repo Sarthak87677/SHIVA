@@ -78,7 +78,16 @@ export function classifyHand(lm, aspect = 4 / 3) {
   const pinch = d(THUMB_TIP, INDEX_TIP) / palm;
   const thumbOut = d(THUMB_TIP, INDEX_MCP) / palm > 0.6;
   // thumbs up: thumb clearly away from the curled fingers and straightened (tip beyond its IP joint)
-  const thumbUp = d(THUMB_TIP, MIDDLE_MCP) / palm > 0.85 && thumbOut && d(WRIST, THUMB_TIP) > d(WRIST, 3);
+  // thumbs up: in a fist the thumb lies across the fingers (pointing toward the pinky) or along the index,
+  // its tip touching them; in a thumbs-up it sticks out away from the knuckle line, tip clear of every finger.
+  const tx = (lm[THUMB_TIP].x - lm[2].x) * aspect;
+  const ty = lm[THUMB_TIP].y - lm[2].y;
+  const ux = (lm[17].x - lm[INDEX_MCP].x) * aspect;
+  const uy = lm[17].y - lm[INDEX_MCP].y;
+  const tl = Math.hypot(tx, ty);
+  const cosAcross = (tx * ux + ty * uy) / Math.max(tl * Math.hypot(ux, uy), 1e-9);
+  const clearance = Math.min(...[6, 7, 8, 10, 11, 12].map((j) => d(THUMB_TIP, j))) / palm;
+  const thumbUp = tl / palm > 0.35 && (cosAcross < -0.45 || clearance > 0.45);
   const reach = d(WRIST, INDEX_TIP) / Math.max(d(WRIST, INDEX_PIP), 1e-6);
   const [i, m, r, p] = extended;
   let gesture = 'none';

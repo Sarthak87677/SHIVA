@@ -1384,7 +1384,15 @@ async function ensureController() {
     onPalm,
     onZoom,
     onAction,
-    onState: (g, hint) => {
+    onState: (g, hint, progress = 0) => {
+      const toast = $('#hold-toast');
+      const toggling = (g === 'thumbsup' || g === 'pinky') && progress > 0 && progress < 1;
+      toast.hidden = !toggling;
+      if (toggling) {
+        $('b', toast).textContent = g === 'thumbsup' ? '👍' : '🤙';
+        $('span', toast).textContent = C.air?.open ? 'keep holding… closing air writing' : 'keep holding… opening air writing';
+        $('i', toast).style.width = `${Math.round(progress * 100)}%`;
+      }
       const info = C.GESTURES[g] || C.GESTURES.none;
       $('#gesture-name').textContent = g === 'none' ? '🖐️ waiting for a hand' : `${info.icon} ${info.name}`;
       $('#gesture-status').textContent = gestureHint(g, hint);
